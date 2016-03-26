@@ -22,20 +22,7 @@ namespace CalendarBirthdayGiftHelper
 
         public void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
-            try
-            {
-                string priorName = "None";
-                if (e.PriorMenu != null)
-                {
-                    priorName = e.PriorMenu.GetType().Name;
-                }
-                string newName = e.NewMenu.GetType().Name;
-                Log.Verbose("Menu changed from: {0} to {1}", priorName, newName);
-            }
-            catch (Exception ex)
-            {
-                Log.Verbose("Error getting menu name: {0}", ex);
-            }
+            DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
 
             //MouseState state = Mouse.GetState();
 
@@ -70,6 +57,23 @@ namespace CalendarBirthdayGiftHelper
             }
         }
 
+        private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
+        {
+            try
+            {
+                string priorName = "None";
+                if (priorMenu != null)
+                {
+                    priorName = priorMenu.GetType().Name;
+                }
+                string newName = newMenu.GetType().Name;
+                Log.Verbose("Menu changed from: {0} to {1}", priorName, newName);
+            }
+            catch (Exception ex)
+            {
+                Log.Verbose("Error getting menu name: {0}", ex);
+            }
+        }
 
     }
 }
