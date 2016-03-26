@@ -16,7 +16,7 @@ namespace CalendarBirthdayGiftHelper
         public const int NUM_DAYS = 28;
 
         private List<NPCGiftInfo> dayGiftInfo; // Indexed by day
-        private int dayInitializedOn = 0;
+        private string seasonInitializedOn;
 
         public override void Entry(params object[] objects)
         {
@@ -32,13 +32,13 @@ namespace CalendarBirthdayGiftHelper
             if (e.NewMenu == null || !(e.NewMenu is Billboard))
                 return;
 
-            // This has already been run today so the info won't have changed
-            if (dayInitializedOn == Game1.dayOfMonth)
+            // This has already been run this month so the info won't have changed
+            if (seasonInitializedOn != null && seasonInitializedOn == Game1.currentSeason)
                 return;
 
             // Create our map and note when we did it
             dayGiftInfo = new List<NPCGiftInfo>(NUM_DAYS);
-            dayInitializedOn = Game1.dayOfMonth;
+            seasonInitializedOn = Game1.currentSeason;
 
             // Get the calendar and npc gift taste info
             const string calendarDaysFieldName = "calendarDays";
