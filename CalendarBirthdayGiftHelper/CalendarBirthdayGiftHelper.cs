@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -17,6 +18,7 @@ namespace CalendarBirthdayGiftHelper
 
         private List<NPCGiftInfo> dayGiftInfo; // Indexed by day
         private string seasonInitializedOn;
+        private bool isCalendarOpen = false;
 
         public override void Entry(params object[] objects)
         {
@@ -28,6 +30,16 @@ namespace CalendarBirthdayGiftHelper
         public void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
+
+            // If the calendar is already open then this menu event must be it closing
+            if (isCalendarOpen)
+            {
+                Debug.Assert(e.PriorMenu is Billboard && !(e.NewMenu is Billboard), "Calendar thinks it's open when it isn't");
+
+                ControlEvents.MouseChanged -= OnMouseStateChange;
+                isCalendarOpen = false;
+                return;
+            }
 
             if (e.NewMenu == null || !(e.NewMenu is Billboard))
                 return;
@@ -68,6 +80,14 @@ namespace CalendarBirthdayGiftHelper
                 }
                 ++dayNumber;
             }
+
+            isCalendarOpen = true;
+            ControlEvents.MouseChanged += OnMouseStateChange;
+        }
+
+        public void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
+        {
+
         }
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
