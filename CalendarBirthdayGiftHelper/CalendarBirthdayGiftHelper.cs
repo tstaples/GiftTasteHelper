@@ -14,11 +14,10 @@ namespace CalendarBirthdayGiftHelper
 {
     public class CalendarBirthdayGiftHelper : Mod
     {
-        public const int NUM_DAYS = 28;
 
-        private List<NPCGiftInfo> dayGiftInfo; // Indexed by day
+        private Dictionary<int, NPCGiftInfo> dayGiftInfo; // Indexed by day
         private string seasonInitializedOn;
-        private bool isCalendarOpen = false;
+        private Calendar calendar = new Calendar();
 
         public override void Entry(params object[] objects)
         {
@@ -32,12 +31,12 @@ namespace CalendarBirthdayGiftHelper
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
 
             // If the calendar is already open then this menu event must be it closing
-            if (isCalendarOpen)
+            if (calendar.IsOpen)
             {
                 Debug.Assert(e.PriorMenu is Billboard && !(e.NewMenu is Billboard), "Calendar thinks it's open when it isn't");
 
-                ControlEvents.MouseChanged -= OnMouseStateChange;
-                isCalendarOpen = false;
+                //ControlEvents.MouseChanged -= OnMouseStateChange;
+                calendar.IsOpen = false;
                 return;
             }
 
@@ -49,45 +48,42 @@ namespace CalendarBirthdayGiftHelper
                 return;
 
             // Create our map and note when we did it
-            dayGiftInfo = new List<NPCGiftInfo>(NUM_DAYS);
+            dayGiftInfo = new Dictionary<int, NPCGiftInfo>();
             seasonInitializedOn = Game1.currentSeason;
+            calendar.Init((Billboard)e.NewMenu);
 
-            // Get the calendar and npc gift taste info
-            const string calendarDaysFieldName = "calendarDays";
-            Billboard calendar = (Billboard)e.NewMenu; // Yes, the calendar is stuffed in the billboard ;-;
-            FieldInfo calendarDaysInfo = typeof(Billboard).GetField(calendarDaysFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            List<ClickableTextureComponent> calendarDays = (List<ClickableTextureComponent>)calendarDaysInfo.GetValue(calendar);
             Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
-
-            int dayNumber = 1;
-            foreach (ClickableTextureComponent day in calendarDays)
+            List<Calendar.BirthdayEventInfo> birthdayEventInfo = calendar.GetNPCBirthdayEventInfo();
+            foreach (Calendar.BirthdayEventInfo eventInfo in birthdayEventInfo)
             {
-                string hoverText = day.hoverText;
-                if (hoverText.Length == 0 || !hoverText.Contains("Birthday"))
-                    continue;
-
-                string npcName = hoverText.Split(new char[] { '\'', ' ' })[0];
-                if (npcGiftTastes.ContainsKey(npcName))
+                if (npcGiftTastes.ContainsKey(eventInfo.npcName))
                 {
-                    string[] giftTastes = npcGiftTastes[npcName].Split(new char[] { '/' });
+                    string[] giftTastes = npcGiftTastes[eventInfo.npcName].Split(new char[] { '/' });
                     string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
                     string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
 
-                    dayGiftInfo[dayNumber] = new NPCGiftInfo(npcName, favouriteGifts, goodGifts);
+                    dayGiftInfo[eventInfo.day] = new NPCGiftInfo(eventInfo.npcName, favouriteGifts, goodGifts);
 
-                    Log.Verbose("Favourite gifts for {0}: {1}", npcName, Utils.ArrayToString(favouriteGifts));
-                    Log.Verbose("Good gifts for {0}: {1}", npcName, Utils.ArrayToString(goodGifts));
+                    Log.Verbose("Favourite gifts for {0}: {1}", eventInfo.npcName, Utils.ArrayToString(favouriteGifts));
+                    Log.Verbose("Good gifts for {0}: {1}", eventInfo.npcName, Utils.ArrayToString(goodGifts));
                 }
-                ++dayNumber;
             }
 
-            isCalendarOpen = true;
-            ControlEvents.MouseChanged += OnMouseStateChange;
+            //calendar.IsOpen = true;
+            //ControlEvents.MouseChanged += OnMouseStateChange;
         }
 
         public void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {
+            Debug.Assert(calendar != null && Game1.activeClickableMenu != null, "calendar should exist if we're checking mouse state!");
 
+            int mx = e.NewState.X;
+            int my = e.NewState.Y;
+
+            // TODO: move creation of regions etc into separate class so it only has to be done once
+            // First pass to see if the user's mouse is even within the calendar
+            if (!calendar.Bounds.Contains(mx, my))
+                return;
         }
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
