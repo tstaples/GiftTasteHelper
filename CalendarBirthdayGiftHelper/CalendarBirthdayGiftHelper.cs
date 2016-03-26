@@ -63,21 +63,13 @@ namespace CalendarBirthdayGiftHelper
                         string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
                         string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
 
-                        Log.Verbose("Favourite gifts for {0}: {1}", npcName, ArrayToString(favouriteGifts));
-                        Log.Verbose("Good gifts for {0}: {1}", npcName, ArrayToString(goodGifts));
+                        Log.Verbose("Favourite gifts for {0}: {1}", npcName, Utils.ArrayToString(favouriteGifts));
+                        Log.Verbose("Good gifts for {0}: {1}", npcName, Utils.ArrayToString(goodGifts));
                     }
                 }
             }
         }
 
-        private string ArrayToString<T>(T[] array)
-        {
-            string s = "";
-            foreach (T item in array)
-            {
-                s += item.ToString() + ", ";
-            }
-            return s;
-        }
+
     }
 }

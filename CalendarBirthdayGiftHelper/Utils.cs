@@ -6,6 +6,16 @@ namespace CalendarBirthdayGiftHelper
 {
     public class Utils
     {
+        public static string ArrayToString<T>(T[] array)
+        {
+            string s = "";
+            foreach (T item in array)
+            {
+                s += item.ToString() + ", ";
+            }
+            return s;
+        }
+
         public static int[] StringToIntArray(string[] array, int defaultVal=0)
         {
             int[] output = new int[array.Length];
