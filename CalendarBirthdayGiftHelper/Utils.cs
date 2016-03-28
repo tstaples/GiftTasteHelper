@@ -44,5 +44,14 @@ namespace CalendarBirthdayGiftHelper
             FieldInfo fieldInfo = typeof(Instance).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             return (T)fieldInfo.GetValue(instance);
         }
+
+        public static bool IsType<T>(object o)
+        {
+            if (o != null)
+            {
+                return (o.GetType() == typeof(T));
+            }
+            return false;
+        }
     }
 }

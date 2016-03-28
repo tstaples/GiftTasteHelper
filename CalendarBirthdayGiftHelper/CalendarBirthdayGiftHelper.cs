@@ -3,11 +3,13 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Inheritance;
 using StardewModdingAPI.Inheritance.Menus;
 
 namespace CalendarBirthdayGiftHelper
@@ -16,45 +18,65 @@ namespace CalendarBirthdayGiftHelper
     {
 
         private Dictionary<string, NPCGiftInfo> npcGiftInfo; // Indexed by name
-        private string seasonInitializedOn;
         private Calendar calendar = new Calendar();
         private string previousHoverText;
-        private NPCGiftInfo currentGiftInfo; // Info for current day being hovered over
+        private NPCGiftInfo currentGiftInfo = null; // Info for current day being hovered over
+
+        private bool debug_mouseEvent = false;
 
         public override void Entry(params object[] objects)
         {
+            MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
+            GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent; // TODO: subscribe when a valid day is hovered over
+            TimeEvents.SeasonOfYearChanged += OnSeasonChanged;
+        }
 
-            base.Entry(objects);
+        public void OnSeasonChanged(object sender, EventArgsStringChanged e)
+        {
+            if (calendar.IsInitialized)
+            {
+                // Force the calendar to reload the data for the new season
+                calendar.Clear();
+            }
+        }
+
+        public void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
+        {
+            Log.Info(e.PriorMenu.GetType().ToString() + " menu closed.");
+            if (calendar.IsOpen)
+            {
+                Log.Info("Calender was open; closing.");
+                ControlEvents.MouseChanged -= OnMouseStateChange;
+                debug_mouseEvent = false;
+                calendar.IsOpen = false;
+            }
         }
 
         public void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
-
-            // If the calendar is already open then this menu event must be it closing
-            if (calendar.IsOpen)
+            
+            if (!Utils.IsType<Billboard>(e.NewMenu) ||
+                calendar.IsOpen && calendar.IsInitialized)
             {
-                Debug.Assert(e.PriorMenu is Billboard && !(e.NewMenu is Billboard), "Calendar thinks it's open when it isn't");
-
-                ControlEvents.MouseChanged -= OnMouseStateChange;
-                calendar.IsOpen = false;
+                Log.Info("New menu isn't a billboard or the calendar is already open and initialized.");
                 return;
             }
 
-            if (e.NewMenu == null || !(e.NewMenu is Billboard))
-                return;
-
-            // This has already been run this month so the info won't have changed
-            if (seasonInitializedOn != null && seasonInitializedOn == Game1.currentSeason)
-                return;
+            Log.Debug("Calender was opened");
 
             // Create our map and note when we did it. Reset everything else
             npcGiftInfo = new Dictionary<string, NPCGiftInfo>();
-            seasonInitializedOn = Game1.currentSeason;
             calendar.Init((Billboard)e.NewMenu);
             previousHoverText = ""; // reset
             currentGiftInfo = null;
+
+            calendar.IsOpen = true;
+            Debug.Assert(!debug_mouseEvent, "Mouse change event is already subscribed");
+            ControlEvents.MouseChanged += OnMouseStateChange;
+            debug_mouseEvent = true;
+            //GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent;
 
             Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
             List<Calendar.BirthdayEventInfo> birthdayEventInfo = calendar.GetNPCBirthdayEventInfo();
@@ -64,22 +86,20 @@ namespace CalendarBirthdayGiftHelper
                 {
                     string[] giftTastes = npcGiftTastes[eventInfo.npcName].Split(new char[] { '/' });
                     string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
-                    string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
+                    //string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
 
-                    npcGiftInfo[eventInfo.npcName] = new NPCGiftInfo(eventInfo.npcName, favouriteGifts, goodGifts);
+                    npcGiftInfo[eventInfo.npcName] = new NPCGiftInfo(eventInfo.npcName, favouriteGifts/*, goodGifts*/);
 
                     //Log.Verbose("Favourite gifts for {0}: {1}", eventInfo.npcName, Utils.ArrayToString(favouriteGifts));
                     //Log.Verbose("Good gifts for {0}: {1}", eventInfo.npcName, Utils.ArrayToString(goodGifts));
                 }
             }
-
-            calendar.IsOpen = true;
-            ControlEvents.MouseChanged += OnMouseStateChange;
         }
 
         public void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {
-            Debug.Assert(calendar != null && Game1.activeClickableMenu != null, "calendar should exist if we're checking mouse state!");
+            //Debug.Assert(calendar != null && Game1.activeClickableMenu != null && (Game1.activeClickableMenu is Billboard), "calendar should exist if we're checking mouse state!");
+            //Debug.Assert(calendar != null && calendar.IsOpen, "calendar should exist if we're checking mouse state!");
 
             Point newMouse = new Point(e.NewState.X, e.NewState.Y);
             Point oldMouse = new Point(e.PriorState.X, e.PriorState.Y);
@@ -102,17 +122,24 @@ namespace CalendarBirthdayGiftHelper
                     Debug.Assert(npcGiftInfo.ContainsKey(npcName));
 
                     currentGiftInfo = npcGiftInfo[npcName];
-
-                    // TODO: create the tooltip with the gift info
+                    Log.Info(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
 
                     previousHoverText = hoverText;
                 }
-                
+
                 // TODO: draw the tooltip with the gift info
             }
             else
             {
-                // TODO: hide the current birthday info tooltip if it was being drawn
+                currentGiftInfo = null;
+            }
+        }
+
+        private void OnPostRenderEvent(object sender, EventArgs e)
+        {
+            if (currentGiftInfo != null)
+            {
+                //CreateGiftTooltip(currentGiftInfo);
             }
         }
 
@@ -126,11 +153,11 @@ namespace CalendarBirthdayGiftHelper
                     priorName = priorMenu.GetType().Name;
                 }
                 string newName = newMenu.GetType().Name;
-                Log.Verbose("Menu changed from: {0} to {1}", priorName, newName);
+                Log.Info("Menu changed from: " + priorName + " to " + newName);
             }
             catch (Exception ex)
             {
-                Log.Verbose("Error getting menu name: {0}", ex);
+                Log.Debug("Error getting menu name: " + ex);
             }
         }
 

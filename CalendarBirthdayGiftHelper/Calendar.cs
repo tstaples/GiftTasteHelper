@@ -31,6 +31,11 @@ namespace CalendarBirthdayGiftHelper
             set { isOpen = value; }
         }
 
+        public bool IsInitialized
+        {
+            get; private set;
+        }
+
         public Rectangle Bounds
         {
             get { return bounds; }
@@ -43,6 +48,7 @@ namespace CalendarBirthdayGiftHelper
             billboard = baseClass;
             bounds = new Rectangle(billboard.xPositionOnScreen, billboard.yPositionOnScreen, billboard.width, billboard.height);
             calendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(billboard, calendarDaysFieldName);
+            IsInitialized = true;
 
             return this;
         }
@@ -56,6 +62,7 @@ namespace CalendarBirthdayGiftHelper
                 calendarDays = null;
             }
             isOpen = false;
+            IsInitialized = false;
         }
 
         public List<BirthdayEventInfo> GetNPCBirthdayEventInfo()
