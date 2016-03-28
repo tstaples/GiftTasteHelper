@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using StardewModdingAPI;
 
@@ -31,11 +32,17 @@ namespace CalendarBirthdayGiftHelper
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("[CalendarBirthdayGiftHelper] failed to convert {0} to int32: {1}", array[i], ex);
+                    Log.AsyncR("[CalendarBirthdayGiftHelper] failed to convert " + array[i] + "to int32: " + ex);
                     output[i] = defaultVal;
                 }
             }
             return output;
+        }
+
+        public static T GetNativeField<T, Instance>(Instance instance, string fieldName)
+        {
+            FieldInfo fieldInfo = typeof(Instance).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            return (T)fieldInfo.GetValue(instance);
         }
     }
 }

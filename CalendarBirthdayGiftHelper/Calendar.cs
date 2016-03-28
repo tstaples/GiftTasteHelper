@@ -42,9 +42,7 @@ namespace CalendarBirthdayGiftHelper
 
             billboard = baseClass;
             bounds = new Rectangle(billboard.xPositionOnScreen, billboard.yPositionOnScreen, billboard.width, billboard.height);
-
-            FieldInfo calendarDaysInfo = typeof(Billboard).GetField(calendarDaysFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            calendarDays = (List<ClickableTextureComponent>)calendarDaysInfo.GetValue(billboard);
+            calendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(billboard, calendarDaysFieldName);
 
             return this;
         }
@@ -71,7 +69,7 @@ namespace CalendarBirthdayGiftHelper
                 {
                     BirthdayEventInfo eventInfo = new BirthdayEventInfo();
                     eventInfo.day = dayNumber;
-                    eventInfo.npcName = hoverText.Split(new char[] { '\'', ' ' })[0];
+                    eventInfo.npcName = ParseNameFromHoverText(hoverText);
                     eventInfoList.Add(eventInfo);
                 }
             }
@@ -81,7 +79,23 @@ namespace CalendarBirthdayGiftHelper
         public Rectangle GetDayBounds(int dayNumber)
         {
             Debug.Assert(dayNumber > 0 && dayNumber <= NUM_DAYS, "Day number out of range");
-            return calendarDays[dayNumber].bounds;
+            return calendarDays[dayNumber - 1].bounds;
+        }
+
+        public string GetCurrentHoverText()
+        {
+            return Utils.GetNativeField<string, Billboard>(billboard, "hoverText");
+        }
+
+        public static string ParseNameFromHoverText(string text)
+        {
+            string name = "";
+            string[] parts = text.Split(new char[] { '\'', ' ' });
+            if (parts.Length > 0)
+            {
+                name = parts[0];
+            }
+            return name;
         }
     }
 }
