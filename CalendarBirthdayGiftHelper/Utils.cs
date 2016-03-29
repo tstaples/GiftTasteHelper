@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 
 namespace CalendarBirthdayGiftHelper
@@ -52,6 +53,22 @@ namespace CalendarBirthdayGiftHelper
                 return (o.GetType() == typeof(T));
             }
             return false;
+        }
+
+        public static int GetTileSheetIndexFromID(int id)
+        {
+            if (id == 0)
+                return 0;
+
+            const int spriteSize = 16; // each sprite on this sheet is 16x16
+            int x = (int)Math.Floor((float)(id / 24.0f));
+            int y = id % spriteSize;
+            return (y * spriteSize) + x;
+        }
+
+        public static int Clamp(int val, int min, int max)
+        {
+            return Math.Max(Math.Min(val, max), min);
         }
     }
 }

@@ -84,6 +84,11 @@ namespace CalendarBirthdayGiftHelper
             {
                 if (npcGiftTastes.ContainsKey(eventInfo.npcName))
                 {
+                    // NPCGiftTastes format:
+                    // Love_gifts_text / Loved_items / Liked_Gift_Text / Liked_Items / Disliked_gifts_text / Disliked_items / Hated_gifts_text / Hated_Items / Neutral_Gifts_Text / Neutral_Items
+                    //
+                    // NPC tastes take precedence over universal; TODO: check against personal if we're going to use universal too
+
                     string[] giftTastes = npcGiftTastes[eventInfo.npcName].Split(new char[] { '/' });
                     string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
                     //string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
@@ -142,35 +147,70 @@ namespace CalendarBirthdayGiftHelper
 
         private void CreateGiftTooltip(NPCGiftInfo giftInfo)
         {
+            int numItems = giftInfo.FavouriteGifts.Length;
+            if (numItems == 0)
+                return;
+
+            Vector2 maxTextSize = Game1.smallFont.MeasureString(giftInfo.LongestGiftName);
+            Rectangle spriteRect = giftInfo.FavouriteGifts[0].tileSheetSourceRect;
+            float spriteScale = 2.0f;
+
+            int rowPadding = 4;
+            int rowHeight = Math.Max((int)maxTextSize.Y, (int)(spriteRect.Height * spriteScale)) + rowPadding;
+            int width = AdjustForZoom(maxTextSize.X + (spriteRect.Width * spriteScale) + rowPadding);
+            int height = AdjustForZoom(rowHeight * numItems);
+            int x = AdjustForZoom(Game1.getOldMouseX());
+            int y = AdjustForZoom(Game1.getOldMouseY());
+
+            Rectangle tooltipBox = ClampToViewport(x, y, width, height);
+
             SpriteBatch spriteBatch = Game1.spriteBatch;
-            drawSimpleTooltipZoomAware(spriteBatch, giftInfo.FavouriteGifts[0].name, Game1.smallFont);
+            DrawTooltipBackground(spriteBatch, tooltipBox);
+
+            Vector2 spriteOffset = new Vector2(AdjustForZoom(x, 0.25f), AdjustForZoom(y, 0.25f));
+            Vector2 textOffset = new Vector2(spriteOffset.X + (spriteRect.Width * spriteScale) + 4, spriteOffset.Y + (spriteRect.Height / 2));
+            for (int i=0; i < numItems; ++i)
+            {
+                NPCGiftInfo.ItemData item = giftInfo.FavouriteGifts[i];
+                spriteBatch.Draw(Game1.objectSpriteSheet, spriteOffset, item.tileSheetSourceRect, Color.White, 0.0f, Vector2.Zero, spriteScale, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(Game1.smallFont, item.name, textOffset, Game1.textColor);
+
+                spriteOffset.Y += rowHeight;
+                textOffset.Y += rowHeight;
+            }
         }
 
-        public static void drawSimpleTooltipZoomAware(SpriteBatch b, string hoverText, SpriteFont font)
+        private void DrawTooltipBackground(SpriteBatch spriteBatch, Rectangle r)
         {
-            int width = (int)((font.MeasureString(hoverText).X + Game1.tileSize / 2) * Game1.options.zoomLevel);
-            int height = (int)(Math.Max(60, font.MeasureString(hoverText).Y + Game1.tileSize / 2) * Game1.options.zoomLevel); //60 is "cornerSize" * 3 on SDV source
-            int x = (int)((Game1.getOldMouseX() + Game1.tileSize / 2) * Game1.options.zoomLevel);
-            int y = (int)((Game1.getOldMouseY() + Game1.tileSize / 2) * Game1.options.zoomLevel);
-            if (x + width > Game1.viewport.Width / Game1.options.zoomLevel)
+            Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
+            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, r.X, r.Y, r.Width, r.Height, Color.White);
+        }
+
+        private int AdjustForZoom(float v, float tileSizeMod=0.5f)
+        {
+            float tileSize = (float)Game1.tileSize * tileSizeMod;
+            return (int)((v + tileSize) * Game1.options.zoomLevel);
+        }
+
+        private Rectangle ClampToViewport(int x, int y, int w, int h)
+        {
+            Rectangle r = new Rectangle(x, y, w, h);
+            int quarterTileSize = AdjustForZoom(0.0f, 0.25f);
+            int vw = (int)(((float)Game1.viewport.Width) / Game1.options.zoomLevel);
+            int vh = (int)(((float)Game1.viewport.Height) / Game1.options.zoomLevel);
+
+            // TODO: grow the other direction to make it fit
+            if (r.X + r.Width > vw)
             {
-                x = (int)(Game1.viewport.Width / Game1.options.zoomLevel - width);
-                y += (int)((Game1.tileSize / 4) * Game1.options.zoomLevel);
+                r.X = vw - r.Width;
+                r.Y += quarterTileSize;
             }
-            if (y + height > Game1.viewport.Height / Game1.options.zoomLevel)
+            if (r.Y + r.Height > vh)
             {
-                x += (int)((Game1.tileSize / 4) * Game1.options.zoomLevel);
-                y = (int)(Game1.viewport.Height / Game1.options.zoomLevel - height);
+                r.X += quarterTileSize;
+                r.Y = vh - r.Height;
             }
-            IClickableMenu.drawTextureBox(b, Game1.menuTexture, new Rectangle(0, 256, 60, 60), x, y, width, height, Color.White, 1f, true);
-            if (hoverText.Length > 1)
-            {
-                Vector2 tPosVector = new Vector2(x + (Game1.tileSize / 4) * Game1.options.zoomLevel, y + (Game1.tileSize / 4 + 4) * Game1.options.zoomLevel);
-                b.DrawString(font, hoverText, tPosVector + new Vector2(2f, 2f) * Game1.options.zoomLevel, Game1.textShadowColor, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
-                b.DrawString(font, hoverText, tPosVector + new Vector2(0f, 2f) * Game1.options.zoomLevel, Game1.textShadowColor, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
-                b.DrawString(font, hoverText, tPosVector + new Vector2(2f, 0f) * Game1.options.zoomLevel, Game1.textShadowColor, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
-                b.DrawString(font, hoverText, tPosVector, Game1.textColor * 0.9f, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
-            }
+            return r;
         }
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
