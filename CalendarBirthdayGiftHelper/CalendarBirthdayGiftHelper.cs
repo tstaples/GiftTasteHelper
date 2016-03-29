@@ -43,10 +43,10 @@ namespace CalendarBirthdayGiftHelper
 
         public void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
         {
-            Log.Info(e.PriorMenu.GetType().ToString() + " menu closed.");
+            Log.Debug(e.PriorMenu.GetType().ToString() + " menu closed.");
             if (calendar.IsOpen)
             {
-                Log.Info("Calender was open; closing.");
+                Log.Debug("Calender was open; closing.");
                 ControlEvents.MouseChanged -= OnMouseStateChange;
                 debug_mouseEvent = false;
                 calendar.IsOpen = false;
@@ -60,7 +60,7 @@ namespace CalendarBirthdayGiftHelper
             if (!Utils.IsType<Billboard>(e.NewMenu) ||
                 calendar.IsOpen && calendar.IsInitialized)
             {
-                Log.Info("New menu isn't a billboard or the calendar is already open and initialized.");
+                Log.Debug("New menu isn't a billboard or the calendar is already open and initialized.");
                 return;
             }
 
@@ -98,9 +98,6 @@ namespace CalendarBirthdayGiftHelper
 
         public void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {
-            //Debug.Assert(calendar != null && Game1.activeClickableMenu != null && (Game1.activeClickableMenu is Billboard), "calendar should exist if we're checking mouse state!");
-            //Debug.Assert(calendar != null && calendar.IsOpen, "calendar should exist if we're checking mouse state!");
-
             Point newMouse = new Point(e.NewState.X, e.NewState.Y);
             Point oldMouse = new Point(e.PriorState.X, e.PriorState.Y);
             
@@ -116,13 +113,13 @@ namespace CalendarBirthdayGiftHelper
                 // Check if it's the same as before
                 if (hoverText != previousHoverText)
                 {
-                    Log.Async("hover text: " + hoverText);
+                    Log.Debug("hover text: " + hoverText);
 
                     string npcName = Calendar.ParseNameFromHoverText(hoverText);
                     Debug.Assert(npcGiftInfo.ContainsKey(npcName));
 
                     currentGiftInfo = npcGiftInfo[npcName];
-                    Log.Info(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
+                    Log.Debug(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
 
                     previousHoverText = hoverText;
                 }
@@ -139,7 +136,40 @@ namespace CalendarBirthdayGiftHelper
         {
             if (currentGiftInfo != null)
             {
-                //CreateGiftTooltip(currentGiftInfo);
+                CreateGiftTooltip(currentGiftInfo);
+            }
+        }
+
+        private void CreateGiftTooltip(NPCGiftInfo giftInfo)
+        {
+            SpriteBatch spriteBatch = Game1.spriteBatch;
+            drawSimpleTooltipZoomAware(spriteBatch, giftInfo.FavouriteGifts[0].name, Game1.smallFont);
+        }
+
+        public static void drawSimpleTooltipZoomAware(SpriteBatch b, string hoverText, SpriteFont font)
+        {
+            int width = (int)((font.MeasureString(hoverText).X + Game1.tileSize / 2) * Game1.options.zoomLevel);
+            int height = (int)(Math.Max(60, font.MeasureString(hoverText).Y + Game1.tileSize / 2) * Game1.options.zoomLevel); //60 is "cornerSize" * 3 on SDV source
+            int x = (int)((Game1.getOldMouseX() + Game1.tileSize / 2) * Game1.options.zoomLevel);
+            int y = (int)((Game1.getOldMouseY() + Game1.tileSize / 2) * Game1.options.zoomLevel);
+            if (x + width > Game1.viewport.Width / Game1.options.zoomLevel)
+            {
+                x = (int)(Game1.viewport.Width / Game1.options.zoomLevel - width);
+                y += (int)((Game1.tileSize / 4) * Game1.options.zoomLevel);
+            }
+            if (y + height > Game1.viewport.Height / Game1.options.zoomLevel)
+            {
+                x += (int)((Game1.tileSize / 4) * Game1.options.zoomLevel);
+                y = (int)(Game1.viewport.Height / Game1.options.zoomLevel - height);
+            }
+            IClickableMenu.drawTextureBox(b, Game1.menuTexture, new Rectangle(0, 256, 60, 60), x, y, width, height, Color.White, 1f, true);
+            if (hoverText.Length > 1)
+            {
+                Vector2 tPosVector = new Vector2(x + (Game1.tileSize / 4) * Game1.options.zoomLevel, y + (Game1.tileSize / 4 + 4) * Game1.options.zoomLevel);
+                b.DrawString(font, hoverText, tPosVector + new Vector2(2f, 2f) * Game1.options.zoomLevel, Game1.textShadowColor, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
+                b.DrawString(font, hoverText, tPosVector + new Vector2(0f, 2f) * Game1.options.zoomLevel, Game1.textShadowColor, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
+                b.DrawString(font, hoverText, tPosVector + new Vector2(2f, 0f) * Game1.options.zoomLevel, Game1.textShadowColor, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
+                b.DrawString(font, hoverText, tPosVector, Game1.textColor * 0.9f, 0, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 0);
             }
         }
 
