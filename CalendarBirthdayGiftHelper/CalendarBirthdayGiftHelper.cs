@@ -152,40 +152,51 @@ namespace CalendarBirthdayGiftHelper
             if (numItems == 0)
                 return;
 
+            Point mouse = new Point(Game1.getOldMouseX(), Game1.getOldMouseY());
+
             Vector2 maxTextSize = Game1.smallFont.MeasureString(giftInfo.LongestGiftName);
-            Rectangle spriteRect = giftInfo.FavouriteGifts[0].tileSheetSourceRect;
-            float spriteScale = 2.0f;
+            Rectangle spriteRect = giftInfo.FavouriteGifts[0].tileSheetSourceRect; // We just need the dimensions which we assume are all the same
+            float spriteScale = 2.0f; // 16x16 is pretty small
 
             int padding = 4;
             int rowHeight = Math.Max((int)maxTextSize.Y, (int)(spriteRect.Height * spriteScale)) + padding;
             int width = AdjustForZoom(maxTextSize.X + (spriteRect.Width * spriteScale) + padding);
             int height = AdjustForZoom(rowHeight * numItems);
-            int x = AdjustForZoom(Game1.getOldMouseX());
-            int y = AdjustForZoom(Game1.getOldMouseY());
+            int x = AdjustForZoom(mouse.X, -0.25f) - width; // Negative value so it's a bit further from the cursor
+            int y = AdjustForZoom(mouse.Y);
 
-            Rectangle tooltipBox = ClampToViewport(x, y, width, height);
+            int viewportW = (int)(((float)Game1.viewport.Width) / Game1.options.zoomLevel);
+            int viewportH = (int)(((float)Game1.viewport.Height) / Game1.options.zoomLevel);
 
+            // TODO: handle height > viewportH and reduce numItems
+
+            // Approximate where the original tooltip will be positioned
+            Vector2 origHoverTextSize = Game1.dialogueFont.MeasureString(calendar.GetCurrentHoverText());
+            int origTToffsetX = Math.Max(0, AdjustForZoom((int)origHoverTextSize.X + mouse.X, 1.0f) - viewportW);
+
+            // Consider the position of the original tooltip and ensure we don't cover it up
+            Point tooltipPos = ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH);
+
+            // Draw the background of the tooltip
             SpriteBatch spriteBatch = Game1.spriteBatch;
-            DrawTooltipBackground(spriteBatch, tooltipBox);
+            Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
+            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.X, tooltipPos.Y, width, height, Color.White);
 
-            Vector2 spriteOffset = new Vector2(AdjustForZoom(tooltipBox.X, 0.25f), AdjustForZoom(tooltipBox.Y, 0.25f));
+            // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
+            Vector2 spriteOffset = new Vector2(AdjustForZoom(tooltipPos.X, 0.25f), AdjustForZoom(tooltipPos.Y, 0.25f));
             Vector2 textOffset = new Vector2(spriteOffset.X + (spriteRect.Width * spriteScale) + padding, spriteOffset.Y + (spriteRect.Height / 2));
 
             for (int i=0; i < numItems; ++i)
             {
                 NPCGiftInfo.ItemData item = giftInfo.FavouriteGifts[i];
+                // Draw the sprite for the item then the item text
                 spriteBatch.Draw(Game1.objectSpriteSheet, spriteOffset, item.tileSheetSourceRect, Color.White, 0.0f, Vector2.Zero, spriteScale, SpriteEffects.None, 0.0f);
                 spriteBatch.DrawString(Game1.smallFont, item.name, textOffset, Game1.textColor);
 
+                // Move to the next row
                 spriteOffset.Y += rowHeight;
                 textOffset.Y += rowHeight;
             }
-        }
-
-        private void DrawTooltipBackground(SpriteBatch spriteBatch, Rectangle r)
-        {
-            Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
-            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, r.X, r.Y, r.Width, r.Height, Color.White);
         }
 
         private int AdjustForZoom(float v, float tileSizeMod=0.5f)
@@ -194,18 +205,19 @@ namespace CalendarBirthdayGiftHelper
             return (int)((v + tileSize) * Game1.options.zoomLevel);
         }
 
-        private Rectangle ClampToViewport(int x, int y, int w, int h)
+        private Point ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH)
         {
-            Rectangle r = new Rectangle(x, y, w, h);
+            Point p = new Point(x, y);
 
-            int quarterTileSize = AdjustForZoom(0.0f, 0.25f);
-            int vw = (int)(((float)Game1.viewport.Width) / Game1.options.zoomLevel);
-            int vh = (int)(((float)Game1.viewport.Height) / Game1.options.zoomLevel);
+            p.X = ClampToViewportAxis(p.X, w, viewportW);
+            p.Y = ClampToViewportAxis(p.Y, h, viewportH);
 
-            r.X = ClampToViewportAxis(r.X, r.Width, vw);
-            r.Y = ClampToViewportAxis(r.Y, r.Height, vh);
+            // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
+            int halfTileSize = AdjustForZoom(0.0f);
+            p.Y -= (p.X != x) ? halfTileSize : 0;
+            p.X -= (p.Y != y) ? halfTileSize : 0;
 
-            return r;
+            return p;
         }
 
         private int ClampToViewportAxis(int a, int l1, int l2)
