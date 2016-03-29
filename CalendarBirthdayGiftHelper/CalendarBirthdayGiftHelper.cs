@@ -171,25 +171,25 @@ namespace CalendarBirthdayGiftHelper
 
             int padding = 4;
             int rowHeight = Math.Max((int)maxTextSize.Y, (int)(spriteRect.Height * spriteScale)) + padding;
-            int width = AdjustForZoom(maxTextSize.X + (spriteRect.Width * spriteScale) + padding);
-            int height = AdjustForZoom(rowHeight * numItems);
-            int x = AdjustForZoom(mouse.X) - width; // Negative value so it's a bit further from the cursor
-            int y = AdjustForZoom(mouse.Y);
+            int width = AdjustForTileSize(maxTextSize.X + (spriteRect.Width * spriteScale) + padding);
+            int height = AdjustForTileSize(rowHeight * numItems);
+            int x = AdjustForTileSize(mouse.X) - width;
+            int y = AdjustForTileSize(mouse.Y);
 
-            int viewportW = (int)(((float)Game1.viewport.Width) / Game1.options.zoomLevel);
-            int viewportH = (int)(((float)Game1.viewport.Height) / Game1.options.zoomLevel);
+            int viewportW = Game1.viewport.Width;
+            int viewportH = Game1.viewport.Height;
 
             // Reduce the number items shown if it will go off screen.
             // TODO: add a scrollbar or second column
             if (height > viewportH)
             {
                 numItems = viewportH / rowHeight;
-                height = AdjustForZoom(rowHeight * numItems);
+                height = AdjustForTileSize(rowHeight * numItems);
             }
 
             // Approximate where the original tooltip will be positioned
             Vector2 origHoverTextSize = Game1.dialogueFont.MeasureString(calendar.GetCurrentHoverText());
-            int origTToffsetX = Math.Max(0, AdjustForZoom((int)origHoverTextSize.X + mouse.X, 1.0f) - viewportW);
+            int origTToffsetX = Math.Max(0, AdjustForTileSize((int)origHoverTextSize.X + mouse.X, 1.0f) - viewportW);
 
             // Consider the position of the original tooltip and ensure we don't cover it up
             Point tooltipPos = ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH);
@@ -200,7 +200,7 @@ namespace CalendarBirthdayGiftHelper
             IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.X, tooltipPos.Y, width, height, Color.White);
 
             // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
-            Vector2 spriteOffset = new Vector2(AdjustForZoom(tooltipPos.X, 0.25f), AdjustForZoom(tooltipPos.Y, 0.25f));
+            Vector2 spriteOffset = new Vector2(AdjustForTileSize(tooltipPos.X, 0.25f), AdjustForTileSize(tooltipPos.Y, 0.25f));
             Vector2 textOffset = new Vector2(spriteOffset.X + (spriteRect.Width * spriteScale) + padding, spriteOffset.Y + (spriteRect.Height / 2));
 
             for (int i=0; i < numItems; ++i)
@@ -216,10 +216,10 @@ namespace CalendarBirthdayGiftHelper
             }
         }
 
-        private int AdjustForZoom(float v, float tileSizeMod=0.5f)
+        private int AdjustForTileSize(float v, float tileSizeMod=0.5f)
         {
             float tileSize = (float)Game1.tileSize * tileSizeMod;
-            return (int)((v + tileSize) * Game1.options.zoomLevel);
+            return (int)(v + tileSize);
         }
 
         private Point ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH)
@@ -230,7 +230,7 @@ namespace CalendarBirthdayGiftHelper
             p.Y = ClampToViewportAxis(p.Y, h, viewportH);
 
             // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
-            int halfTileSize = AdjustForZoom(0.0f);
+            int halfTileSize = AdjustForTileSize(0.0f);
             p.Y -= (p.X != x) ? halfTileSize : 0;
             p.X -= (p.Y != y) ? halfTileSize : 0;
 
