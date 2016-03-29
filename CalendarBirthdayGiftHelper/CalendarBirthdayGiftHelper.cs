@@ -155,9 +155,9 @@ namespace CalendarBirthdayGiftHelper
             Rectangle spriteRect = giftInfo.FavouriteGifts[0].tileSheetSourceRect;
             float spriteScale = 2.0f;
 
-            int rowPadding = 4;
-            int rowHeight = Math.Max((int)maxTextSize.Y, (int)(spriteRect.Height * spriteScale)) + rowPadding;
-            int width = AdjustForZoom(maxTextSize.X + (spriteRect.Width * spriteScale) + rowPadding);
+            int padding = 4;
+            int rowHeight = Math.Max((int)maxTextSize.Y, (int)(spriteRect.Height * spriteScale)) + padding;
+            int width = AdjustForZoom(maxTextSize.X + (spriteRect.Width * spriteScale) + padding);
             int height = AdjustForZoom(rowHeight * numItems);
             int x = AdjustForZoom(Game1.getOldMouseX());
             int y = AdjustForZoom(Game1.getOldMouseY());
@@ -167,8 +167,9 @@ namespace CalendarBirthdayGiftHelper
             SpriteBatch spriteBatch = Game1.spriteBatch;
             DrawTooltipBackground(spriteBatch, tooltipBox);
 
-            Vector2 spriteOffset = new Vector2(AdjustForZoom(x, 0.25f), AdjustForZoom(y, 0.25f));
-            Vector2 textOffset = new Vector2(spriteOffset.X + (spriteRect.Width * spriteScale) + 4, spriteOffset.Y + (spriteRect.Height / 2));
+            Vector2 spriteOffset = new Vector2(AdjustForZoom(tooltipBox.X, 0.25f), AdjustForZoom(tooltipBox.Y, 0.25f));
+            Vector2 textOffset = new Vector2(spriteOffset.X + (spriteRect.Width * spriteScale) + padding, spriteOffset.Y + (spriteRect.Height / 2));
+
             for (int i=0; i < numItems; ++i)
             {
                 NPCGiftInfo.ItemData item = giftInfo.FavouriteGifts[i];
