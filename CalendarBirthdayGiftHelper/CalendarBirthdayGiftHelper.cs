@@ -21,6 +21,7 @@ namespace CalendarBirthdayGiftHelper
         private Calendar calendar = new Calendar();
         private string previousHoverText;
         private NPCGiftInfo currentGiftInfo = null; // Info for current day being hovered over
+        private bool drawCurrentFrame = false;
 
         public override void Entry(params object[] objects)
         {
@@ -45,7 +46,14 @@ namespace CalendarBirthdayGiftHelper
             {
                 Log.Debug("Calender was open; closing.");
                 ControlEvents.MouseChanged -= OnMouseStateChange;
-                GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
+
+                if (drawCurrentFrame)
+                {
+                    GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
+                    drawCurrentFrame = false;
+                    currentGiftInfo = null;
+                }
+                
                 calendar.IsOpen = false;
             }
         }
@@ -54,10 +62,23 @@ namespace CalendarBirthdayGiftHelper
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
             
-            if (!Utils.IsType<Billboard>(e.NewMenu) ||
-                calendar.IsOpen && calendar.IsInitialized)
+            if (!Utils.IsType<Billboard>(e.NewMenu))
             {
-                Log.Debug("New menu isn't a billboard or the calendar is already open and initialized.");
+                Log.Debug("New menu isn't a billboard.");
+                return;
+            }
+
+            bool isDailyQuestBoard = Utils.GetNativeField<bool, Billboard>((Billboard)e.NewMenu, "dailyQuestBoard");
+            if (isDailyQuestBoard)
+            {
+                Log.Debug("Daily quest board was opened");
+                return;
+            }
+
+            if (calendar.IsOpen && calendar.IsInitialized)
+            {
+                Log.Debug("Resize event detected; re-initializing");
+                calendar.OnResize((Billboard)e.NewMenu);
                 return;
             }
 
@@ -68,6 +89,7 @@ namespace CalendarBirthdayGiftHelper
             calendar.Init((Billboard)e.NewMenu);
             previousHoverText = ""; // reset
             currentGiftInfo = null;
+            drawCurrentFrame = false;
 
             calendar.IsOpen = true;
             ControlEvents.MouseChanged += OnMouseStateChange;
@@ -79,19 +101,12 @@ namespace CalendarBirthdayGiftHelper
             {
                 if (npcGiftTastes.ContainsKey(eventInfo.npcName))
                 {
-                    // NPCGiftTastes format:
-                    // Love_gifts_text / Loved_items / Liked_Gift_Text / Liked_Items / Disliked_gifts_text / Disliked_items / Hated_gifts_text / Hated_Items / Neutral_Gifts_Text / Neutral_Items
-                    //
                     // NPC tastes take precedence over universal; TODO: check against personal if we're going to use universal too
-
                     string[] giftTastes = npcGiftTastes[eventInfo.npcName].Split(new char[] { '/' });
                     string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
                     //string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
 
                     npcGiftInfo[eventInfo.npcName] = new NPCGiftInfo(eventInfo.npcName, favouriteGifts/*, goodGifts*/);
-
-                    //Log.Verbose("Favourite gifts for {0}: {1}", eventInfo.npcName, Utils.ArrayToString(favouriteGifts));
-                    //Log.Verbose("Good gifts for {0}: {1}", eventInfo.npcName, Utils.ArrayToString(goodGifts));
                 }
             }
         }
@@ -120,23 +135,23 @@ namespace CalendarBirthdayGiftHelper
 
                     currentGiftInfo = npcGiftInfo[npcName];
                     //currentGiftInfo = npcGiftInfo["Penny"]; // Temp for testing since she has the most items
-                    Log.Debug(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
+                    //Log.Debug(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
 
                     previousHoverText = hoverText;
                 }
 
-                // TODO: draw the tooltip with the gift info
+                drawCurrentFrame = true;
             }
             else
             {
-                currentGiftInfo = null;
+                drawCurrentFrame = false;
             }
         }
 
         private void OnPostRenderEvent(object sender, EventArgs e)
         {
-            Debug.Assert(calendar.IsOpen, "calendar isn't open u fuk");
-            if (currentGiftInfo != null)
+            // Double check here since we may not be unsubscribed from post render right away when the calendar closes
+            if (drawCurrentFrame && currentGiftInfo != null)
             {
                 CreateGiftTooltip(currentGiftInfo);
             }

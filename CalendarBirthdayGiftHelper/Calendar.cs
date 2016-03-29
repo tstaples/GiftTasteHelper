@@ -53,6 +53,20 @@ namespace CalendarBirthdayGiftHelper
             return this;
         }
 
+        public void OnResize(Billboard baseClass)
+        {
+            if (IsInitialized)
+            {
+                // We seem to lose our billboard ref on re-size, so get it back
+                billboard = baseClass;
+                bounds = new Rectangle(billboard.xPositionOnScreen, billboard.yPositionOnScreen, billboard.width, billboard.height);
+            }
+            else
+            {
+                Init(baseClass);
+            }
+        }
+
         public void Clear()
         {
             billboard = null;
