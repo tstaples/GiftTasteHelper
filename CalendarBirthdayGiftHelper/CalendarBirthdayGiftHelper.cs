@@ -124,6 +124,7 @@ namespace CalendarBirthdayGiftHelper
                     Debug.Assert(npcGiftInfo.ContainsKey(npcName));
 
                     currentGiftInfo = npcGiftInfo[npcName];
+                    //currentGiftInfo = npcGiftInfo["Penny"]; // Temp for testing since she has the most items
                     Log.Debug(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
 
                     previousHoverText = hoverText;
@@ -196,22 +197,27 @@ namespace CalendarBirthdayGiftHelper
         private Rectangle ClampToViewport(int x, int y, int w, int h)
         {
             Rectangle r = new Rectangle(x, y, w, h);
+
             int quarterTileSize = AdjustForZoom(0.0f, 0.25f);
             int vw = (int)(((float)Game1.viewport.Width) / Game1.options.zoomLevel);
             int vh = (int)(((float)Game1.viewport.Height) / Game1.options.zoomLevel);
 
-            // TODO: grow the other direction to make it fit
-            if (r.X + r.Width > vw)
-            {
-                r.X = vw - r.Width;
-                r.Y += quarterTileSize;
-            }
-            if (r.Y + r.Height > vh)
-            {
-                r.X += quarterTileSize;
-                r.Y = vh - r.Height;
-            }
+            r.X = ClampToViewportAxis(r.X, r.Width, vw);
+            r.Y = ClampToViewportAxis(r.Y, r.Height, vh);
+
             return r;
+        }
+
+        private int ClampToViewportAxis(int a, int l1, int l2)
+        {
+            int ca = Utils.Clamp(a, 0, a);
+            if (ca + l1 > l2)
+            {
+                // Offset by how much it extends past the viewport
+                int diff = (ca + l1) - l2;
+                ca -= diff;
+            }
+            return ca;
         }
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
