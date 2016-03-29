@@ -22,13 +22,10 @@ namespace CalendarBirthdayGiftHelper
         private string previousHoverText;
         private NPCGiftInfo currentGiftInfo = null; // Info for current day being hovered over
 
-        private bool debug_mouseEvent = false;
-
         public override void Entry(params object[] objects)
         {
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
-            GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent; // TODO: subscribe when a valid day is hovered over
             TimeEvents.SeasonOfYearChanged += OnSeasonChanged;
         }
 
@@ -48,7 +45,7 @@ namespace CalendarBirthdayGiftHelper
             {
                 Log.Debug("Calender was open; closing.");
                 ControlEvents.MouseChanged -= OnMouseStateChange;
-                debug_mouseEvent = false;
+                GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
                 calendar.IsOpen = false;
             }
         }
@@ -73,10 +70,8 @@ namespace CalendarBirthdayGiftHelper
             currentGiftInfo = null;
 
             calendar.IsOpen = true;
-            Debug.Assert(!debug_mouseEvent, "Mouse change event is already subscribed");
             ControlEvents.MouseChanged += OnMouseStateChange;
-            debug_mouseEvent = true;
-            //GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent;
+            GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent;
 
             Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
             List<Calendar.BirthdayEventInfo> birthdayEventInfo = calendar.GetNPCBirthdayEventInfo();
@@ -140,6 +135,7 @@ namespace CalendarBirthdayGiftHelper
 
         private void OnPostRenderEvent(object sender, EventArgs e)
         {
+            Debug.Assert(calendar.IsOpen, "calendar isn't open u fuk");
             if (currentGiftInfo != null)
             {
                 CreateGiftTooltip(currentGiftInfo);
@@ -162,13 +158,19 @@ namespace CalendarBirthdayGiftHelper
             int rowHeight = Math.Max((int)maxTextSize.Y, (int)(spriteRect.Height * spriteScale)) + padding;
             int width = AdjustForZoom(maxTextSize.X + (spriteRect.Width * spriteScale) + padding);
             int height = AdjustForZoom(rowHeight * numItems);
-            int x = AdjustForZoom(mouse.X, -0.25f) - width; // Negative value so it's a bit further from the cursor
+            int x = AdjustForZoom(mouse.X) - width; // Negative value so it's a bit further from the cursor
             int y = AdjustForZoom(mouse.Y);
 
             int viewportW = (int)(((float)Game1.viewport.Width) / Game1.options.zoomLevel);
             int viewportH = (int)(((float)Game1.viewport.Height) / Game1.options.zoomLevel);
 
-            // TODO: handle height > viewportH and reduce numItems
+            // Reduce the number items shown if it will go off screen.
+            // TODO: add a scrollbar or second column
+            if (height > viewportH)
+            {
+                numItems = viewportH / rowHeight;
+                height = AdjustForZoom(rowHeight * numItems);
+            }
 
             // Approximate where the original tooltip will be positioned
             Vector2 origHoverTextSize = Game1.dialogueFont.MeasureString(calendar.GetCurrentHoverText());
