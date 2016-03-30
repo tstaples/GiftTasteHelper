@@ -16,6 +16,9 @@ namespace CalendarBirthdayGiftHelper
 {
     public class CalendarBirthdayGiftHelper : Mod
     {
+        private Dictionary<Type, IGiftHelper> giftHelpers;
+        //private CalendarGiftHelper calendarGiftHelper = new CalendarGiftHelper();
+        private IGiftHelper currentGiftHelper = null;
 
         private Dictionary<string, NPCGiftInfo> npcGiftInfo; // Indexed by name
         private Calendar calendar = new Calendar();
@@ -25,9 +28,16 @@ namespace CalendarBirthdayGiftHelper
 
         public override void Entry(params object[] objects)
         {
+            giftHelpers = new Dictionary<Type, IGiftHelper>(1)
+            {
+                {typeof(Billboard), new CalendarGiftHelper() }
+            };
+
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
-            TimeEvents.SeasonOfYearChanged += OnSeasonChanged;
+            //TimeEvents.SeasonOfYearChanged += OnSeasonChanged;
+
+            //InitGiftData();
         }
 
         public void OnSeasonChanged(object sender, EventArgsStringChanged e)
@@ -61,32 +71,82 @@ namespace CalendarBirthdayGiftHelper
         public void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
-            
-            if (!Utils.IsType<Billboard>(e.NewMenu))
+
+            Type newMenuType = e.NewMenu.GetType();
+            if (e.PriorMenu.GetType() == newMenuType && currentGiftHelper != null)
             {
-                Log.Debug("New menu isn't a billboard.");
+                // resize event
+                currentGiftHelper.OnResize(e.NewMenu);
                 return;
             }
 
-            bool isDailyQuestBoard = Utils.GetNativeField<bool, Billboard>((Billboard)e.NewMenu, "dailyQuestBoard");
-            if (isDailyQuestBoard)
+            if (giftHelpers.ContainsKey(newMenuType))
             {
-                Log.Debug("Daily quest board was opened");
-                return;
+                if (currentGiftHelper != null)
+                    currentGiftHelper.OnClose();
+
+                currentGiftHelper = giftHelpers[newMenuType];
+                currentGiftHelper.OnOpen(e.NewMenu);
             }
 
-            if (calendar.IsOpen && calendar.IsInitialized)
+
+            if (Utils.IsType<Billboard>(e.NewMenu))
             {
-                Log.Debug("Resize event detected; re-initializing");
-                calendar.OnResize((Billboard)e.NewMenu);
-                return;
+                
+
+                // The daily quest board logic is also in the billboard, so check for that
+                bool isDailyQuestBoard = Utils.GetNativeField<bool, Billboard>((Billboard)e.NewMenu, "dailyQuestBoard");
+                if (isDailyQuestBoard)
+                {
+                    Log.Debug("Daily quest board was opened");
+                    return;
+                }
+
+                // Menu changed will fire on resize even if the menu didn't change
+                // so if it's already open and initialized then we don't need to re-init
+                if (calendar.IsOpen && calendar.IsInitialized)
+                {
+                    Log.Debug("Resize event detected; re-initializing");
+                    calendar.OnResize((Billboard)e.NewMenu);
+                    return;
+                }
+                // TODO: prevent re-init of calendar if it has been already. Will need to move even subscription logic
+
+                Log.Debug("Calender was opened");
+                InitCalendar((Billboard)e.NewMenu);
             }
+            else if (Utils.IsType<SocialPage>(e.NewMenu))
+            {
+                Log.Debug("Social page opened");
+            }
+        }
 
-            Log.Debug("Calender was opened");
-
-            // Create our map and note when we did it. Reset everything else
+        private void InitGiftData()
+        {
+            Debug.Assert(npcGiftInfo == null, "npcGiftInfo shouldn't be initialized if InitGiftData is being called");
             npcGiftInfo = new Dictionary<string, NPCGiftInfo>();
-            calendar.Init((Billboard)e.NewMenu);
+
+            // TODO: filter out names that will never be used
+            Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
+            foreach (KeyValuePair<string, string> giftTaste in npcGiftTastes)
+            {
+                string[] giftTastes = giftTaste.Value.Split(new char[] { '/' });
+                string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
+
+                npcGiftInfo[giftTaste.Key] = new NPCGiftInfo(giftTaste.Key, favouriteGifts);
+            }
+        }
+
+        private void InitSocialPage(SocialPage socialPage)
+        {
+            List<ClickableTextureComponent> friendSlots = Utils.GetNativeField<List<ClickableTextureComponent>, SocialPage>(socialPage, "friendNames");
+        }
+
+        private void InitCalendar(Billboard billboard)
+        {
+            // Create our map and note when we did it. Reset everything else
+            //npcGiftInfo = new Dictionary<string, NPCGiftInfo>();
+            calendar.Init(billboard);
             previousHoverText = ""; // reset
             currentGiftInfo = null;
             drawCurrentFrame = false;
@@ -95,20 +155,20 @@ namespace CalendarBirthdayGiftHelper
             ControlEvents.MouseChanged += OnMouseStateChange;
             GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent;
 
-            Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
-            List<Calendar.BirthdayEventInfo> birthdayEventInfo = calendar.GetNPCBirthdayEventInfo();
-            foreach (Calendar.BirthdayEventInfo eventInfo in birthdayEventInfo)
-            {
-                if (npcGiftTastes.ContainsKey(eventInfo.npcName))
-                {
-                    // NPC tastes take precedence over universal; TODO: check against personal if we're going to use universal too
-                    string[] giftTastes = npcGiftTastes[eventInfo.npcName].Split(new char[] { '/' });
-                    string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
-                    //string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
+            //Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
+            //List<Calendar.BirthdayEventInfo> birthdayEventInfo = calendar.GetNPCBirthdayEventInfo();
+            //foreach (Calendar.BirthdayEventInfo eventInfo in birthdayEventInfo)
+            //{
+            //    if (npcGiftTastes.ContainsKey(eventInfo.npcName))
+            //    {
+            //        // NPC tastes take precedence over universal; TODO: check against personal if we're going to use universal too
+            //        string[] giftTastes = npcGiftTastes[eventInfo.npcName].Split(new char[] { '/' });
+            //        string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
+            //        //string[] goodGifts = giftTastes[3].Split(new char[] { ' ' });
 
-                    npcGiftInfo[eventInfo.npcName] = new NPCGiftInfo(eventInfo.npcName, favouriteGifts/*, goodGifts*/);
-                }
-            }
+            //        npcGiftInfo[eventInfo.npcName] = new NPCGiftInfo(eventInfo.npcName, favouriteGifts/*, goodGifts*/);
+            //    }
+            //}
         }
 
         public void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
