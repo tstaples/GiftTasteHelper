@@ -54,6 +54,7 @@
     <Compile Include="CalendarBirthdayGiftHelper.cs" />
     <Compile Include="NPCGiftInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SVector2.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
