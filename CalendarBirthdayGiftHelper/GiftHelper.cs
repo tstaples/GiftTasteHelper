@@ -14,10 +14,16 @@ namespace CalendarBirthdayGiftHelper
         protected NPCGiftInfo currentGiftInfo = null;
         protected bool drawCurrentFrame = false;
         protected bool isInitialized = false;
+        protected bool isOpen = false;
 
         public bool IsInitialized()
         {
             return isInitialized;
+        }
+
+        public bool IsOpen()
+        {
+            return isOpen;
         }
 
         public virtual void Init(IClickableMenu menu)
@@ -54,6 +60,8 @@ namespace CalendarBirthdayGiftHelper
         public virtual bool OnOpen(IClickableMenu menu)
         {
             currentGiftInfo = null;
+            isOpen = true;
+
             return true;
         }
 
@@ -66,6 +74,7 @@ namespace CalendarBirthdayGiftHelper
         {
             currentGiftInfo = null;
             drawCurrentFrame = false;
+            isOpen = false;
         }
 
         public virtual void OnMouseStateChange(EventArgsMouseStateChanged e)

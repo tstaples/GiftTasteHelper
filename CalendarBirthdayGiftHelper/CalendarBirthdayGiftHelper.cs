@@ -9,8 +9,6 @@ using StardewValley;
 using StardewValley.Menus;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Inheritance;
-using StardewModdingAPI.Inheritance.Menus;
 
 namespace CalendarBirthdayGiftHelper
 {
@@ -18,7 +16,6 @@ namespace CalendarBirthdayGiftHelper
     {
         private Dictionary<Type, IGiftHelper> giftHelpers;
         private IGiftHelper currentGiftHelper = null;
-        private bool lastMenuWasClosed = false;
 
         public override void Entry(params object[] objects)
         {
@@ -43,7 +40,6 @@ namespace CalendarBirthdayGiftHelper
                 GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
 
                 currentGiftHelper.OnClose();
-                lastMenuWasClosed = true;
             }
         }
 
@@ -52,23 +48,26 @@ namespace CalendarBirthdayGiftHelper
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
 
             Type newMenuType = e.NewMenu.GetType();
-            if (!lastMenuWasClosed && e.PriorMenu != null && e.PriorMenu.GetType() == newMenuType && currentGiftHelper != null)
+            if (currentGiftHelper != null && currentGiftHelper.IsOpen() && 
+                e.PriorMenu != null && e.PriorMenu.GetType() == newMenuType)
             {
                 // resize event
                 Log.Debug("[OnClickableMenuChanged] Invoking resize event on helper: " + currentGiftHelper.GetType().ToString());
+
                 currentGiftHelper.OnResize(e.NewMenu);
                 return;
             }
 
-            lastMenuWasClosed = false;
             if (giftHelpers.ContainsKey(newMenuType))
             {
                 // Close the current gift helper
                 if (currentGiftHelper != null)
                 {
                     Log.Debug("[OnClickableMenuChanged] Closing current helper: " + currentGiftHelper.GetType().ToString());
+
                     ControlEvents.MouseChanged -= OnMouseStateChange;
                     GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
+
                     currentGiftHelper.OnClose();
                 }
 
@@ -76,12 +75,14 @@ namespace CalendarBirthdayGiftHelper
                 if (!currentGiftHelper.IsInitialized())
                 {
                     Log.Debug("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
+
                     currentGiftHelper.Init(e.NewMenu);
                 }
 
                 if (currentGiftHelper.OnOpen(e.NewMenu))
                 {
                     Log.Debug("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
+
                     // Only subscribe to the events if it opened successfully
                     ControlEvents.MouseChanged += OnMouseStateChange;
                     GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent;

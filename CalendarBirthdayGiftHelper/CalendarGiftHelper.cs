@@ -34,11 +34,13 @@ namespace CalendarBirthdayGiftHelper
 
             Debug.Assert(!calendar.IsOpen);
 
+            // The calendar/billboard's internal data is re-initialized every time it's opened
+            // So we need to update ours as well.
             calendar.Init((Billboard)menu);
+            calendar.IsOpen = true;
+            previousHoverText = "";
 
             Log.Debug("[OnOpen] Opening calendar");
-            previousHoverText = "";
-            calendar.IsOpen = true;
 
             return base.OnOpen(menu);
         }
