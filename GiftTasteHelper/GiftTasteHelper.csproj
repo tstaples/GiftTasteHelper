@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\SMAPI\StardewModdingAPI\bin\Debug\Mods\CalendarBirthdayGiftHelper\</OutputPath>
+    <OutputPath>..\..\..\SMAPI\StardewModdingAPI\bin\Debug\Mods\GiftTasteHelper\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calendar.cs" />
-    <Compile Include="CalendarBirthdayGiftHelper.cs" />
+    <Compile Include="GiftTasteHelper.cs" />
     <Compile Include="CalendarGiftHelper.cs" />
     <Compile Include="GiftHelper.cs" />
     <Compile Include="IGiftHelper.cs" />

@@ -8,7 +8,7 @@ using StardewValley.Menus;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
-namespace CalendarBirthdayGiftHelper
+namespace GiftTasteHelper
 {
     public class CalendarGiftHelper : GiftHelper
     {

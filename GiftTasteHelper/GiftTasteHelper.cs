@@ -10,9 +10,9 @@ using StardewValley.Menus;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
-namespace CalendarBirthdayGiftHelper
+namespace GiftTasteHelper
 {
-    public class CalendarBirthdayGiftHelper : Mod
+    public class GiftTasteHelper : Mod
     {
         private Dictionary<Type, IGiftHelper> giftHelpers;
         private IGiftHelper currentGiftHelper = null;

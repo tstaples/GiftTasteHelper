@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 
-namespace CalendarBirthdayGiftHelper
+namespace GiftTasteHelper
 {
     public class NPCGiftInfo
     {

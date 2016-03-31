@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 
-namespace CalendarBirthdayGiftHelper
+namespace GiftTasteHelper
 {
     public class Utils
     {
