@@ -59,6 +59,10 @@ namespace GiftTasteHelper
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
 
+            // Reset flag
+            wasMenuClosedInvoked = false;
+            previousMenu = e.PriorMenu;
+
             Type newMenuType = e.NewMenu.GetType();
             if (currentGiftHelper != null && currentGiftHelper.IsOpen() && 
                 e.PriorMenu != null && e.PriorMenu.GetType() == newMenuType)
@@ -117,21 +121,21 @@ namespace GiftTasteHelper
         private void UnsubscribeEvents()
         {
             ControlEvents.MouseChanged -= OnMouseStateChange;
-        #if SMAPI_VERSION_39_2
+#if SMAPI_VERSION_39_3_AND_PRIOR
             GraphicsEvents.DrawTick -= OnDraw;
-        #else
+#else
             GraphicsEvents.OnPostRenderEvent -= OnDraw;
-        #endif
+#endif
         }
 
         private void SubscribeEvents()
         {
             ControlEvents.MouseChanged += OnMouseStateChange;
-        #if SMAPI_VERSION_39_2
+#if SMAPI_VERSION_39_3_AND_PRIOR
             GraphicsEvents.DrawTick += OnDraw;
-        #else
+#else
             GraphicsEvents.OnPostRenderEvent += OnDraw;
-        #endif
+#endif
         }
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)

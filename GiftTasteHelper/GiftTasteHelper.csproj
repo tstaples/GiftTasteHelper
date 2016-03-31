@@ -16,10 +16,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\SMAPI\StardewModdingAPI\bin\Debug\Mods\GiftTasteHelper\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SMAPI_VERSION_39_2</DefineConstants>
+    <OutputPath>..\..\..\SMAPI\39.2\StardewModdingAPI\bin\x86\Debug\Mods\GiftTasteHelper\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;SMAPI_VERSION_39_3_AND_PRIOR</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

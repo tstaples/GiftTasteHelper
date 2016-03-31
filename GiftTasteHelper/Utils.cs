@@ -11,12 +11,12 @@ namespace GiftTasteHelper
     {
         public static void DebugLog(string message)
         {
-        #if DEBUG && SMAPI_VERSION_39_2
+#if DEBUG && SMAPI_VERSION_39_3_AND_PRIOR
             // Log.Debug doesn't work in 39.2 since defining DEBUG breaks stuff...
             Log.Info(message);
-        #elif DEBUG
+#elif DEBUG
             Log.Debug(message);
-        #endif
+#endif
         }
 
         public static string ArrayToString<T>(T[] array)

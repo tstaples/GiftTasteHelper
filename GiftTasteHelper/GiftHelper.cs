@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Menus;
 using StardewModdingAPI;
@@ -15,6 +17,17 @@ namespace GiftTasteHelper
         protected bool drawCurrentFrame = false;
         protected bool isInitialized = false;
         protected bool isOpen = false;
+
+        public float ZoomLevel
+        {
+            // I believe draw only became stable in 39.4/5
+#if SMAPI_VERSION_39_3_AND_PRIOR
+            get { return Game1.options.zoomLevel; }
+#else
+            // SMAPI's draw call will handle zoom
+            get { return 1.0f; }
+#endif
+        }
 
         public bool IsInitialized()
         {
@@ -85,6 +98,23 @@ namespace GiftTasteHelper
         public virtual void OnDraw()
         {
             // Empty
+        }
+
+        protected void DrawText(string text, SVector2 pos)
+        {
+#if SMAPI_VERSION_39_3_AND_PRIOR
+            // If we draw the text with pointClamp it's going to look very bad when scaled
+            Game1.graphics.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+#endif
+            Game1.spriteBatch.DrawString(Game1.smallFont, text, pos.ToXNAVector2(), Game1.textColor, 0.0f, Vector2.Zero, ZoomLevel, SpriteEffects.None, 0.0f);
+        }
+
+        protected void DrawTexture(Texture2D texture, SVector2 pos, Rectangle source, float scale = 1.0f)
+        {
+#if SMAPI_VERSION_39_3_AND_PRIOR
+            Game1.graphics.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+#endif
+            Game1.spriteBatch.Draw(texture, pos.ToXNAVector2(), source, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0.0f);
         }
     }
 }
