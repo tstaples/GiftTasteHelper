@@ -43,7 +43,7 @@ namespace GiftTasteHelper
 
         private ItemData[] ParseGifts(int[] ids)
         {
-            ItemData[] itemList = new ItemData[ids.Length];
+            List<ItemData> itemList = new List<ItemData>();
             for (int i = 0; i < ids.Length; ++i)
             {
                 if (!Game1.objectInformation.ContainsKey(ids[i]))
@@ -59,7 +59,7 @@ namespace GiftTasteHelper
                 itemData.name = parts[0];
                 itemData.ID = ids[i];
                 itemData.tileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, ids[i], 16, 16);
-                itemList[i] = itemData;
+                itemList.Add(itemData);
 
                 if (itemData.name.Length > longestGiftNameLen)
                 {
@@ -67,7 +67,7 @@ namespace GiftTasteHelper
                     longestGiftNameLen = itemData.name.Length;
                 }
             }
-            return itemList;
+            return itemList.ToArray();
         }
     }
 }
