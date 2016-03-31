@@ -147,6 +147,8 @@ namespace GiftTasteHelper
 
             // Draw the background of the tooltip
             SpriteBatch spriteBatch = Game1.spriteBatch;
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+
             Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
             IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.xi, tooltipPos.yi, width, height, Color.White);
 
@@ -172,6 +174,7 @@ namespace GiftTasteHelper
                 spriteOffset.y += rowHeight;
                 textOffset.y += rowHeight;
             }
+            spriteBatch.End();
         }
 
         private int AdjustForTileSize(float v, float tileSizeMod = 0.5f)

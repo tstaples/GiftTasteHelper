@@ -49,7 +49,7 @@ namespace GiftTasteHelper
                 }
                 catch (Exception ex)
                 {
-                    Log.AsyncR("[CalendarBirthdayGiftHelper] failed to convert " + array[i] + "to int32: " + ex);
+                    Log.Error("[CalendarBirthdayGiftHelper] failed to convert " + array[i] + "to int32: " + ex);
                     output[i] = defaultVal;
                 }
             }

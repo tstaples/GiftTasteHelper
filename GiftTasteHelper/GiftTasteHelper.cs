@@ -17,6 +17,9 @@ namespace GiftTasteHelper
         private Dictionary<Type, IGiftHelper> giftHelpers;
         private IGiftHelper currentGiftHelper = null;
 
+        private IClickableMenu previousMenu = null;
+        private bool wasMenuClosedInvoked = false;
+
         public override void Entry(params object[] objects)
         {
             giftHelpers = new Dictionary<Type, IGiftHelper>(1)
@@ -24,20 +27,31 @@ namespace GiftTasteHelper
                 {typeof(Billboard), new CalendarGiftHelper() }
             };
 
-            MenuEvents.MenuClosed += OnClickableMenuClosed;
+            //MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
+            GameEvents.UpdateTick += OnUpdateTick;
         }
 
-        public void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
+        private void OnUpdateTick(object sender, EventArgs e)
         {
-            Utils.DebugLog(e.PriorMenu.GetType().ToString() + " menu closed.");
+            if (!wasMenuClosedInvoked && previousMenu != null && Game1.activeClickableMenu == null)
+            {
+                wasMenuClosedInvoked = true;
+                OnClickableMenuClosed(previousMenu);
+            }
+        }
+
+        //public void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
+        public void OnClickableMenuClosed(IClickableMenu priorMenu)
+        {
+            Utils.DebugLog(previousMenu.GetType().ToString() + " menu closed.");
 
             if (currentGiftHelper != null)
             {
                 Utils.DebugLog("[OnClickableMenuClosed] Closing current helper: " + currentGiftHelper.GetType().ToString());
 
                 ControlEvents.MouseChanged -= OnMouseStateChange;
-                GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
+                GraphicsEvents.DrawTick -= OnPostRenderEvent;
 
                 currentGiftHelper.OnClose();
             }
@@ -46,6 +60,10 @@ namespace GiftTasteHelper
         public void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
+
+            // Reset flag
+            wasMenuClosedInvoked = false;
+            previousMenu = e.PriorMenu;
 
             Type newMenuType = e.NewMenu.GetType();
             if (currentGiftHelper != null && currentGiftHelper.IsOpen() && 
@@ -66,7 +84,7 @@ namespace GiftTasteHelper
                     Utils.DebugLog("[OnClickableMenuChanged] Closing current helper: " + currentGiftHelper.GetType().ToString());
 
                     ControlEvents.MouseChanged -= OnMouseStateChange;
-                    GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
+                    GraphicsEvents.DrawTick -= OnPostRenderEvent;
 
                     currentGiftHelper.OnClose();
                 }
@@ -85,7 +103,7 @@ namespace GiftTasteHelper
 
                     // Only subscribe to the events if it opened successfully
                     ControlEvents.MouseChanged += OnMouseStateChange;
-                    GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent;
+                    GraphicsEvents.DrawTick += OnPostRenderEvent;
                 }
             }
         }
