@@ -115,9 +115,8 @@ namespace GiftTasteHelper
             SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
 
             // The longest length of text will help us determine how wide the tooltip box should be 
-            SVector2 maxGiftNameSize = SVector2.MeasureString(giftInfo.LongestGiftName, Game1.smallFont);
             SVector2 titleSize = SVector2.MeasureString(title, Game1.smallFont);
-            SVector2 maxTextSize = (titleSize.x - scaledSpriteSize.x > maxGiftNameSize.x) ? titleSize : maxGiftNameSize;
+            SVector2 maxTextSize = (titleSize.x - scaledSpriteSize.x > giftInfo.MaxGiftNameSize.x) ? titleSize : giftInfo.MaxGiftNameSize;
 
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 

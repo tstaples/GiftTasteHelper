@@ -7,7 +7,7 @@ namespace GiftTasteHelper
 {
     public class SVector2
     {
-        public SVector2 Zero { get { return new SVector2(); } }
+        public static SVector2 Zero { get { return new SVector2(); } }
 
         public float x { get; set; }
         public float y { get; set; }

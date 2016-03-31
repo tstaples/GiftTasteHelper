@@ -22,19 +22,17 @@ namespace GiftTasteHelper
             }
         }
 
-        private string npcName;
-        private ItemData[] favouriteGifts;
-        private string longestGiftName; // Used for finding how wide to make the tooltip
-        private int longestGiftNameLen;
-
+        public SVector2 MaxGiftNameSize { get; private set; }
         public string Name { get { return npcName; } }
         public ItemData[] FavouriteGifts { get { return favouriteGifts; } }
-        public string LongestGiftName { get { return longestGiftName; } }
+
+        private string npcName;
+        private ItemData[] favouriteGifts;
 
         public NPCGiftInfo(string name, string[] favourite)
         {
             npcName = name;
-            longestGiftNameLen = 0;
+            MaxGiftNameSize = SVector2.Zero;
 
             int[] favouriteGiftIDs = Utils.StringToIntArray(favourite);
 
@@ -61,10 +59,10 @@ namespace GiftTasteHelper
                 itemData.tileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, ids[i], 16, 16);
                 itemList.Add(itemData);
 
-                if (itemData.name.Length > longestGiftNameLen)
+                SVector2 nameLength = SVector2.MeasureString(itemData.name, Game1.smallFont);
+                if (nameLength.xi > MaxGiftNameSize.xi)
                 {
-                    longestGiftName = itemData.name;
-                    longestGiftNameLen = itemData.name.Length;
+                    MaxGiftNameSize = nameLength;
                 }
             }
             return itemList.ToArray();
