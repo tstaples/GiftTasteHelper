@@ -77,24 +77,6 @@ namespace GiftTasteHelper
             IsInitialized = false;
         }
 
-        //public List<BirthdayEventInfo> GetNPCBirthdayEventInfo()
-        //{
-        //    List<BirthdayEventInfo> eventInfoList = new List<BirthdayEventInfo>();
-        //    int dayNumber = 1;
-        //    foreach (ClickableTextureComponent day in calendarDays)
-        //    {
-        //        string hoverText = day.hoverText;
-        //        if (hoverText.Length != 0 && hoverText.Contains("Birthday"))
-        //        {
-        //            BirthdayEventInfo eventInfo = new BirthdayEventInfo();
-        //            eventInfo.day = dayNumber;
-        //            eventInfo.npcName = ParseNameFromHoverText(hoverText);
-        //            eventInfoList.Add(eventInfo);
-        //        }
-        //    }
-        //    return eventInfoList;
-        //}
-
         public Rectangle GetDayBounds(int dayNumber)
         {
             Debug.Assert(dayNumber > 0 && dayNumber <= NUM_DAYS, "Day number out of range");

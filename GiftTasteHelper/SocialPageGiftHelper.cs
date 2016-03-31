@@ -8,10 +8,10 @@ using StardewModdingAPI.Events;
 
 namespace GiftTasteHelper
 {
+    // NOTE: Not implemented yet
     public class SocialPageGiftHelper : GiftHelper
     {
         private List<ClickableTextureComponent> friendSlots;
-        //private SocialPage socialPage = null;
 
         public override void Init(IClickableMenu menu)
         {
@@ -20,7 +20,6 @@ namespace GiftTasteHelper
 
         public override bool OnOpen(IClickableMenu menu)
         {
-            //socialPage = (SocialPage)menu;
             friendSlots = Utils.GetNativeField<List<ClickableTextureComponent>, SocialPage>((SocialPage)menu, "friendNames");
 
             return base.OnOpen(menu);
@@ -28,7 +27,6 @@ namespace GiftTasteHelper
 
         public override void OnResize(IClickableMenu menu)
         {
-            //socialPage = (SocialPage)menu;
         }
 
         public override void OnClose()
@@ -38,7 +36,6 @@ namespace GiftTasteHelper
 
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
-
         }
     }
 }

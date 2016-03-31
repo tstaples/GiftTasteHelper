@@ -10,15 +10,12 @@ namespace GiftTasteHelper
 {
     public class NPCGiftInfo
     {
-        // TODO: make sure no item uses this id
-        public const int INVALID_ITEM_ID = 0;
-
         public struct ItemData
         {
             public string name;
             public int ID;
             public Rectangle tileSheetSourceRect;
-            // TODO: add texture and other needed stuff
+
             public override string ToString()
             {
                 return "{ID: " + ID.ToString() + ", Name: " + name + "}";
@@ -27,22 +24,19 @@ namespace GiftTasteHelper
 
         private string npcName;
         private ItemData[] favouriteGifts;
-        //private ItemData[] goodGifts;
         private string longestGiftName; // Used for finding how wide to make the tooltip
         private int longestGiftNameLen;
 
         public string Name { get { return npcName; } }
         public ItemData[] FavouriteGifts { get { return favouriteGifts; } }
-        //public ItemData[] GoodGifts { get { return goodGifts; } }
         public string LongestGiftName { get { return longestGiftName; } }
 
-        public NPCGiftInfo(string name, string[] favourite/*, string[] good*/)
+        public NPCGiftInfo(string name, string[] favourite)
         {
             npcName = name;
             longestGiftNameLen = 0;
 
             int[] favouriteGiftIDs = Utils.StringToIntArray(favourite);
-            //int[] goodGiftIDs = Utils.StringToIntArray(good);
 
             favouriteGifts = ParseGifts(favouriteGiftIDs);
         }
