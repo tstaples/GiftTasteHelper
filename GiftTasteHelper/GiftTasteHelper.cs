@@ -17,6 +17,10 @@ namespace GiftTasteHelper
         private Dictionary<Type, IGiftHelper> giftHelpers;
         private IGiftHelper currentGiftHelper = null;
 
+        // We'll track menu-close events ourselves since versions < 39.3 don't have the event
+        private IClickableMenu previousMenu = null;
+        private bool wasMenuClosedInvoked = false;
+
         public override void Entry(params object[] objects)
         {
             giftHelpers = new Dictionary<Type, IGiftHelper>(1)
@@ -24,26 +28,34 @@ namespace GiftTasteHelper
                 {typeof(Billboard), new CalendarGiftHelper() }
             };
 
-            MenuEvents.MenuClosed += OnClickableMenuClosed;
+            GameEvents.UpdateTick += OnUpdateTick;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
         }
 
-        public void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
+        private void OnUpdateTick(object sender, EventArgs e)
         {
-            Utils.DebugLog(e.PriorMenu.GetType().ToString() + " menu closed.");
+            if (!wasMenuClosedInvoked && previousMenu != null && Game1.activeClickableMenu == null)
+            {
+                wasMenuClosedInvoked = true;
+                OnClickableMenuClosed(previousMenu);
+            }
+        }
+
+        private void OnClickableMenuClosed(IClickableMenu priorMenu)
+        {
+            Utils.DebugLog(previousMenu.GetType().ToString() + " menu closed.");
 
             if (currentGiftHelper != null)
             {
                 Utils.DebugLog("[OnClickableMenuClosed] Closing current helper: " + currentGiftHelper.GetType().ToString());
 
-                ControlEvents.MouseChanged -= OnMouseStateChange;
-                GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
+                UnsubscribeEvents();
 
                 currentGiftHelper.OnClose();
             }
         }
 
-        public void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
+        private void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
 
@@ -65,8 +77,7 @@ namespace GiftTasteHelper
                 {
                     Utils.DebugLog("[OnClickableMenuChanged] Closing current helper: " + currentGiftHelper.GetType().ToString());
 
-                    ControlEvents.MouseChanged -= OnMouseStateChange;
-                    GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
+                    UnsubscribeEvents();
 
                     currentGiftHelper.OnClose();
                 }
@@ -84,24 +95,43 @@ namespace GiftTasteHelper
                     Utils.DebugLog("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
 
                     // Only subscribe to the events if it opened successfully
-                    ControlEvents.MouseChanged += OnMouseStateChange;
-                    GraphicsEvents.OnPostRenderEvent += OnPostRenderEvent;
+                    SubscribeEvents();
                 }
             }
         }
 
-        public void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
+        private void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {
             Debug.Assert(currentGiftHelper != null, "OnMouseStateChange listener invoked when currentGiftHelper is null.");
 
             currentGiftHelper.OnMouseStateChange(e);
         }
 
-        private void OnPostRenderEvent(object sender, EventArgs e)
+        private void OnDraw(object sender, EventArgs e)
         {
             Debug.Assert(currentGiftHelper != null, "OnPostRenderEvent listener invoked when currentGiftHelper is null.");
 
             currentGiftHelper.OnDraw();
+        }
+
+        private void UnsubscribeEvents()
+        {
+            ControlEvents.MouseChanged -= OnMouseStateChange;
+        #if SMAPI_VERSION_39_2
+            GraphicsEvents.DrawTick -= OnDraw;
+        #else
+            GraphicsEvents.OnPostRenderEvent -= OnDraw;
+        #endif
+        }
+
+        private void SubscribeEvents()
+        {
+            ControlEvents.MouseChanged += OnMouseStateChange;
+        #if SMAPI_VERSION_39_2
+            GraphicsEvents.DrawTick += OnDraw;
+        #else
+            GraphicsEvents.OnPostRenderEvent += OnDraw;
+        #endif
         }
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)

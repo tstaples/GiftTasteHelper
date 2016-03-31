@@ -11,7 +11,10 @@ namespace GiftTasteHelper
     {
         public static void DebugLog(string message)
         {
-        #if DEBUG
+        #if DEBUG && SMAPI_VERSION_39_2
+            // Log.Debug doesn't work in 39.2 since defining DEBUG breaks stuff...
+            Log.Info(message);
+        #elif DEBUG
             Log.Debug(message);
         #endif
         }
@@ -49,7 +52,7 @@ namespace GiftTasteHelper
                 }
                 catch (Exception ex)
                 {
-                    Log.AsyncR("[CalendarBirthdayGiftHelper] failed to convert " + array[i] + "to int32: " + ex);
+                    Utils.DebugLog("[CalendarBirthdayGiftHelper] failed to convert " + array[i] + "to int32: " + ex);
                     output[i] = defaultVal;
                 }
             }
