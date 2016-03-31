@@ -9,6 +9,13 @@ namespace GiftTasteHelper
 {
     public class Utils
     {
+        public static void DebugLog(string message)
+        {
+        #if DEBUG
+            Log.Debug(message);
+        #endif
+        }
+
         public static string ArrayToString<T>(T[] array)
         {
             string s = "";

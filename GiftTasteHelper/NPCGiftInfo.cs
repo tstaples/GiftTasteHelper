@@ -54,7 +54,7 @@ namespace GiftTasteHelper
             {
                 if (!Game1.objectInformation.ContainsKey(ids[i]))
                 {
-                    Log.Info("Could not find item information for ID: " + ids[i]);
+                    Utils.DebugLog("Could not find item information for ID: " + ids[i]);
                     continue;
                 }
 

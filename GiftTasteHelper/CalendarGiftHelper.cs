@@ -28,7 +28,7 @@ namespace GiftTasteHelper
             bool isDailyQuestBoard = Utils.GetNativeField<bool, Billboard>((Billboard)menu, "dailyQuestBoard");
             if (isDailyQuestBoard)
             {
-                Log.Debug("[OnOpen] Daily quest board was opened; ignoring.");
+                Utils.DebugLog("[OnOpen] Daily quest board was opened; ignoring.");
                 return false;
             }
 
@@ -40,7 +40,7 @@ namespace GiftTasteHelper
             calendar.IsOpen = true;
             previousHoverText = "";
 
-            Log.Debug("[OnOpen] Opening calendar");
+            Utils.DebugLog("[OnOpen] Opening calendar");
 
             return base.OnOpen(menu);
         }
@@ -49,7 +49,7 @@ namespace GiftTasteHelper
         {
             if (calendar.IsOpen && calendar.IsInitialized)
             {
-                Log.Debug("[OnResize] Re-Initializing calendar");
+                Utils.DebugLog("[OnResize] Re-Initializing calendar");
                 calendar.OnResize((Billboard)menu);
             }
         }
@@ -75,14 +75,14 @@ namespace GiftTasteHelper
                 // Check if it's the same as before
                 if (hoverText != previousHoverText)
                 {
-                    Log.Debug("hover text: " + hoverText);
+                    Utils.DebugLog("hover text: " + hoverText);
 
                     string npcName = Calendar.ParseNameFromHoverText(hoverText);
                     Debug.Assert(npcGiftInfo.ContainsKey(npcName));
 
                     currentGiftInfo = npcGiftInfo[npcName];
                     //currentGiftInfo = npcGiftInfo["Penny"]; // Temp for testing since she has the most items
-                    //Log.Debug(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
+                    //Utils.DebugLog(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
 
                     previousHoverText = hoverText;
                 }

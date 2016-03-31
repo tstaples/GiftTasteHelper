@@ -30,7 +30,7 @@ namespace GiftTasteHelper
         {
             if (isInitialized)
             {
-                Log.Debug("BaseGiftHelper already initialized; skipping");
+                Utils.DebugLog("BaseGiftHelper already initialized; skipping");
                 return;
             }
 

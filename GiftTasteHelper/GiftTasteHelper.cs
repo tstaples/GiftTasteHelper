@@ -30,11 +30,11 @@ namespace GiftTasteHelper
 
         public void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
         {
-            Log.Debug(e.PriorMenu.GetType().ToString() + " menu closed.");
+            Utils.DebugLog(e.PriorMenu.GetType().ToString() + " menu closed.");
 
             if (currentGiftHelper != null)
             {
-                Log.Debug("[OnClickableMenuClosed] Closing current helper: " + currentGiftHelper.GetType().ToString());
+                Utils.DebugLog("[OnClickableMenuClosed] Closing current helper: " + currentGiftHelper.GetType().ToString());
 
                 ControlEvents.MouseChanged -= OnMouseStateChange;
                 GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
@@ -52,7 +52,7 @@ namespace GiftTasteHelper
                 e.PriorMenu != null && e.PriorMenu.GetType() == newMenuType)
             {
                 // resize event
-                Log.Debug("[OnClickableMenuChanged] Invoking resize event on helper: " + currentGiftHelper.GetType().ToString());
+                Utils.DebugLog("[OnClickableMenuChanged] Invoking resize event on helper: " + currentGiftHelper.GetType().ToString());
 
                 currentGiftHelper.OnResize(e.NewMenu);
                 return;
@@ -63,7 +63,7 @@ namespace GiftTasteHelper
                 // Close the current gift helper
                 if (currentGiftHelper != null)
                 {
-                    Log.Debug("[OnClickableMenuChanged] Closing current helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged] Closing current helper: " + currentGiftHelper.GetType().ToString());
 
                     ControlEvents.MouseChanged -= OnMouseStateChange;
                     GraphicsEvents.OnPostRenderEvent -= OnPostRenderEvent;
@@ -74,14 +74,14 @@ namespace GiftTasteHelper
                 currentGiftHelper = giftHelpers[newMenuType];
                 if (!currentGiftHelper.IsInitialized())
                 {
-                    Log.Debug("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
 
                     currentGiftHelper.Init(e.NewMenu);
                 }
 
                 if (currentGiftHelper.OnOpen(e.NewMenu))
                 {
-                    Log.Debug("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
 
                     // Only subscribe to the events if it opened successfully
                     ControlEvents.MouseChanged += OnMouseStateChange;
@@ -106,6 +106,7 @@ namespace GiftTasteHelper
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
         {
+        #if DEBUG
             try
             {
                 string priorName = "None";
@@ -114,13 +115,13 @@ namespace GiftTasteHelper
                     priorName = priorMenu.GetType().Name;
                 }
                 string newName = newMenu.GetType().Name;
-                Log.Info("Menu changed from: " + priorName + " to " + newName);
+                Utils.DebugLog("Menu changed from: " + priorName + " to " + newName);
             }
             catch (Exception ex)
             {
-                Log.Debug("Error getting menu name: " + ex);
+                Utils.DebugLog("Error getting menu name: " + ex);
             }
+        #endif
         }
-
     }
 }
