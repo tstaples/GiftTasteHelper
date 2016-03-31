@@ -78,14 +78,19 @@ namespace GiftTasteHelper
             return new SVector2(font.MeasureString(s));
         }
 
-        public bool Equals(SVector2 other)
+        public override bool Equals(object other)
         {
-            return (this == other);
+            return (this == (SVector2)other);
         }
 
         public override string ToString()
         {
             return "{" + x + ", " + y + "}";
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         #region operators
