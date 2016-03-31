@@ -15,7 +15,7 @@ This mod works with the most recent version of Stardew Valley as well as the 1.0
 This mod requires [SMAPI](https://github.com/ClxS/SMAPI) to run. It currently works with versions 39.3 to the latest (39.5).
 
 If you are unable to update SMAPI due to existing mods breaking then you can get the SMAPI 39.2 compatible version [here](https://github.com/tstaples/GiftTasteHelper/releases/tag/0.9).
-Just note that this version will be less likely to be maintained in the future. I still highly reccommend updating SMAPI to the latest version if possible.
+Just note that this version will be less likely to be maintained in the future. I still highly recommend updating SMAPI to the latest version if possible.
 
 ## Installation
 
