@@ -7,8 +7,8 @@
     <ProjectGuid>{CA415B12-5C37-487A-92BE-0AED14440F36}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CalendarBirthdayGiftHelper</RootNamespace>
-    <AssemblyName>CalendarBirthdayGiftHelper</AssemblyName>
+    <RootNamespace>GiftTasteHelper</RootNamespace>
+    <AssemblyName>GiftTasteHelper</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,7 +34,7 @@
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Stardew Valley">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
+      <HintPath>..\..\..\SMAPI\StardewModdingAPI\bin\Debug\Stardew Valley.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
