@@ -41,7 +41,7 @@ namespace CalendarBirthdayGiftHelper
             get { return bounds; }
         }
 
-        public Calendar Init(Billboard baseClass)
+        public void Init(Billboard baseClass)
         {
             Clear();
 
@@ -49,8 +49,6 @@ namespace CalendarBirthdayGiftHelper
             bounds = new Rectangle(billboard.xPositionOnScreen, billboard.yPositionOnScreen, billboard.width, billboard.height);
             calendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(billboard, calendarDaysFieldName);
             IsInitialized = true;
-
-            return this;
         }
 
         public void OnResize(Billboard baseClass)
@@ -79,23 +77,23 @@ namespace CalendarBirthdayGiftHelper
             IsInitialized = false;
         }
 
-        public List<BirthdayEventInfo> GetNPCBirthdayEventInfo()
-        {
-            List<BirthdayEventInfo> eventInfoList = new List<BirthdayEventInfo>();
-            int dayNumber = 1;
-            foreach (ClickableTextureComponent day in calendarDays)
-            {
-                string hoverText = day.hoverText;
-                if (hoverText.Length != 0 && hoverText.Contains("Birthday"))
-                {
-                    BirthdayEventInfo eventInfo = new BirthdayEventInfo();
-                    eventInfo.day = dayNumber;
-                    eventInfo.npcName = ParseNameFromHoverText(hoverText);
-                    eventInfoList.Add(eventInfo);
-                }
-            }
-            return eventInfoList;
-        }
+        //public List<BirthdayEventInfo> GetNPCBirthdayEventInfo()
+        //{
+        //    List<BirthdayEventInfo> eventInfoList = new List<BirthdayEventInfo>();
+        //    int dayNumber = 1;
+        //    foreach (ClickableTextureComponent day in calendarDays)
+        //    {
+        //        string hoverText = day.hoverText;
+        //        if (hoverText.Length != 0 && hoverText.Contains("Birthday"))
+        //        {
+        //            BirthdayEventInfo eventInfo = new BirthdayEventInfo();
+        //            eventInfo.day = dayNumber;
+        //            eventInfo.npcName = ParseNameFromHoverText(hoverText);
+        //            eventInfoList.Add(eventInfo);
+        //        }
+        //    }
+        //    return eventInfoList;
+        //}
 
         public Rectangle GetDayBounds(int dayNumber)
         {
@@ -108,6 +106,7 @@ namespace CalendarBirthdayGiftHelper
             return Utils.GetNativeField<string, Billboard>(billboard, "hoverText");
         }
 
+        // TODO: move to utils and handle more cases
         public static string ParseNameFromHoverText(string text)
         {
             string name = "";

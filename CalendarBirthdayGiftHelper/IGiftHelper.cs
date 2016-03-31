@@ -8,8 +8,9 @@ namespace CalendarBirthdayGiftHelper
 {
     public interface IGiftHelper
     {
-        void Init();
-        void OnOpen(IClickableMenu menu);
+        bool IsInitialized();
+        void Init(IClickableMenu menu);
+        bool OnOpen(IClickableMenu menu);
         void OnResize(IClickableMenu menu);
         void OnClose();
         void OnDraw();

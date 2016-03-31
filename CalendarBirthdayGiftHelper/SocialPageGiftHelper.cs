@@ -13,17 +13,17 @@ namespace CalendarBirthdayGiftHelper
         private List<ClickableTextureComponent> friendSlots;
         //private SocialPage socialPage = null;
 
-        public override void Init()
+        public override void Init(IClickableMenu menu)
         {
-            base.Init();
+            base.Init(menu);
         }
 
-        public override void OnOpen(IClickableMenu menu)
+        public override bool OnOpen(IClickableMenu menu)
         {
             //socialPage = (SocialPage)menu;
             friendSlots = Utils.GetNativeField<List<ClickableTextureComponent>, SocialPage>((SocialPage)menu, "friendNames");
 
-            base.OnOpen(menu);
+            return base.OnOpen(menu);
         }
 
         public override void OnResize(IClickableMenu menu)
