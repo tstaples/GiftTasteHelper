@@ -16,8 +16,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\SMAPI\39.2\StardewModdingAPI\bin\x86\Debug\Mods\GiftTasteHelper\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SMAPI_VERSION_39_3_AND_PRIOR</DefineConstants>
+    <OutputPath>..\..\..\SMAPI\39.2\StardewModdingAPI\bin\Debug\Mods\GiftTasteHelper\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -25,18 +25,18 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\SMAPI\StardewModdingAPI\bin\Release\Mods\GiftTasteHelper\</OutputPath>
+    <OutputPath>..\..\..\SMAPI\39.2\StardewModdingAPI\bin\Release\Mods\GiftTasteHelper\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Include="Stardew Valley, Version=1.0.5931.30965, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
+    <Reference Include="Stardew Valley">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -46,9 +46,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Programming\C#\SDVxTile\xTile.dll</HintPath>
+    <Reference Include="xTile">
+      <HintPath>..\..\..\..\..\Programming\C#\SDVxTile\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +68,7 @@
       <Name>StardewModdingAPI</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
