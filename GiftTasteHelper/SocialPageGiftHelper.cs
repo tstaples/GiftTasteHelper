@@ -37,5 +37,10 @@ namespace GiftTasteHelper
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
         }
+
+        private void DrawGiftTooltip(NPCGiftInfo giftInfo, string title)
+        {
+
+        }
     }
 }

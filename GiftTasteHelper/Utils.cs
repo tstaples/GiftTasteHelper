@@ -3,7 +3,10 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using StardewValley;
 using StardewModdingAPI;
+using Microsoft.Xna.Framework.Graphics;
+using StardewValley.Menus;
 
 namespace GiftTasteHelper
 {
@@ -38,7 +41,7 @@ namespace GiftTasteHelper
             return c;
         }
 
-        public static int[] StringToIntArray(string[] array, int defaultVal=0)
+        public static int[] StringToIntArray(string[] array, int defaultVal = 0)
         {
             int[] output = new int[array.Length];
             for (int i = 0; i < array.Length; ++i)
@@ -89,5 +92,20 @@ namespace GiftTasteHelper
         {
             return Math.Max(Math.Min(val, max), min);
         }
+
+        // TODO: handle more cases
+        public static string ParseNameFromHoverText(string text)
+        {
+            string name = "";
+            string[] parts = text.Split(new char[] { '\'', ' ' });
+            if (parts.Length > 0)
+            {
+                name = parts[0];
+            }
+            return name;
+        }
+
     }
+        
+  
 }
