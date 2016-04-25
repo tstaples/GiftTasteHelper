@@ -17,7 +17,6 @@ namespace GiftTasteHelper
         private GameMenu gameMenu;
         private SocialPage soc;
         private List<ClickableTextureComponent> friendSlots;
-        private int prevSlot = -1;
         private string prevFriend = "";
         private bool scrolledToBottom = false;
 
@@ -55,18 +54,19 @@ namespace GiftTasteHelper
 
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
-            if (Game1.activeClickableMenu is GameMenu) // game menu
+            if (Game1.activeClickableMenu is GameMenu) 
             {
-                
                 gameMenu = (GameMenu)Game1.activeClickableMenu;
-                if (gameMenu.currentTab == GameMenu.socialTab) // on social
+
+                if (gameMenu.currentTab == GameMenu.socialTab)
                 {
                     Rectangle mouseRect = new Rectangle(Mouse.GetState().X, Mouse.GetState().Y, 1, 1);
                     int slotPos = Utils.GetNativeField<int, SocialPage>(soc, "slotPosition");
-                    int zoom = Game1.pixelZoom;
-                    if (mouseRect.X > friendSlots[slotPos].bounds.X && mouseRect.Y > friendSlots[slotPos].bounds.Y
-                        && mouseRect.X < (gameMenu.xPositionOnScreen + gameMenu.width - 9 *zoom)
-                        && mouseRect.Y < (friendSlots[slotPos+4].bounds.Y + (friendSlots[slotPos+1].bounds.Y - friendSlots[slotPos].bounds.Y)))
+                    int drawBoundsWidth = gameMenu.xPositionOnScreen + gameMenu.width - 9 * Game1.pixelZoom;
+                    int drawBoundsHeight = friendSlots[slotPos + 4].bounds.Y + (friendSlots[slotPos + 1].bounds.Y - friendSlots[slotPos].bounds.Y) * 5;
+                    Rectangle drawBounds = new Rectangle(friendSlots[slotPos].bounds.X, friendSlots[slotPos].bounds.Y, drawBoundsWidth, drawBoundsHeight);
+
+                    if (mouseRect.Intersects(drawBounds))
                     {
                         foreach (ClickableTextureComponent friend in friendSlots)
                         {
@@ -80,12 +80,10 @@ namespace GiftTasteHelper
                                 else currentGiftInfo = npcGiftInfo[friend.name];
 
                                 prevFriend = friend.name;
-                                prevSlot = slotPos;
                             }
 
                         }
-
-
+                        
                         drawCurrentFrame = true;
                     }
                     else drawCurrentFrame = false;
