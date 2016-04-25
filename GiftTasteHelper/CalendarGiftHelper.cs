@@ -105,67 +105,14 @@ namespace GiftTasteHelper
         }
 
         private void DrawGiftCalTooltip(NPCGiftInfo giftInfo, string title)
-        {
-            int numItems = giftInfo.FavouriteGifts.Length;
-            if (numItems == 0)
-                return;
-
-            float spriteScale = 2.0f * ZoomLevel; // 16x16 is pretty small
-            Rectangle spriteRect = giftInfo.FavouriteGifts[0].tileSheetSourceRect; // We just need the dimensions which we assume are all the same
-            SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
-
-            // The longest length of text will help us determine how wide the tooltip box should be 
-            SVector2 titleSize = SVector2.MeasureString(title, Game1.smallFont);
-            SVector2 maxTextSize = (titleSize.x - scaledSpriteSize.x > giftInfo.MaxGiftNameSize.x) ? titleSize : giftInfo.MaxGiftNameSize;
-
-            SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
-
-            int padding = 4;
-            int rowHeight = (int)Math.Max(maxTextSize.y * ZoomLevel, scaledSpriteSize.yi) + padding;
-            int width = AdjustForTileSize((maxTextSize.x * ZoomLevel) + scaledSpriteSize.xi) + padding;
-            int height = AdjustForTileSize(rowHeight * (numItems + 1), 0.5f); // Add one to make room for the title
-            int x = AdjustForTileSize(mouse.x, 0.5f, ZoomLevel) - width;
-            int y = AdjustForTileSize(mouse.y, 0.5f, ZoomLevel);
-
-            int viewportW = Game1.viewport.Width;
-            int viewportH = Game1.viewport.Height;
+        { 
 
             // Approximate where the original tooltip will be positioned
             SVector2 origHoverTextSize = SVector2.MeasureString(calendar.GetCurrentHoverText(), Game1.dialogueFont);
-            int origTToffsetX = Math.Max(0, GiftHelper.AdjustForTileSize(origHoverTextSize.x + mouse.x, 1.0f) - viewportW);
-
-            // Consider the position of the original tooltip and ensure we don't cover it up
-            SVector2 tooltipPos = ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH);
-
+            
             // Draw the tooltip
-            DrawGiftTooltip(giftInfo, title, tooltipPos);
+            DrawGiftTooltip(giftInfo, title, origHoverTextSize, "cal");
         }
 
-        private SVector2 ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH)
-        {
-            SVector2 p = new SVector2(x, y);
-
-            p.x = ClampToViewportAxis(p.xi, w, viewportW);
-            p.y = ClampToViewportAxis(p.yi, h, viewportH);
-
-            // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
-            int halfTileSize = AdjustForTileSize(0.0f);
-            p.y -= (p.x != x) ? halfTileSize : 0;
-            p.x -= (p.y != y) ? halfTileSize : 0;
-
-            return p;
-        }
-
-        private int ClampToViewportAxis(int a, int l1, int l2)
-        {
-            int ca = Utils.Clamp(a, 0, a);
-            if (ca + l1 > l2)
-            {
-                // Offset by how much it extends past the viewport
-                int diff = (ca + l1) - l2;
-                ca -= diff;
-            }
-            return ca;
-        }
     }
 }

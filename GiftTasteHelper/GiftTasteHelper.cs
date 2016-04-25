@@ -23,9 +23,10 @@ namespace GiftTasteHelper
 
         public override void Entry(params object[] objects)
         {
-            giftHelpers = new Dictionary<Type, IGiftHelper>(1)
+            giftHelpers = new Dictionary<Type, IGiftHelper>(2)
             {
-                {typeof(Billboard), new CalendarGiftHelper() }
+                {typeof(Billboard), new CalendarGiftHelper()},
+                {typeof(GameMenu), new SocialPageGiftHelper()}
             };
 
             GameEvents.UpdateTick += OnUpdateTick;
@@ -64,6 +65,7 @@ namespace GiftTasteHelper
             previousMenu = e.PriorMenu;
 
             Type newMenuType = e.NewMenu.GetType();
+
             if (currentGiftHelper != null && currentGiftHelper.IsOpen() && 
                 e.PriorMenu != null && e.PriorMenu.GetType() == newMenuType)
             {
@@ -89,21 +91,20 @@ namespace GiftTasteHelper
                 currentGiftHelper = giftHelpers[newMenuType];
                 if (!currentGiftHelper.IsInitialized())
                 {
-                    Utils.DebugLog("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
+                    Log.Debug("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
 
                     currentGiftHelper.Init(e.NewMenu);
                 }
 
                 if (currentGiftHelper.OnOpen(e.NewMenu))
                 {
-                    Utils.DebugLog("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
+                    Log.Debug("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
 
                     // Only subscribe to the events if it opened successfully
                     SubscribeEvents();
                 }
             }
         }
-
         private void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {
             Debug.Assert(currentGiftHelper != null, "OnMouseStateChange listener invoked when currentGiftHelper is null.");
