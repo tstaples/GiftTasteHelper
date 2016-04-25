@@ -91,14 +91,14 @@ namespace GiftTasteHelper
                 currentGiftHelper = giftHelpers[newMenuType];
                 if (!currentGiftHelper.IsInitialized())
                 {
-                    Log.Debug("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
 
                     currentGiftHelper.Init(e.NewMenu);
                 }
 
                 if (currentGiftHelper.OnOpen(e.NewMenu))
                 {
-                    Log.Debug("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
 
                     // Only subscribe to the events if it opened successfully
                     SubscribeEvents();
