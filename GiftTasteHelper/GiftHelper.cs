@@ -123,7 +123,7 @@ namespace GiftTasteHelper
         }
 
 
-        public void DrawGiftTooltip(NPCGiftInfo giftInfo, string title, SVector2 origHoverTextSize)
+        public void DrawGiftTooltip(NPCGiftInfo giftInfo, string title, SVector2 origHoverTextSize, string type)
         {
             int numItems = giftInfo.FavouriteGifts.Length;
             if (numItems == 0)
@@ -149,11 +149,11 @@ namespace GiftTasteHelper
             int viewportW = Game1.viewport.Width;
             int viewportH = Game1.viewport.Height;
 
-            if (x + width > viewportW) x = viewportW - width;
+            if (x + width > viewportW && type != "cal") x = viewportW - width;
 
             // Approximate where the original tooltip will be positioned
             int origTToffsetX = 0;
-            if (currentGiftInfo.GetType() == typeof(Calendar))
+            if (type == "cal")
                 origTToffsetX = Math.Max(0, AdjustForTileSize(origHoverTextSize.x + mouse.x, 1.0f) - viewportW) + width;
             
 
@@ -175,7 +175,7 @@ namespace GiftTasteHelper
 #endif
             Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
             int drawX = 0;
-            if (currentGiftInfo.GetType() == typeof(Calendar))
+            if (type == "cal")
                 drawX = tooltipPos.xi;
             else drawX = x;
 
@@ -183,7 +183,7 @@ namespace GiftTasteHelper
             
             // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
             SVector2 spriteOffset;
-            if (currentGiftInfo.GetType() == typeof(Calendar)) spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
+            if (type == "cal") spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
             else spriteOffset = new SVector2(AdjustForTileSize(x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
 
             SVector2 textOffset = new SVector2(spriteOffset.x, spriteOffset.y + (spriteRect.Height / 2));

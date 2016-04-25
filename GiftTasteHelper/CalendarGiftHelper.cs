@@ -111,7 +111,7 @@ namespace GiftTasteHelper
             SVector2 origHoverTextSize = SVector2.MeasureString(calendar.GetCurrentHoverText(), Game1.dialogueFont);
             
             // Draw the tooltip
-            DrawGiftTooltip(giftInfo, title, origHoverTextSize);
+            DrawGiftTooltip(giftInfo, title, origHoverTextSize, "cal");
         }
 
     }
