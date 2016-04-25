@@ -107,7 +107,7 @@ namespace GiftTasteHelper
             SVector2 origHoverTextSize = SVector2.MeasureString("", Game1.dialogueFont);
 
             // Draw the tooltip
-            DrawGiftTooltip(giftInfo, title, origHoverTextSize, "social");
+            DrawGiftTooltip(giftInfo, title, origHoverTextSize);
         }
 
     }
