@@ -257,11 +257,10 @@ paket-files/
 .fake/
 
 GiftTasteHelper/Build/*
+GiftTasteHelper/build.bat
 
 # JetBrains Rider
 .idea/
 *.sln.iml
 Status API Training Shop Blog About
 © 2016 GitHub, Inc. Terms Privacy Security Contact Help
-GiftTasteHelper/GiftTasteHelper.sln
-GiftTasteHelper/build.bat
