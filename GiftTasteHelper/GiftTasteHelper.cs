@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using StardewValley;
 using StardewValley.Menus;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -17,12 +12,9 @@ namespace GiftTasteHelper
         private Dictionary<Type, IGiftHelper> giftHelpers;
         private IGiftHelper currentGiftHelper = null;
 
-        // We'll track menu-close events ourselves since versions < 39.3 don't have the event
-        private IClickableMenu previousMenu = null;
-        private bool wasMenuClosedInvoked = false;
-
         public override void Entry(IModHelper helper)
         {
+            // Set the monitor ref so we can have a cheeky global log function
             Utils.InitLog(this.Monitor);
 
             giftHelpers = new Dictionary<Type, IGiftHelper>(1)
@@ -30,26 +22,17 @@ namespace GiftTasteHelper
                 {typeof(Billboard), new CalendarGiftHelper() }
             };
 
-            GameEvents.UpdateTick += OnUpdateTick;
+            MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
         }
 
-        private void OnUpdateTick(object sender, EventArgs e)
+        private void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
         {
-            if (!wasMenuClosedInvoked && previousMenu != null && Game1.activeClickableMenu == null)
-            {
-                wasMenuClosedInvoked = true;
-                OnClickableMenuClosed(previousMenu);
-            }
-        }
-
-        private void OnClickableMenuClosed(IClickableMenu priorMenu)
-        {
-            Utils.DebugLog(previousMenu.GetType().ToString() + " menu closed.");
+            Utils.DebugLog(e.PriorMenu.GetType().ToString() + " menu closed.");
 
             if (currentGiftHelper != null)
             {
-                Utils.DebugLog("[OnClickableMenuClosed] Closing current helper: " + currentGiftHelper.GetType().ToString());
+                Utils.DebugLog("Closing current helper: " + currentGiftHelper.GetType().ToString());
 
                 UnsubscribeEvents();
 
@@ -60,10 +43,6 @@ namespace GiftTasteHelper
         private void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
             DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
-
-            // Reset flag
-            wasMenuClosedInvoked = false;
-            previousMenu = e.PriorMenu;
 
             Type newMenuType = e.NewMenu.GetType();
             if (currentGiftHelper != null && currentGiftHelper.IsOpen() && 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using System.Collections.Generic;
 using StardewModdingAPI;
 
 namespace GiftTasteHelper
