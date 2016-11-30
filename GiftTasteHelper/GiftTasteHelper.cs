@@ -21,8 +21,10 @@ namespace GiftTasteHelper
         private IClickableMenu previousMenu = null;
         private bool wasMenuClosedInvoked = false;
 
-        public override void Entry(params object[] objects)
+        public override void Entry(IModHelper helper)
         {
+            Utils.InitLog(this.Monitor);
+
             giftHelpers = new Dictionary<Type, IGiftHelper>(1)
             {
                 {typeof(Billboard), new CalendarGiftHelper() }
@@ -121,21 +123,13 @@ namespace GiftTasteHelper
         private void UnsubscribeEvents()
         {
             ControlEvents.MouseChanged -= OnMouseStateChange;
-#if SMAPI_VERSION_39_3_AND_PRIOR
-            GraphicsEvents.DrawTick -= OnDraw;
-#else
             GraphicsEvents.OnPostRenderEvent -= OnDraw;
-#endif
         }
 
         private void SubscribeEvents()
         {
             ControlEvents.MouseChanged += OnMouseStateChange;
-#if SMAPI_VERSION_39_3_AND_PRIOR
-            GraphicsEvents.DrawTick += OnDraw;
-#else
             GraphicsEvents.OnPostRenderEvent += OnDraw;
-#endif
         }
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)

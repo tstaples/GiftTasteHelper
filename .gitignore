@@ -256,8 +256,12 @@ paket-files/
 # FAKE - F# Make
 .fake/
 
+GiftTasteHelper/Build/*
+
 # JetBrains Rider
 .idea/
 *.sln.iml
 Status API Training Shop Blog About
 © 2016 GitHub, Inc. Terms Privacy Security Contact Help
+GiftTasteHelper/GiftTasteHelper.sln
+GiftTasteHelper/build.bat

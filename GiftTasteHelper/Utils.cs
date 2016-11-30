@@ -2,21 +2,22 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 
 namespace GiftTasteHelper
 {
     public class Utils
     {
-        public static void DebugLog(string message)
+        internal static IMonitor MonitorRef = null;
+        public static void InitLog(IMonitor monitor)
         {
-#if DEBUG && SMAPI_VERSION_39_3_AND_PRIOR
-            // Log.Debug doesn't work in 39.2 since defining DEBUG breaks stuff...
-            Log.Info(message);
-#elif DEBUG
-            Log.Debug(message);
-#endif
+            MonitorRef = monitor;
+        }
+
+        public static void DebugLog(string message, LogLevel level = LogLevel.Trace)
+        {
+            Debug.Assert(MonitorRef != null, "Monitor ref is not set.");
+            MonitorRef.Log(message, level);
         }
 
         public static string ArrayToString<T>(T[] array)
@@ -43,7 +44,7 @@ namespace GiftTasteHelper
             int[] output = new int[array.Length];
             for (int i = 0; i < array.Length; ++i)
             {
-                if (array[i] == null || !array[i].IsInt32())
+                if (array[i] == null || !Utils.IsInt32(array[i]))
                     continue;
 
                 try
@@ -52,7 +53,7 @@ namespace GiftTasteHelper
                 }
                 catch (Exception ex)
                 {
-                    Utils.DebugLog("[CalendarBirthdayGiftHelper] failed to convert " + array[i] + "to int32: " + ex);
+                    DebugLog("failed to convert " + array[i] + "to int32: " + ex, LogLevel.Warn);
                     output[i] = defaultVal;
                 }
             }
@@ -88,6 +89,12 @@ namespace GiftTasteHelper
         public static int Clamp(int val, int min, int max)
         {
             return Math.Max(Math.Min(val, max), min);
+        }
+
+        public static bool IsInt32(string s)
+        {
+            int i;
+            return int.TryParse(s, out i);
         }
     }
 }

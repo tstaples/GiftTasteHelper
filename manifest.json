@@ -1,11 +1,11 @@
 {
   "Name": "GiftTasteHelper",
-  "Authour": "Tyler",
+  "Author": "Tyler",
   "Version": {
-    "MajorVersion": 1,
-    "MinorVersion": 1,
+    "MajorVersion": 2,
+    "MinorVersion": 0,
     "PatchVersion": 0,
-    "Build": ""
+    "Build": "0"
   },
   "Description": "Displays NPC gift tastes in a handy tooltip.",
   "UniqueID": "8008db57-fa67-4730-978e-34b37ef191d6",
