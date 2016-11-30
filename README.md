@@ -8,7 +8,7 @@ Note that it currently does not include the two universal loved items, but may i
 
 ![Calendar preview image](images/calendar_example.png?raw=true)
 
-*NEW*: tooltips now appear on the social page thanks to [dreamsicl](https://github.com/dreamsicl)!
+**NEW**: tooltips now appear on the social page thanks to [dreamsicl](https://github.com/dreamsicl)!
 
 ![Social page preview image](images/social_page_example.png?raw=true)
 
@@ -16,7 +16,7 @@ Note that it currently does not include the two universal loved items, but may i
 
 This mod works with the most recent version of Stardew Valley (last tested with 1.1).
 
-This mod requires [SMAPI](https://github.com/ClxS/SMAPI) to run. The lastest version it was updated for is 1.2.
+This mod requires [SMAPI](https://github.com/ClxS/SMAPI) __1.1 or higher to run__. The lastest version it was updated for is **1.2**.
 
 ~~If you are unable to update SMAPI due to existing mods breaking then you can get the SMAPI 39.2 compatible version [here](https://github.com/tstaples/GiftTasteHelper/releases/tag/0.9).
 Just note that this version will be less likely to be maintained in the future. I still highly recommend updating SMAPI to the latest version if possible.~~
