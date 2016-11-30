@@ -17,11 +17,18 @@ namespace GiftTasteHelper
             // Set the monitor ref so we can have a cheeky global log function
             Utils.InitLog(this.Monitor);
 
-            giftHelpers = new Dictionary<Type, IGiftHelper>(2)
+            ModConfig config = helper.ReadConfig<ModConfig>();
+
+            // Add the helpers if they're enabled in config
+            giftHelpers = new Dictionary<Type, IGiftHelper>();
+            if (config.ShowOnCalendar)
             {
-                {typeof(Billboard), new CalendarGiftHelper()},
-                {typeof(GameMenu), new SocialPageGiftHelper()}
-            };
+                giftHelpers.Add(typeof(Billboard), new CalendarGiftHelper());
+            }
+            if (config.ShowOnSocialPage)
+            {
+                giftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper());
+            }
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
@@ -86,6 +93,7 @@ namespace GiftTasteHelper
                 }
             }
         }
+
         private void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {
             Debug.Assert(currentGiftHelper != null, "OnMouseStateChange listener invoked when currentGiftHelper is null.");

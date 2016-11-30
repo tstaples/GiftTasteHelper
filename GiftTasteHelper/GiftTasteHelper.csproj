@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\SMAPI\39.2\StardewModdingAPI\bin\Release\Mods\GiftTasteHelper\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -49,6 +49,7 @@
     <Compile Include="CalendarGiftHelper.cs" />
     <Compile Include="GiftHelper.cs" />
     <Compile Include="IGiftHelper.cs" />
+    <Compile Include="ModConfig.cs" />
     <Compile Include="NPCGiftInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocialPageGiftHelper.cs" />
