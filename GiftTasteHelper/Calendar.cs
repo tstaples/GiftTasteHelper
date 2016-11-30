@@ -86,16 +86,5 @@ namespace GiftTasteHelper
             return Utils.GetNativeField<string, Billboard>(billboard, "hoverText");
         }
 
-        // TODO: move to utils and handle more cases
-        public static string ParseNameFromHoverText(string text)
-        {
-            string name = "";
-            string[] parts = text.Split(new char[] { '\'', ' ' });
-            if (parts.Length > 0)
-            {
-                name = parts[0];
-            }
-            return name;
-        }
     }
 }
