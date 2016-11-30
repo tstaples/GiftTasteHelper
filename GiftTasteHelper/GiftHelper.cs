@@ -12,11 +12,24 @@ namespace GiftTasteHelper
 {
     public abstract class GiftHelper : IGiftHelper
     {
+        public enum EGiftHelperType
+        {
+            Calendar,
+            SocialPage
+        }
+
         protected Dictionary<string, NPCGiftInfo> npcGiftInfo; // Indexed by name
         protected NPCGiftInfo currentGiftInfo = null;
         protected bool drawCurrentFrame = false;
         protected bool isInitialized = false;
         protected bool isOpen = false;
+
+        public EGiftHelperType GiftHelperType { get; private set; }
+
+        public GiftHelper(EGiftHelperType helperType)
+        {
+            GiftHelperType = helperType;
+        }
 
         public float ZoomLevel
         {
@@ -94,11 +107,18 @@ namespace GiftTasteHelper
         {
             // Empty
         }
+
         public static int AdjustForTileSize(float v, float tileSizeMod = 0.5f, float zoom = 1.0f)
         {
             float tileSize = (float)Game1.tileSize * tileSizeMod;
             return (int)((v + tileSize) * zoom);
         }
+
+        // TODO
+        //protected virtual int GetTooltipPosition(SVector2 origHoverTextSize, SVector2 mouse, int tooltipWidth)
+        //{
+        //    return 0;
+        //}
 
         protected void DrawText(string text, SVector2 pos)
         {
@@ -110,8 +130,7 @@ namespace GiftTasteHelper
             Game1.spriteBatch.Draw(texture, pos.ToXNAVector2(), source, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0.0f);
         }
 
-
-        public void DrawGiftTooltip(NPCGiftInfo giftInfo, string title, SVector2 origHoverTextSize, string type)
+        public void DrawGiftTooltip(NPCGiftInfo giftInfo, string title, SVector2 origHoverTextSize)
         {
             int numItems = giftInfo.FavouriteGifts.Length;
             if (numItems == 0)
@@ -137,13 +156,17 @@ namespace GiftTasteHelper
             int viewportW = Game1.viewport.Width;
             int viewportH = Game1.viewport.Height;
 
-            if (x + width > viewportW && type != "cal") x = viewportW - width;
+            if (x + width > viewportW && GiftHelperType != EGiftHelperType.Calendar)
+            {
+                x = viewportW - width;
+            }
 
             // Approximate where the original tooltip will be positioned
             int origTToffsetX = 0;
-            if (type == "cal")
+            if (GiftHelperType == EGiftHelperType.Calendar)
+            {
                 origTToffsetX = Math.Max(0, AdjustForTileSize(origHoverTextSize.x + mouse.x, 1.0f) - viewportW) + width;
-            
+            }
 
             // Consider the position of the original tooltip and ensure we don't cover it up
             SVector2 tooltipPos = ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH);
@@ -158,21 +181,30 @@ namespace GiftTasteHelper
 
             // Draw the background of the tooltip
             SpriteBatch spriteBatch = Game1.spriteBatch;
-#if SMAPI_VERSION_39_3_AND_PRIOR
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-#endif
+
             Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
             int drawX = 0;
-            if (type == "cal")
+            if (GiftHelperType == EGiftHelperType.Calendar)
+            {
                 drawX = tooltipPos.xi;
-            else drawX = x;
+            }
+            else
+            {
+                drawX = x;
+            }
 
             IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, drawX, tooltipPos.yi, width, height, Color.White, ZoomLevel);
             
             // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
             SVector2 spriteOffset;
-            if (type == "cal") spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
-            else spriteOffset = new SVector2(AdjustForTileSize(x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
+            if (GiftHelperType == EGiftHelperType.Calendar)
+            {
+                spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
+            }
+            else
+            {
+                spriteOffset = new SVector2(AdjustForTileSize(x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
+            }
 
             SVector2 textOffset = new SVector2(spriteOffset.x, spriteOffset.y + (spriteRect.Height / 2));
 
@@ -194,10 +226,6 @@ namespace GiftTasteHelper
                 spriteOffset.y += rowHeight;
                 textOffset.y += rowHeight;
             }
-#if SMAPI_VERSION_39_3_AND_PRIOR
-            spriteBatch.End();
-#endif
-
         }
 
         public SVector2 ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH)

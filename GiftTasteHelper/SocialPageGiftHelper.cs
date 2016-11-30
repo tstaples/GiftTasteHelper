@@ -20,6 +20,12 @@ namespace GiftTasteHelper
         private string prevFriend = "";
         private bool scrolledToBottom = false;
 
+        public SocialPageGiftHelper() 
+            : base(EGiftHelperType.SocialPage)
+        {
+
+        }
+
         public override void Init(IClickableMenu menu)
         {
             // initialize friendSlots
@@ -117,7 +123,7 @@ namespace GiftTasteHelper
             SVector2 origHoverTextSize = SVector2.MeasureString("", Game1.dialogueFont);
 
             // Draw the tooltip
-            DrawGiftTooltip(giftInfo, title, origHoverTextSize, "");
+            DrawGiftTooltip(giftInfo, title, origHoverTextSize);
         }
 
     }

@@ -13,6 +13,12 @@ namespace GiftTasteHelper
         private Calendar calendar = new Calendar();
         private string previousHoverText = "";
 
+        public CalendarGiftHelper() 
+            : base(EGiftHelperType.Calendar)
+        {
+
+        }
+
         public override void Init(IClickableMenu menu)
         {
             Debug.Assert(!calendar.IsInitialized, "Calendar is already initialized");
@@ -73,7 +79,7 @@ namespace GiftTasteHelper
                 // Check if it's the same as before
                 if (hoverText != previousHoverText)
                 {
-                    Utils.DebugLog("hover text: " + hoverText);
+                    //Utils.DebugLog("hover text: " + hoverText);
 
                     string npcName = Utils.ParseNameFromHoverText(hoverText);
                     Debug.Assert(npcGiftInfo.ContainsKey(npcName));
@@ -109,7 +115,7 @@ namespace GiftTasteHelper
             SVector2 origHoverTextSize = SVector2.MeasureString(calendar.GetCurrentHoverText(), Game1.dialogueFont);
             
             // Draw the tooltip
-            DrawGiftTooltip(giftInfo, title, origHoverTextSize, "cal");
+            DrawGiftTooltip(giftInfo, title, origHoverTextSize);
         }
 
     }

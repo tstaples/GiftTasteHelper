@@ -18,8 +18,17 @@ namespace GiftTasteHelper
 
         public static void DebugLog(string message, LogLevel level = LogLevel.Trace)
         {
+        #if WITH_LOGGING
             Debug.Assert(MonitorRef != null, "Monitor ref is not set.");
             MonitorRef.Log(message, level);
+        #else
+            // don't spam other developer consoles
+            if (level > LogLevel.Debug)
+            {
+                Debug.Assert(MonitorRef != null, "Monitor ref is not set.");
+                MonitorRef.Log(message, level);
+            }
+        #endif
         }
 
         public static string ArrayToString<T>(T[] array)
