@@ -3,127 +3,98 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using StardewValley;
 using StardewValley.Menus;
-using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using Microsoft.Xna.Framework.Input;
 using System.Reflection;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using SDVSocialPage = StardewValley.Menus.SocialPage;
 
 namespace GiftTasteHelper
 {
     public class SocialPageGiftHelper : GiftHelper
     {
-        private GameMenu gameMenu;
-        private SocialPage soc;
-        private List<ClickableTextureComponent> friendSlots;
-        private string prevFriend = "";
-        private bool scrolledToBottom = false;
+        private SocialPage socialPage = new SocialPage();
+        private string lastHoveredNPC = string.Empty;
 
         public SocialPageGiftHelper() 
-            : base(EGiftHelperType.SocialPage)
+            : base(EGiftHelperType.GHT_SocialPage)
         {
-
-        }
-
-        public override void Init(IClickableMenu menu)
-        {
-            // initialize friendSlots
-            gameMenu = (GameMenu)menu;
-            soc = (SocialPage)((List<IClickableMenu>)typeof(GameMenu).GetField("pages", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(gameMenu))[GameMenu.socialTab];
-            friendSlots = Utils.GetNativeField<List<ClickableTextureComponent>, SocialPage>(soc, "friendNames");
-
-            base.Init(menu);
         }
 
         public override bool OnOpen(IClickableMenu menu)
         {
-            if (IsInitialized())
+            // Reset
+            lastHoveredNPC = string.Empty;
+
+            SDVSocialPage nativeSocialPage = GetNativeSocialPage(menu);
+            if (nativeSocialPage != null)
             {
-                OnClose();
-                Init(menu);
+                socialPage.Init(nativeSocialPage);
             }
             return base.OnOpen(menu);
         }
 
         public override void OnResize(IClickableMenu menu)
         {
-            if (IsInitialized()) OnClose();
-            Init(menu);
+            base.OnResize(menu);
+            socialPage.OnResize(GetNativeSocialPage(menu));
         }
 
-        public override void OnClose()
+        public override bool CanTick()
         {
-            base.OnClose();
+            // We don't have a tab-changed event so don't tick when the social tab isn't open
+            return (IsCorrectMenuTab((GameMenu)Game1.activeClickableMenu) && base.CanTick());
         }
 
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
-            if (!(Game1.activeClickableMenu is GameMenu))
+            Debug.Assert(IsCorrectMenuTab((GameMenu)Game1.activeClickableMenu));
+            Debug.Assert(socialPage != null);
+
+            SVector2 mousePos = new SVector2(e.NewState.X, e.NewState.Y);
+            string hoveredNPC = socialPage.GetCurrentlyHoveredNPC(mousePos);
+            if (hoveredNPC == string.Empty)
             {
+                drawCurrentFrame = false;
                 return;
             }
 
-            gameMenu = (GameMenu)Game1.activeClickableMenu;
-            if (gameMenu.currentTab != GameMenu.socialTab)
+            if (hoveredNPC != lastHoveredNPC)
             {
-                return;
-            }
-
-            Rectangle mouseRect = new Rectangle(Mouse.GetState().X, Mouse.GetState().Y, 1, 1);
-            int slotPos = Utils.GetNativeField<int, SocialPage>(soc, "slotPosition");
-            int minX = friendSlots[slotPos].bounds.X;
-            int minY = friendSlots[slotPos].bounds.Y;
-            int maxX = gameMenu.xPositionOnScreen + gameMenu.width - 9 * Game1.pixelZoom;
-            int maxY = friendSlots[slotPos + 4].bounds.Y + (friendSlots[slotPos + 1].bounds.Y - friendSlots[slotPos].bounds.Y);
-
-            bool mouseWithinSocialPage = (mouseRect.X > minX && mouseRect.Y > minY && mouseRect.X < maxX && mouseRect.Y < maxY);
-
-            if (mouseWithinSocialPage)
-            {
-                foreach (ClickableTextureComponent friend in friendSlots)
-                {
-                    if (mouseRect.Intersects(friend.bounds) && friend.name != prevFriend)
-                    {
-                        if (slotPos == (friendSlots.Count - 5)) scrolledToBottom = true;
-                        if (scrolledToBottom && mouseRect.Intersects(friendSlots[slotPos + 4].bounds))
-                        {
-                            currentGiftInfo = npcGiftInfo[friendSlots[slotPos + 4].name];
-                        }
-                        else
-                        {
-                            currentGiftInfo = npcGiftInfo[friend.name];
-                        }
-
-                        prevFriend = friend.name;
-                    }
-
-                }
+                Debug.Assert(npcGiftInfo.ContainsKey(hoveredNPC));
+                currentGiftInfo = npcGiftInfo[hoveredNPC];
 
                 drawCurrentFrame = true;
+                lastHoveredNPC = hoveredNPC;
             }
             else
             {
-                drawCurrentFrame = false;
+                lastHoveredNPC = string.Empty;
             }
         }
 
         public override void OnDraw()
         {
-            // Double check here since we may not be unsubscribed from post render right away when the calendar closes
-            if (drawCurrentFrame && currentGiftInfo != null)
-            {
-                DrawGiftSocTooltip(currentGiftInfo, "Favourite Gifts");
-            }
-        }
-
-        private void DrawGiftSocTooltip(NPCGiftInfo giftInfo, string title)
-        {
             // Approximate where the original tooltip will be positioned
             SVector2 origHoverTextSize = SVector2.MeasureString("", Game1.dialogueFont);
 
             // Draw the tooltip
-            DrawGiftTooltip(giftInfo, title, origHoverTextSize);
+            string title = "Favourite Gifts";
+            DrawGiftTooltip(currentGiftInfo, title, origHoverTextSize);
+        }
+
+        private bool IsCorrectMenuTab(IClickableMenu menu)
+        {
+            GameMenu gameMenu = (GameMenu)menu;
+            return (gameMenu != null && gameMenu.currentTab == GameMenu.socialTab);
+        }
+
+        private SDVSocialPage GetNativeSocialPage(IClickableMenu menu)
+        {
+            SDVSocialPage nativeSocialPage = (SDVSocialPage)(
+                (List<IClickableMenu>)typeof(GameMenu)
+                .GetField("pages", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(menu))[GameMenu.socialTab];
+
+            return nativeSocialPage;
         }
 
     }

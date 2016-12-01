@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 using StardewModdingAPI.Events;
@@ -14,7 +12,7 @@ namespace GiftTasteHelper
         private string previousHoverText = "";
 
         public CalendarGiftHelper() 
-            : base(EGiftHelperType.Calendar)
+            : base(EGiftHelperType.GHT_Calendar)
         {
 
         }
@@ -101,22 +99,12 @@ namespace GiftTasteHelper
 
         public override void OnDraw()
         {
-            // Double check here since we may not be unsubscribed from post render right away when the calendar closes
-            if (drawCurrentFrame && currentGiftInfo != null)
-            {
-                DrawGiftCalTooltip(currentGiftInfo, "Favourite Gifts");
-            }
-        }
-
-        private void DrawGiftCalTooltip(NPCGiftInfo giftInfo, string title)
-        { 
-
             // Approximate where the original tooltip will be positioned
             SVector2 origHoverTextSize = SVector2.MeasureString(calendar.GetCurrentHoverText(), Game1.dialogueFont);
-            
-            // Draw the tooltip
-            DrawGiftTooltip(giftInfo, title, origHoverTextSize);
-        }
 
+            // Draw the tooltip
+            string title = "Favourite Gifts";
+            DrawGiftTooltip(currentGiftInfo, title, origHoverTextSize);
+        }
     }
 }

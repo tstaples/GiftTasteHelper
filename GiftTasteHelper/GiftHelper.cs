@@ -14,8 +14,8 @@ namespace GiftTasteHelper
     {
         public enum EGiftHelperType
         {
-            Calendar,
-            SocialPage
+            GHT_Calendar,
+            GHT_SocialPage
         }
 
         protected Dictionary<string, NPCGiftInfo> npcGiftInfo; // Indexed by name
@@ -98,9 +98,20 @@ namespace GiftTasteHelper
             isOpen = false;
         }
 
+        public virtual bool CanTick()
+        {
+            return true;
+        }
+
         public virtual void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
             // Empty
+        }
+
+        public virtual bool CanDraw()
+        {
+            // Double check here since we may not be unsubscribed from post render right away when the calendar closes
+            return (drawCurrentFrame && currentGiftInfo != null);
         }
 
         public virtual void OnDraw()
@@ -156,14 +167,15 @@ namespace GiftTasteHelper
             int viewportW = Game1.viewport.Width;
             int viewportH = Game1.viewport.Height;
 
-            if (x + width > viewportW && GiftHelperType != EGiftHelperType.Calendar)
+            // Prevent the tooltip from going off screen if we're at the edge
+            if (x + width > viewportW && GiftHelperType != EGiftHelperType.GHT_Calendar)
             {
                 x = viewportW - width;
             }
 
             // Approximate where the original tooltip will be positioned
             int origTToffsetX = 0;
-            if (GiftHelperType == EGiftHelperType.Calendar)
+            if (GiftHelperType == EGiftHelperType.GHT_Calendar)
             {
                 origTToffsetX = Math.Max(0, AdjustForTileSize(origHoverTextSize.x + mouse.x, 1.0f) - viewportW) + width;
             }
@@ -184,7 +196,7 @@ namespace GiftTasteHelper
 
             Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
             int drawX = 0;
-            if (GiftHelperType == EGiftHelperType.Calendar)
+            if (GiftHelperType == EGiftHelperType.GHT_Calendar)
             {
                 drawX = tooltipPos.xi;
             }
@@ -197,7 +209,7 @@ namespace GiftTasteHelper
             
             // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
             SVector2 spriteOffset;
-            if (GiftHelperType == EGiftHelperType.Calendar)
+            if (GiftHelperType == EGiftHelperType.GHT_Calendar)
             {
                 spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
             }

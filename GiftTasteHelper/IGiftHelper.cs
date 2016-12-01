@@ -6,6 +6,7 @@ using StardewModdingAPI.Events;
 
 namespace GiftTasteHelper
 {
+    // TODO: document
     public interface IGiftHelper
     {
         bool IsInitialized();
@@ -14,7 +15,9 @@ namespace GiftTasteHelper
         bool OnOpen(IClickableMenu menu);
         void OnResize(IClickableMenu menu);
         void OnClose();
+        bool CanDraw();
         void OnDraw();
+        bool CanTick();
         void OnMouseStateChange(EventArgsMouseStateChanged e);
     }
 }

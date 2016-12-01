@@ -98,14 +98,20 @@ namespace GiftTasteHelper
         {
             Debug.Assert(currentGiftHelper != null, "OnMouseStateChange listener invoked when currentGiftHelper is null.");
 
-            currentGiftHelper.OnMouseStateChange(e);
+            if (currentGiftHelper.CanTick())
+            {
+                currentGiftHelper.OnMouseStateChange(e);
+            }
         }
 
         private void OnDraw(object sender, EventArgs e)
         {
             Debug.Assert(currentGiftHelper != null, "OnPostRenderEvent listener invoked when currentGiftHelper is null.");
 
-            currentGiftHelper.OnDraw();
+            if (currentGiftHelper.CanDraw())
+            {
+                currentGiftHelper.OnDraw();
+            }
         }
 
         private void UnsubscribeEvents()
