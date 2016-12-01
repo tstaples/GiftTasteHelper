@@ -51,6 +51,11 @@ namespace GiftTasteHelper
             yi = p.Y;
         }
 
+        public bool IsZero()
+        {
+            return (this == Zero);
+        }
+
         public Vector2 ToXNAVector2()
         {
             return new Vector2(x, y);

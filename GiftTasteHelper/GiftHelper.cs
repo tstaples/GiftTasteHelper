@@ -20,9 +20,11 @@ namespace GiftTasteHelper
 
         protected Dictionary<string, NPCGiftInfo> npcGiftInfo; // Indexed by name
         protected NPCGiftInfo currentGiftInfo = null;
+        private SVector2 origHoverTextSize;
         protected bool drawCurrentFrame = false;
         protected bool isInitialized = false;
         protected bool isOpen = false;
+        public string TooltipTitle { get; protected set; } = "Favourite Gifts";
 
         public EGiftHelperType GiftHelperType { get; private set; }
 
@@ -116,7 +118,7 @@ namespace GiftTasteHelper
 
         public virtual void OnDraw()
         {
-            // Empty
+            DrawGiftTooltip(currentGiftInfo, TooltipTitle);
         }
 
         public static int AdjustForTileSize(float v, float tileSizeMod = 0.5f, float zoom = 1.0f)
@@ -125,11 +127,10 @@ namespace GiftTasteHelper
             return (int)((v + tileSize) * zoom);
         }
 
-        // TODO
-        //protected virtual int GetTooltipPosition(SVector2 origHoverTextSize, SVector2 mouse, int tooltipWidth)
-        //{
-        //    return 0;
-        //}
+        protected virtual void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
+        {
+            // Empty
+        }
 
         protected void DrawText(string text, SVector2 pos)
         {
@@ -141,7 +142,7 @@ namespace GiftTasteHelper
             Game1.spriteBatch.Draw(texture, pos.ToXNAVector2(), source, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0.0f);
         }
 
-        public void DrawGiftTooltip(NPCGiftInfo giftInfo, string title, SVector2 origHoverTextSize)
+        public void DrawGiftTooltip(NPCGiftInfo giftInfo, string title, string originalTooltipText = "")
         {
             int numItems = giftInfo.FavouriteGifts.Length;
             if (numItems == 0)
@@ -157,7 +158,7 @@ namespace GiftTasteHelper
 
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 
-            int padding = 4;
+            int padding = 4; // Chosen by fair dice roll
             int rowHeight = (int)Math.Max(maxTextSize.y * ZoomLevel, scaledSpriteSize.yi) + padding;
             int width = AdjustForTileSize((maxTextSize.x * ZoomLevel) + scaledSpriteSize.xi) + padding;
             int height = AdjustForTileSize(rowHeight * (numItems + 1), 0.5f); // Add one to make room for the title
@@ -167,15 +168,13 @@ namespace GiftTasteHelper
             int viewportW = Game1.viewport.Width;
             int viewportH = Game1.viewport.Height;
 
-            // Prevent the tooltip from going off screen if we're at the edge
-            if (x + width > viewportW && GiftHelperType != EGiftHelperType.GHT_Calendar)
-            {
-                x = viewportW - width;
-            }
+            // Let derived classes adjust the positioning
+            AdjustTooltipPosition(ref x, ref y, width, height, viewportW, viewportH);
 
-            // Approximate where the original tooltip will be positioned
+            // Approximate where the original tooltip will be positioned if there is an existing one we need to account for
             int origTToffsetX = 0;
-            if (GiftHelperType == EGiftHelperType.GHT_Calendar)
+            origHoverTextSize = SVector2.MeasureString(originalTooltipText, Game1.dialogueFont);
+            if (origHoverTextSize.x > 0)
             {
                 origTToffsetX = Math.Max(0, AdjustForTileSize(origHoverTextSize.x + mouse.x, 1.0f) - viewportW) + width;
             }
@@ -194,30 +193,12 @@ namespace GiftTasteHelper
             // Draw the background of the tooltip
             SpriteBatch spriteBatch = Game1.spriteBatch;
 
+            // Part of the spritesheet containing the texture we want to draw
             Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
-            int drawX = 0;
-            if (GiftHelperType == EGiftHelperType.GHT_Calendar)
-            {
-                drawX = tooltipPos.xi;
-            }
-            else
-            {
-                drawX = x;
-            }
-
-            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, drawX, tooltipPos.yi, width, height, Color.White, ZoomLevel);
+            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.xi, tooltipPos.yi, width, height, Color.White, ZoomLevel);
             
             // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
-            SVector2 spriteOffset;
-            if (GiftHelperType == EGiftHelperType.GHT_Calendar)
-            {
-                spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
-            }
-            else
-            {
-                spriteOffset = new SVector2(AdjustForTileSize(x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
-            }
-
+            SVector2 spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
             SVector2 textOffset = new SVector2(spriteOffset.x, spriteOffset.y + (spriteRect.Height / 2));
 
             // Draw the title then set up the offset for the remaining text
@@ -247,11 +228,14 @@ namespace GiftTasteHelper
             p.x = ClampToViewportAxis(p.xi, w, viewportW);
             p.y = ClampToViewportAxis(p.yi, h, viewportH);
 
-            // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
-            int halfTileSize = AdjustForTileSize(0.0f);
-            p.y -= (p.x != x) ? halfTileSize : 0;
-            p.x -= (p.y != y) ? halfTileSize : 0;
-
+            // Only adjust the position if there's another tooltip that we need to adjust for.
+            if (!origHoverTextSize.IsZero())
+            {
+                // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
+                int halfTileSize = AdjustForTileSize(0.0f);
+                p.y -= (p.x != x) ? halfTileSize : 0;
+                p.x -= (p.y != y) ? halfTileSize : 0;
+            }
             return p;
         }
 

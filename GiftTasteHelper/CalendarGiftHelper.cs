@@ -3,6 +3,7 @@ using System.Diagnostics;
 using StardewValley;
 using StardewValley.Menus;
 using StardewModdingAPI.Events;
+using Microsoft.Xna.Framework;
 
 namespace GiftTasteHelper
 {
@@ -93,18 +94,15 @@ namespace GiftTasteHelper
             }
             else
             {
+                previousHoverText = string.Empty;
                 drawCurrentFrame = false;
             }
         }
 
         public override void OnDraw()
         {
-            // Approximate where the original tooltip will be positioned
-            SVector2 origHoverTextSize = SVector2.MeasureString(calendar.GetCurrentHoverText(), Game1.dialogueFont);
-
             // Draw the tooltip
-            string title = "Favourite Gifts";
-            DrawGiftTooltip(currentGiftInfo, title, origHoverTextSize);
+            DrawGiftTooltip(currentGiftInfo, TooltipTitle, calendar.GetCurrentHoverText());
         }
     }
 }

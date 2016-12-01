@@ -6,6 +6,7 @@ using StardewValley.Menus;
 using StardewModdingAPI.Events;
 using System.Reflection;
 using SDVSocialPage = StardewValley.Menus.SocialPage;
+using Microsoft.Xna.Framework;
 
 namespace GiftTasteHelper
 {
@@ -71,14 +72,13 @@ namespace GiftTasteHelper
             }
         }
 
-        public override void OnDraw()
+        protected override void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
         {
-            // Approximate where the original tooltip will be positioned
-            SVector2 origHoverTextSize = SVector2.MeasureString("", Game1.dialogueFont);
-
-            // Draw the tooltip
-            string title = "Favourite Gifts";
-            DrawGiftTooltip(currentGiftInfo, title, origHoverTextSize);
+            // Prevent the tooltip from going off screen if we're at the edge
+            if (x + width > viewportW)
+            {
+                x = viewportW - width;
+            }
         }
 
         private bool IsCorrectMenuTab(IClickableMenu menu)
