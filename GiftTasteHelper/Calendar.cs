@@ -91,9 +91,14 @@ namespace GiftTasteHelper
         public string GetHoveredBirthdayNPCName(SVector2 mouse)
         {
             string name = string.Empty;
+            if (!bounds.Contains(mouse.ToPoint()))
+            {
+                return name;
+            }
+
             foreach (ClickableTextureComponent day in calendarDays)
             {
-                if (day.bounds.Contains(mouse.xi, mouse.yi))
+                if (day.bounds.Contains(mouse.ToPoint()))
                 {
                     if (day.hoverText.Length > 0 && day.hoverText.Contains("Birthday"))
                     {
