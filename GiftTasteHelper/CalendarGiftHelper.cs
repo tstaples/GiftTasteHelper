@@ -68,18 +68,16 @@ namespace GiftTasteHelper
         {
             Debug.Assert(calendar.IsOpen, "OnMouseStateChange being called but the calendar isn't open");
 
-            SVector2 newMouse = new SVector2(e.NewState.X, e.NewState.Y);
-            SVector2 oldMouse = new SVector2(e.PriorState.X, e.PriorState.Y);
+            // This gets the scaled mouse position
+            SVector2 mouse = new SVector2(Game1.getMouseX(), Game1.getMouseY());
 
             // Check if we're hovering over a day that has a birthday
-            string hoverText = calendar.GetCurrentHoverText();
-            if (hoverText.Length > 0 && hoverText.Contains("Birthday"))
+            string hoverText = calendar.GetHoveredBirthdayNPCName(mouse);
+            if (hoverText.Length > 0)
             {
                 // Check if it's the same as before
                 if (hoverText != previousHoverText)
                 {
-                    //Utils.DebugLog("hover text: " + hoverText);
-
                     string npcName = Utils.ParseNameFromHoverText(hoverText);
                     Debug.Assert(npcGiftInfo.ContainsKey(npcName));
 

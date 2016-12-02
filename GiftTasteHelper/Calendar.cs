@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewValley.Menus;
+using StardewValley;
 
 namespace GiftTasteHelper
 {
@@ -56,6 +57,7 @@ namespace GiftTasteHelper
                 // We seem to lose our billboard ref on re-size, so get it back
                 billboard = baseClass;
                 bounds = new Rectangle(billboard.xPositionOnScreen, billboard.yPositionOnScreen, billboard.width, billboard.height);
+                calendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(billboard, calendarDaysFieldName);
             }
             else
             {
@@ -86,5 +88,21 @@ namespace GiftTasteHelper
             return Utils.GetNativeField<string, Billboard>(billboard, "hoverText");
         }
 
+        public string GetHoveredBirthdayNPCName(SVector2 mouse)
+        {
+            string name = string.Empty;
+            foreach (ClickableTextureComponent day in calendarDays)
+            {
+                if (day.bounds.Contains(mouse.xi, mouse.yi))
+                {
+                    if (day.hoverText.Length > 0 && day.hoverText.Contains("Birthday"))
+                    {
+                        name = day.hoverText;
+                        break;
+                    }
+                }
+            }
+            return name;
+        }
     }
 }
