@@ -172,15 +172,15 @@ namespace GiftTasteHelper
             AdjustTooltipPosition(ref x, ref y, width, height, viewportW, viewportH);
 
             // Approximate where the original tooltip will be positioned if there is an existing one we need to account for
-            int origTToffsetX = 0;
             origHoverTextSize = SVector2.MeasureString(originalTooltipText, Game1.dialogueFont);
+            int origTToffsetX = 0;
             if (origHoverTextSize.x > 0)
             {
                 origTToffsetX = Math.Max(0, AdjustForTileSize(origHoverTextSize.x + mouse.x, 1.0f) - viewportW) + width;
             }
 
             // Consider the position of the original tooltip and ensure we don't cover it up
-            SVector2 tooltipPos = ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH);
+            SVector2 tooltipPos = ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH, mouse);
 
             // Reduce the number items shown if it will go off screen.
             // TODO: add a scrollbar or second column
@@ -221,7 +221,7 @@ namespace GiftTasteHelper
             }
         }
 
-        public SVector2 ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH)
+        public SVector2 ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH, SVector2 mouse)
         {
             SVector2 p = new SVector2(x, y);
 
@@ -231,10 +231,13 @@ namespace GiftTasteHelper
             // Only adjust the position if there's another tooltip that we need to adjust for.
             if (!origHoverTextSize.IsZero())
             {
+                // Only adjust x if the original tooltip isn't right up against the right side and the mouse is between them.
+                bool adjustX = (mouse.x <= (viewportW - AdjustForTileSize(origHoverTextSize.x, 1.0f)));
+
                 // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
                 int halfTileSize = AdjustForTileSize(0.0f);
-                p.y -= (p.x != x) ? halfTileSize : 0;
-                p.x -= (p.y != y) ? halfTileSize : 0;
+                p.y = Math.Max(0, p.y - ((p.x != x) ? halfTileSize : 0));
+                p.x = Math.Max(0, p.x - ((p.y != y && adjustX) ? halfTileSize : 0));
             }
             return p;
         }
