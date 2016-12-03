@@ -42,12 +42,12 @@ namespace GiftTasteHelper
         public override bool CanTick()
         {
             // We don't have a tab-changed event so don't tick when the social tab isn't open
-            return (IsCorrectMenuTab((GameMenu)Game1.activeClickableMenu) && base.CanTick());
+            return (IsCorrectMenuTab(Game1.activeClickableMenu) && base.CanTick());
         }
 
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
-            Debug.Assert(IsCorrectMenuTab((GameMenu)Game1.activeClickableMenu));
+            Debug.Assert(IsCorrectMenuTab(Game1.activeClickableMenu));
             Debug.Assert(socialPage != null);
 
             SVector2 mousePos = new SVector2(e.NewState.X, e.NewState.Y);
@@ -83,16 +83,28 @@ namespace GiftTasteHelper
 
         private bool IsCorrectMenuTab(IClickableMenu menu)
         {
-            GameMenu gameMenu = (GameMenu)menu;
-            return (gameMenu != null && gameMenu.currentTab == GameMenu.socialTab);
+            if (menu != null && menu is GameMenu)
+            {
+                GameMenu gameMenu = (GameMenu)menu;
+                return (gameMenu != null && gameMenu.currentTab == GameMenu.socialTab);
+            }
+            return false;
         }
 
         private SDVSocialPage GetNativeSocialPage(IClickableMenu menu)
         {
-            SDVSocialPage nativeSocialPage = (SDVSocialPage)(
-                (List<IClickableMenu>)typeof(GameMenu)
-                .GetField("pages", BindingFlags.Instance | BindingFlags.NonPublic)
-                .GetValue(menu))[GameMenu.socialTab];
+            SDVSocialPage nativeSocialPage = null;
+            try
+            {
+                nativeSocialPage = (SDVSocialPage)(
+                    (List<IClickableMenu>)typeof(GameMenu)
+                    .GetField("pages", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .GetValue(menu))[GameMenu.socialTab];
+            }
+            catch (Exception ex)
+            {
+                Utils.DebugLog("Failed to get native social page: " + ex.ToString(), StardewModdingAPI.LogLevel.Warn);
+            }
 
             return nativeSocialPage;
         }
