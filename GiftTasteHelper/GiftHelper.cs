@@ -21,6 +21,7 @@ namespace GiftTasteHelper
         protected Dictionary<string, NPCGiftInfo> npcGiftInfo; // Indexed by name
         protected NPCGiftInfo currentGiftInfo = null;
         private SVector2 origHoverTextSize;
+        private int maxItemsToDisplay = 0;
         protected bool drawCurrentFrame = false;
         protected bool isInitialized = false;
         protected bool isOpen = false;
@@ -28,9 +29,10 @@ namespace GiftTasteHelper
 
         public EGiftHelperType GiftHelperType { get; private set; }
 
-        public GiftHelper(EGiftHelperType helperType)
+        public GiftHelper(EGiftHelperType helperType, int maxItemsToDisplay)
         {
-            GiftHelperType = helperType;
+            this.GiftHelperType = helperType;
+            this.maxItemsToDisplay = maxItemsToDisplay;
         }
 
         public float ZoomLevel
@@ -73,7 +75,7 @@ namespace GiftTasteHelper
                 if (giftTastes.Length > 0)
                 {
                     string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
-                    npcGiftInfo[npcName] = new NPCGiftInfo(npcName, favouriteGifts);
+                    npcGiftInfo[npcName] = new NPCGiftInfo(npcName, favouriteGifts, maxItemsToDisplay);
                 }
             }
 

@@ -12,8 +12,8 @@ namespace GiftTasteHelper
         private Calendar calendar = new Calendar();
         private string previousHoverText = "";
 
-        public CalendarGiftHelper() 
-            : base(EGiftHelperType.GHT_Calendar)
+        public CalendarGiftHelper(int maxItemsToDisplay) 
+            : base(EGiftHelperType.GHT_Calendar, maxItemsToDisplay)
         {
 
         }

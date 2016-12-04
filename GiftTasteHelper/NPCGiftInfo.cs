@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using System.Diagnostics;
 
 namespace GiftTasteHelper
 {
@@ -25,20 +26,23 @@ namespace GiftTasteHelper
         private string npcName;
         private ItemData[] favouriteGifts;
 
-        public NPCGiftInfo(string name, string[] favourite)
+        public NPCGiftInfo(string name, string[] favourite, int maxGiftsToDisplay)
         {
             npcName = name;
             MaxGiftNameSize = SVector2.Zero;
 
             int[] favouriteGiftIDs = Utils.StringToIntArray(favourite);
+            int numGiftsToDisplay = CalculateNumberOfGiftsToDisplay(favouriteGiftIDs.Length, maxGiftsToDisplay);
 
-            favouriteGifts = ParseGifts(favouriteGiftIDs);
+            favouriteGifts = ParseGifts(favouriteGiftIDs, numGiftsToDisplay);
         }
 
-        private ItemData[] ParseGifts(int[] ids)
+        private ItemData[] ParseGifts(int[] ids, int numToDisplay)
         {
-            List<ItemData> itemList = new List<ItemData>();
-            for (int i = 0; i < ids.Length; ++i)
+            Debug.Assert(numToDisplay <= ids.Length);
+
+            List<ItemData> itemList = new List<ItemData>(numToDisplay);
+            for (int i = 0; i < numToDisplay; ++i)
             {
                 if (!Game1.objectInformation.ContainsKey(ids[i]))
                 {
@@ -62,6 +66,16 @@ namespace GiftTasteHelper
                 }
             }
             return itemList.ToArray();
+        }
+
+        private int CalculateNumberOfGiftsToDisplay(int numGifts, int maxGiftsToDisplay)
+        {
+            // 0 or less means no limit
+            if (maxGiftsToDisplay <= 0)
+            {
+                return numGifts;
+            }
+            return System.Math.Min(numGifts, maxGiftsToDisplay);
         }
     }
 }

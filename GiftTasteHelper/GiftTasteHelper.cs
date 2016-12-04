@@ -23,11 +23,11 @@ namespace GiftTasteHelper
             giftHelpers = new Dictionary<Type, IGiftHelper>();
             if (config.ShowOnCalendar)
             {
-                giftHelpers.Add(typeof(Billboard), new CalendarGiftHelper());
+                giftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(config.MaxGiftsToDisplay));
             }
             if (config.ShowOnSocialPage)
             {
-                giftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper());
+                giftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(config.MaxGiftsToDisplay));
             }
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;

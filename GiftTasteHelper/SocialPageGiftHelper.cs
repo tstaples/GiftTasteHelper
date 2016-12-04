@@ -15,8 +15,8 @@ namespace GiftTasteHelper
         private SocialPage socialPage = new SocialPage();
         private string lastHoveredNPC = string.Empty;
 
-        public SocialPageGiftHelper() 
-            : base(EGiftHelperType.GHT_SocialPage)
+        public SocialPageGiftHelper(int maxItemsToDisplay) 
+            : base(EGiftHelperType.GHT_SocialPage, maxItemsToDisplay)
         {
         }
 
