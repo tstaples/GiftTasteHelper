@@ -50,7 +50,7 @@ namespace GiftTasteHelper
 
         private void OnClickableMenuChanged(object sender, EventArgsClickableMenuChanged e)
         {
-            DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
+            //DebugPrintMenuInfo(e.PriorMenu, e.NewMenu);
 
             Type newMenuType = e.NewMenu.GetType();
 

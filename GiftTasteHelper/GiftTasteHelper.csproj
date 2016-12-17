@@ -70,7 +70,7 @@
   </Target>
   <PropertyGroup Condition="$(GamePlatform) == 'Windows'">
     <PostBuildEvent>
-      set modDir=$(GamePath)\Mods\GiftTasteHelper
+      set modDir=$(GamePath)\Mods\$(ProjectName)
       if not exist "%modDir%" (mkdir "%modDir%")
       copy "$(TargetDir)\$(TargetName).dll" "%modDir%\$(TargetName).dll"
       copy "$(TargetDir)\$(TargetName).pdb" "%modDir%\$(TargetName).pdb"
