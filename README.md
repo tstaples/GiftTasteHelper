@@ -36,7 +36,7 @@ To uninstall this mod you can simply delete the "GiftTasteHelper" folder from yo
 
 ## Configuration
 
-In this mod's `config.json` file you will find options to enable/disable displaying the tooltip on the calendar and social page.
+In this mod's `config.json` file you will find options to enable/disable displaying the tooltip on the calendar and social page. There is also an option for specifying the maximum number of gifts to display on the tooltip.
 
 The config file is located in the `Mods/GiftTasteHelper` directory under your game install. To find your game directory click [here](http://canimod.com/guides/smapi-faq#where-is-my-game-directory).
 
@@ -47,7 +47,8 @@ The config will look like:
 ```
 {
 	"ShowOnCalendar": true,
-	"ShowOnSocialPage": true
+	"ShowOnSocialPage": true,
+	"MaxGiftsToDisplay": 0 // 0 means no limit.
 }
 ```
 
