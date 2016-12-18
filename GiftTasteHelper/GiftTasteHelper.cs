@@ -11,6 +11,7 @@ namespace GiftTasteHelper
     {
         private Dictionary<Type, IGiftHelper> giftHelpers;
         private IGiftHelper currentGiftHelper = null;
+        private bool wasResize = false;
 
         public override void Entry(IModHelper helper)
         {
@@ -32,6 +33,7 @@ namespace GiftTasteHelper
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
+            GraphicsEvents.Resize += (sender, e) => wasResize = true;
         }
 
         private void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
@@ -54,15 +56,18 @@ namespace GiftTasteHelper
 
             Type newMenuType = e.NewMenu.GetType();
 
-            if (currentGiftHelper != null && currentGiftHelper.IsOpen() && 
+            if (wasResize && currentGiftHelper != null && currentGiftHelper.IsOpen() && 
                 e.PriorMenu != null && e.PriorMenu.GetType() == newMenuType)
             {
                 // resize event
                 Utils.DebugLog("[OnClickableMenuChanged] Invoking resize event on helper: " + currentGiftHelper.GetType().ToString());
 
                 currentGiftHelper.OnResize(e.NewMenu);
+                wasResize = false;
                 return;
             }
+            wasResize = false;
+
 
             if (giftHelpers.ContainsKey(newMenuType))
             {

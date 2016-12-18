@@ -4,7 +4,7 @@
   "Version": {
     "MajorVersion": 2,
     "MinorVersion": 3,
-    "PatchVersion": 0,
+    "PatchVersion": 1,
     "Build": "0"
   },
   "Description": "Displays NPC gift tastes in a handy tooltip.",

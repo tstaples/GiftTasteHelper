@@ -104,6 +104,7 @@ namespace GiftTasteHelper
             catch (Exception ex)
             {
                 Utils.DebugLog("Failed to get native social page: " + ex.ToString(), StardewModdingAPI.LogLevel.Warn);
+                return null;
             }
 
             return nativeSocialPage;
