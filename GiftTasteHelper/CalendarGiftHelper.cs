@@ -1,26 +1,28 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
-using StardewModdingAPI.Events;
-using Microsoft.Xna.Framework;
 
 namespace GiftTasteHelper
 {
-    public class CalendarGiftHelper : GiftHelper
+    internal class CalendarGiftHelper : GiftHelper
     {
-        private Calendar calendar = new Calendar();
-        private string previousHoverText = "";
+        /*********
+        ** Properties
+        *********/
+        private readonly Calendar Calendar = new Calendar();
+        private string PreviousHoverText = "";
 
-        public CalendarGiftHelper(int maxItemsToDisplay) 
-            : base(EGiftHelperType.GHT_Calendar, maxItemsToDisplay)
-        {
 
-        }
+        /*********
+        ** Public methods
+        *********/
+        public CalendarGiftHelper(int maxItemsToDisplay)
+            : base(global::GiftTasteHelper.GiftHelperType.Calendar, maxItemsToDisplay) { }
 
         public override void Init(IClickableMenu menu)
         {
-            Debug.Assert(!calendar.IsInitialized, "Calendar is already initialized");
+            Debug.Assert(!this.Calendar.IsInitialized, "Calendar is already initialized");
 
             base.Init(menu);
         }
@@ -35,13 +37,13 @@ namespace GiftTasteHelper
                 return false;
             }
 
-            Debug.Assert(!calendar.IsOpen);
+            Debug.Assert(!this.Calendar.IsOpen);
 
             // The calendar/billboard's internal data is re-initialized every time it's opened
             // So we need to update ours as well.
-            calendar.Init((Billboard)menu);
-            calendar.IsOpen = true;
-            previousHoverText = "";
+            this.Calendar.Init((Billboard)menu);
+            this.Calendar.IsOpen = true;
+            this.PreviousHoverText = "";
 
             Utils.DebugLog("[OnOpen] Opening calendar");
 
@@ -50,57 +52,57 @@ namespace GiftTasteHelper
 
         public override void OnResize(IClickableMenu menu)
         {
-            if (calendar.IsOpen && calendar.IsInitialized)
+            if (this.Calendar.IsOpen && this.Calendar.IsInitialized)
             {
                 Utils.DebugLog("[OnResize] Re-Initializing calendar");
-                calendar.OnResize((Billboard)menu);
+                this.Calendar.OnResize((Billboard)menu);
             }
         }
 
         public override void OnClose()
         {
-            calendar.IsOpen = false;
+            this.Calendar.IsOpen = false;
 
             base.OnClose();
         }
 
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
-            Debug.Assert(calendar.IsOpen, "OnMouseStateChange being called but the calendar isn't open");
+            Debug.Assert(this.Calendar.IsOpen, "OnMouseStateChange being called but the calendar isn't open");
 
             // This gets the scaled mouse position
             SVector2 mouse = new SVector2(Game1.getMouseX(), Game1.getMouseY());
 
             // Check if we're hovering over a day that has a birthday
-            string hoverText = calendar.GetHoveredBirthdayNPCName(mouse);
+            string hoverText = this.Calendar.GetHoveredBirthdayNpcName(mouse);
             if (hoverText.Length > 0)
             {
                 // Check if it's the same as before
-                if (hoverText != previousHoverText)
+                if (hoverText != this.PreviousHoverText)
                 {
                     string npcName = Utils.ParseNameFromHoverText(hoverText);
-                    Debug.Assert(npcGiftInfo.ContainsKey(npcName));
+                    Debug.Assert(this.NpcGiftInfo.ContainsKey(npcName));
 
-                    currentGiftInfo = npcGiftInfo[npcName];
-                    //currentGiftInfo = npcGiftInfo["Penny"]; // Temp for testing since she has the most items
-                    //Utils.DebugLog(npcName + " favourite gifts: " + Utils.ArrayToString(currentGiftInfo.FavouriteGifts));
+                    this.CurrentGiftInfo = this.NpcGiftInfo[npcName];
+                    //CurrentGiftInfo = NpcGiftInfo["Penny"]; // Temp for testing since she has the most items
+                    //Utils.DebugLog(npcName + " favourite gifts: " + Utils.ArrayToString(CurrentGiftInfo.FavouriteGifts));
 
-                    previousHoverText = hoverText;
+                    this.PreviousHoverText = hoverText;
                 }
 
-                drawCurrentFrame = true;
+                this.DrawCurrentFrame = true;
             }
             else
             {
-                previousHoverText = string.Empty;
-                drawCurrentFrame = false;
+                this.PreviousHoverText = string.Empty;
+                this.DrawCurrentFrame = false;
             }
         }
 
         public override void OnDraw()
         {
             // Draw the tooltip
-            DrawGiftTooltip(currentGiftInfo, TooltipTitle, calendar.GetCurrentHoverText());
+            DrawGiftTooltip(this.CurrentGiftInfo, TooltipTitle, this.Calendar.GetCurrentHoverText());
         }
     }
 }

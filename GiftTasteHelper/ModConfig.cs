@@ -1,27 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GiftTasteHelper
+﻿namespace GiftTasteHelper
 {
-    class ModConfig
+    internal class ModConfig
     {
-        /// <summary>
-        /// Should the tooltip be displayed on the calendar.
-        /// </summary>
+        /// <summary>Whether the tooltip should be displayed on the calendar.</summary>
         public bool ShowOnCalendar { get; set; } = true;
 
-        /// <summary>
-        /// Should the tooltip be displayed on the social page.
-        /// </summary>
+        /// <summary>Whether the tooltip should be displayed on the social page.</summary>
         public bool ShowOnSocialPage { get; set; } = true;
 
-        /// <summary>
-        /// Max number of gifts to display on the tooltip.
-        /// For unlimited set to 0.
-        /// </summary>
+        /// <summary>The maximum number of gifts to display on the tooltip (or 0 for unlimited).</summary>
         public int MaxGiftsToDisplay { get; set; } = 0;
     }
 }

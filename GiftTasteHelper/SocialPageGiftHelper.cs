@@ -1,99 +1,101 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
-using StardewModdingAPI.Events;
-using System.Reflection;
 using SDVSocialPage = StardewValley.Menus.SocialPage;
-using Microsoft.Xna.Framework;
 
 namespace GiftTasteHelper
 {
-    public class SocialPageGiftHelper : GiftHelper
+    internal class SocialPageGiftHelper : GiftHelper
     {
-        private SocialPage socialPage = new SocialPage();
-        private string lastHoveredNPC = string.Empty;
+        /*********
+        ** Properties
+        *********/
+        private readonly SocialPage SocialPage = new SocialPage();
+        private string LastHoveredNpc = string.Empty;
 
-        public SocialPageGiftHelper(int maxItemsToDisplay) 
-            : base(EGiftHelperType.GHT_SocialPage, maxItemsToDisplay)
-        {
-        }
+
+        /*********
+        ** Public methods
+        *********/
+        public SocialPageGiftHelper(int maxItemsToDisplay)
+            : base(GiftHelperType.SocialPage, maxItemsToDisplay) { }
 
         public override bool OnOpen(IClickableMenu menu)
         {
-            // Reset
-            lastHoveredNPC = string.Empty;
+            // reset
+            this.LastHoveredNpc = string.Empty;
 
-            SDVSocialPage nativeSocialPage = GetNativeSocialPage(menu);
+            SDVSocialPage nativeSocialPage = this.GetNativeSocialPage(menu);
             if (nativeSocialPage != null)
-            {
-                socialPage.Init(nativeSocialPage);
-            }
+                this.SocialPage.Init(nativeSocialPage);
             return base.OnOpen(menu);
         }
 
         public override void OnResize(IClickableMenu menu)
         {
             base.OnResize(menu);
-            socialPage.OnResize(GetNativeSocialPage(menu));
+            this.SocialPage.OnResize(this.GetNativeSocialPage(menu));
         }
 
         public override bool CanTick()
         {
-            // We don't have a tab-changed event so don't tick when the social tab isn't open
-            return (IsCorrectMenuTab(Game1.activeClickableMenu) && base.CanTick());
+            // we don't have a tab-changed event so don't tick when the social tab isn't open
+            return this.IsCorrectMenuTab(Game1.activeClickableMenu) && base.CanTick();
         }
 
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
-            Debug.Assert(IsCorrectMenuTab(Game1.activeClickableMenu));
-            Debug.Assert(socialPage != null);
+            Debug.Assert(this.IsCorrectMenuTab(Game1.activeClickableMenu));
+            Debug.Assert(this.SocialPage != null);
 
             SVector2 mousePos = new SVector2(e.NewState.X, e.NewState.Y);
-            string hoveredNPC = socialPage.GetCurrentlyHoveredNPC(mousePos);
-            if (hoveredNPC == string.Empty)
+            string hoveredNpc = this.SocialPage.GetCurrentlyHoveredNpc(mousePos);
+            if (hoveredNpc == string.Empty)
             {
-                drawCurrentFrame = false;
+                this.DrawCurrentFrame = false;
                 return;
             }
 
-            if (hoveredNPC != lastHoveredNPC)
+            if (hoveredNpc != this.LastHoveredNpc)
             {
-                Debug.Assert(npcGiftInfo.ContainsKey(hoveredNPC));
-                currentGiftInfo = npcGiftInfo[hoveredNPC];
+                Debug.Assert(this.NpcGiftInfo.ContainsKey(hoveredNpc));
+                this.CurrentGiftInfo = this.NpcGiftInfo[hoveredNpc];
 
-                drawCurrentFrame = true;
-                lastHoveredNPC = hoveredNPC;
+                this.DrawCurrentFrame = true;
+                this.LastHoveredNpc = hoveredNpc;
             }
             else
-            {
-                lastHoveredNPC = string.Empty;
-            }
+                this.LastHoveredNpc = string.Empty;
         }
 
+
+        /*********
+        ** Protected methods
+        *********/
         protected override void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
         {
             // Prevent the tooltip from going off screen if we're at the edge
             if (x + width > viewportW)
-            {
                 x = viewportW - width;
-            }
         }
 
         private bool IsCorrectMenuTab(IClickableMenu menu)
         {
-            if (menu != null && menu is GameMenu)
+            if (menu is GameMenu)
             {
                 GameMenu gameMenu = (GameMenu)menu;
-                return (gameMenu != null && gameMenu.currentTab == GameMenu.socialTab);
+                return gameMenu.currentTab == GameMenu.socialTab;
             }
             return false;
         }
 
         private SDVSocialPage GetNativeSocialPage(IClickableMenu menu)
         {
-            SDVSocialPage nativeSocialPage = null;
+            SDVSocialPage nativeSocialPage;
             try
             {
                 nativeSocialPage = (SDVSocialPage)(
@@ -103,7 +105,7 @@ namespace GiftTasteHelper
             }
             catch (Exception ex)
             {
-                Utils.DebugLog("Failed to get native social page: " + ex.ToString(), StardewModdingAPI.LogLevel.Warn);
+                Utils.DebugLog("Failed to get native social page: " + ex, StardewModdingAPI.LogLevel.Warn);
                 return null;
             }
 

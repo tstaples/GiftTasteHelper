@@ -38,10 +38,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calendar.cs" />
+    <Compile Include="GiftHelperType.cs" />
     <Compile Include="GiftTasteHelper.cs" />
     <Compile Include="CalendarGiftHelper.cs" />
     <Compile Include="GiftHelper.cs" />
     <Compile Include="IGiftHelper.cs" />
+    <Compile Include="ItemData.cs" />
+    <Compile Include="LineBatch.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="NPCGiftInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

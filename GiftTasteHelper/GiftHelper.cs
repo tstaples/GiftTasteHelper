@@ -1,65 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
-using StardewModdingAPI;
-using StardewModdingAPI.Events;
 
 namespace GiftTasteHelper
 {
-    public abstract class GiftHelper : IGiftHelper
+    internal abstract class GiftHelper : IGiftHelper
     {
-        public enum EGiftHelperType
-        {
-            GHT_Calendar,
-            GHT_SocialPage
-        }
+        /*********
+        ** Properties
+        *********/
+        protected Dictionary<string, NpcGiftInfo> NpcGiftInfo; // Indexed by name
+        protected NpcGiftInfo CurrentGiftInfo;
+        private SVector2 OrigHoverTextSize;
+        private readonly int MaxItemsToDisplay;
+        protected bool DrawCurrentFrame;
 
-        protected Dictionary<string, NPCGiftInfo> npcGiftInfo; // Indexed by name
-        protected NPCGiftInfo currentGiftInfo = null;
-        private SVector2 origHoverTextSize;
-        private int maxItemsToDisplay = 0;
-        protected bool drawCurrentFrame = false;
-        protected bool isInitialized = false;
-        protected bool isOpen = false;
+
+        /*********
+        ** Accessors
+        *********/
+        public bool IsInitialized { get; private set; }
+        public bool IsOpen { get; private set; }
         public string TooltipTitle { get; protected set; } = "Favourite Gifts";
+        public GiftHelperType GiftHelperType { get; }
+        public float ZoomLevel => 1.0f; // SMAPI's draw call will handle zoom
 
-        public EGiftHelperType GiftHelperType { get; private set; }
 
-        public GiftHelper(EGiftHelperType helperType, int maxItemsToDisplay)
+        /*********
+        ** Public methods
+        *********/
+        public GiftHelper(GiftHelperType helperType, int maxItemsToDisplay)
         {
             this.GiftHelperType = helperType;
-            this.maxItemsToDisplay = maxItemsToDisplay;
-        }
-
-        public float ZoomLevel
-        {
-            // SMAPI's draw call will handle zoom
-            get { return 1.0f; }
-        }
-
-        public bool IsInitialized()
-        {
-            return isInitialized;
-        }
-
-        public bool IsOpen()
-        {
-            return isOpen;
+            this.MaxItemsToDisplay = maxItemsToDisplay;
         }
 
         public virtual void Init(IClickableMenu menu)
         {
-            if (isInitialized)
+            if (this.IsInitialized)
             {
                 Utils.DebugLog("BaseGiftHelper already initialized; skipping");
                 return;
             }
 
-            npcGiftInfo = new Dictionary<string, NPCGiftInfo>();
+            this.NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
 
             // TODO: filter out names that will never be used
             Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
@@ -71,21 +59,21 @@ namespace GiftTasteHelper
                 if (npcName.IndexOf('_') != -1)
                     continue;
 
-                string[] giftTastes = giftTaste.Value.Split(new char[] { '/' });
+                string[] giftTastes = giftTaste.Value.Split('/');
                 if (giftTastes.Length > 0)
                 {
-                    string[] favouriteGifts = giftTastes[1].Split(new char[] { ' ' });
-                    npcGiftInfo[npcName] = new NPCGiftInfo(npcName, favouriteGifts, maxItemsToDisplay);
+                    string[] favouriteGifts = giftTastes[1].Split(' ');
+                    this.NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts, this.MaxItemsToDisplay);
                 }
             }
 
-            isInitialized = true;
+            this.IsInitialized = true;
         }
 
         public virtual bool OnOpen(IClickableMenu menu)
         {
-            currentGiftInfo = null;
-            isOpen = true;
+            this.CurrentGiftInfo = null;
+            this.IsOpen = true;
 
             return true;
         }
@@ -97,9 +85,9 @@ namespace GiftTasteHelper
 
         public virtual void OnClose()
         {
-            currentGiftInfo = null;
-            drawCurrentFrame = false;
-            isOpen = false;
+            this.CurrentGiftInfo = null;
+            this.DrawCurrentFrame = false;
+            this.IsOpen = false;
         }
 
         public virtual bool CanTick()
@@ -115,81 +103,58 @@ namespace GiftTasteHelper
         public virtual bool CanDraw()
         {
             // Double check here since we may not be unsubscribed from post render right away when the calendar closes
-            return (drawCurrentFrame && currentGiftInfo != null);
+            return (this.DrawCurrentFrame && this.CurrentGiftInfo != null);
         }
 
         public virtual void OnDraw()
         {
-            DrawGiftTooltip(currentGiftInfo, TooltipTitle);
+            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle);
         }
 
-        public static int AdjustForTileSize(float v, float tileSizeMod = 0.5f, float zoom = 1.0f)
-        {
-            float tileSize = (float)Game1.tileSize * tileSizeMod;
-            return (int)((v + tileSize) * zoom);
-        }
-
-        protected virtual void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
-        {
-            // Empty
-        }
-
-        protected void DrawText(string text, SVector2 pos)
-        {
-            Game1.spriteBatch.DrawString(Game1.smallFont, text, pos.ToXNAVector2(), Game1.textColor, 0.0f, Vector2.Zero, ZoomLevel, SpriteEffects.None, 0.0f);
-        }
-
-        protected void DrawTexture(Texture2D texture, SVector2 pos, Rectangle source, float scale = 1.0f)
-        {
-            Game1.spriteBatch.Draw(texture, pos.ToXNAVector2(), source, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0.0f);
-        }
-
-        public void DrawGiftTooltip(NPCGiftInfo giftInfo, string title, string originalTooltipText = "")
+        public void DrawGiftTooltip(NpcGiftInfo giftInfo, string title, string originalTooltipText = "")
         {
             int numItems = giftInfo.FavouriteGifts.Length;
             if (numItems == 0)
                 return;
 
             float spriteScale = 2.0f * ZoomLevel; // 16x16 is pretty small
-            Rectangle spriteRect = giftInfo.FavouriteGifts[0].tileSheetSourceRect; // We just need the dimensions which we assume are all the same
+            Rectangle spriteRect = giftInfo.FavouriteGifts[0].TileSheetSourceRect; // We just need the dimensions which we assume are all the same
             SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
 
             // The longest length of text will help us determine how wide the tooltip box should be 
             SVector2 titleSize = SVector2.MeasureString(title, Game1.smallFont);
-            SVector2 maxTextSize = (titleSize.x - scaledSpriteSize.x > giftInfo.MaxGiftNameSize.x) ? titleSize : giftInfo.MaxGiftNameSize;
+            SVector2 maxTextSize = (titleSize.X - scaledSpriteSize.X > giftInfo.MaxGiftNameSize.X) ? titleSize : giftInfo.MaxGiftNameSize;
 
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 
             int padding = 4; // Chosen by fair dice roll
-            int rowHeight = (int)Math.Max(maxTextSize.y * ZoomLevel, scaledSpriteSize.yi) + padding;
-            int width = AdjustForTileSize((maxTextSize.x * ZoomLevel) + scaledSpriteSize.xi) + padding;
-            int height = AdjustForTileSize(rowHeight * (numItems + 1), 0.5f); // Add one to make room for the title
-            int x = AdjustForTileSize(mouse.x, 0.5f, ZoomLevel);
-            int y = AdjustForTileSize(mouse.y, 0.5f, ZoomLevel);
+            int rowHeight = (int)Math.Max(maxTextSize.Y * ZoomLevel, scaledSpriteSize.YInt) + padding;
+            int width = this.AdjustForTileSize((maxTextSize.X * ZoomLevel) + scaledSpriteSize.XInt) + padding;
+            int height = this.AdjustForTileSize(rowHeight * (numItems + 1)); // Add one to make room for the title
+            int x = this.AdjustForTileSize(mouse.X, 0.5f, ZoomLevel);
+            int y = this.AdjustForTileSize(mouse.Y, 0.5f, ZoomLevel);
 
             int viewportW = Game1.viewport.Width;
             int viewportH = Game1.viewport.Height;
 
             // Let derived classes adjust the positioning
-            AdjustTooltipPosition(ref x, ref y, width, height, viewportW, viewportH);
+            this.AdjustTooltipPosition(ref x, ref y, width, height, viewportW, viewportH);
 
             // Approximate where the original tooltip will be positioned if there is an existing one we need to account for
-            origHoverTextSize = SVector2.MeasureString(originalTooltipText, Game1.dialogueFont);
+            this.OrigHoverTextSize = SVector2.MeasureString(originalTooltipText, Game1.dialogueFont);
             int origTToffsetX = 0;
-            if (origHoverTextSize.x > 0)
-            {
-                origTToffsetX = Math.Max(0, AdjustForTileSize(origHoverTextSize.x + mouse.x, 1.0f) - viewportW) + width;
-            }
+            if (this.OrigHoverTextSize.X > 0)
+                origTToffsetX = Math.Max(0, AdjustForTileSize(this.OrigHoverTextSize.X + mouse.X, 1.0f) - viewportW) + width;
 
             // Consider the position of the original tooltip and ensure we don't cover it up
-            SVector2 tooltipPos = ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH, mouse);
+            SVector2 tooltipPos = this.ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH, mouse);
 
             // Reduce the number items shown if it will go off screen.
             // TODO: add a scrollbar or second column
             if (height > viewportH)
             {
                 numItems = (viewportH / rowHeight) - 1; // Remove an item to make space for the title
-                height = AdjustForTileSize(rowHeight * numItems);
+                height = this.AdjustForTileSize(rowHeight * numItems);
             }
 
             // Draw the background of the tooltip
@@ -197,49 +162,74 @@ namespace GiftTasteHelper
 
             // Part of the spritesheet containing the texture we want to draw
             Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
-            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.xi, tooltipPos.yi, width, height, Color.White, ZoomLevel);
-            
+            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.XInt, tooltipPos.YInt, width, height, Color.White, ZoomLevel);
+
             // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
-            SVector2 spriteOffset = new SVector2(AdjustForTileSize(tooltipPos.x, 0.25f), AdjustForTileSize(tooltipPos.y, 0.25f));
-            SVector2 textOffset = new SVector2(spriteOffset.x, spriteOffset.y + (spriteRect.Height / 2));
+            SVector2 spriteOffset = new SVector2(this.AdjustForTileSize(tooltipPos.X, 0.25f), this.AdjustForTileSize(tooltipPos.Y, 0.25f));
+            SVector2 textOffset = new SVector2(spriteOffset.X, spriteOffset.Y + (spriteRect.Height / 2));
 
             // Draw the title then set up the offset for the remaining text
-            DrawText(title, textOffset);
-            textOffset.x += scaledSpriteSize.x + padding;
-            textOffset.y += rowHeight;
-            spriteOffset.y += rowHeight;
+            this.DrawText(title, textOffset);
+            textOffset.X += scaledSpriteSize.X + padding;
+            textOffset.Y += rowHeight;
+            spriteOffset.Y += rowHeight;
 
             for (int i = 0; i < numItems; ++i)
             {
-                NPCGiftInfo.ItemData item = giftInfo.FavouriteGifts[i];
+                ItemData item = giftInfo.FavouriteGifts[i];
 
                 // Draw the sprite for the item then the item text
-                DrawText(item.name, textOffset);
-                DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.tileSheetSourceRect, spriteScale);
+                this.DrawText(item.Name, textOffset);
+                this.DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.TileSheetSourceRect, spriteScale);
 
                 // Move to the next row
-                spriteOffset.y += rowHeight;
-                textOffset.y += rowHeight;
+                spriteOffset.Y += rowHeight;
+                textOffset.Y += rowHeight;
             }
         }
 
-        public SVector2 ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH, SVector2 mouse)
+
+        /*********
+        ** Protected methods
+        *********/
+        protected virtual void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
+        {
+            // Empty
+        }
+
+        private int AdjustForTileSize(float v, float tileSizeMod = 0.5f, float zoom = 1.0f)
+        {
+            float tileSize = Game1.tileSize * tileSizeMod;
+            return (int)((v + tileSize) * zoom);
+        }
+
+        private void DrawText(string text, SVector2 pos)
+        {
+            Game1.spriteBatch.DrawString(Game1.smallFont, text, pos.ToVector2(), Game1.textColor, 0.0f, Vector2.Zero, ZoomLevel, SpriteEffects.None, 0.0f);
+        }
+
+        private void DrawTexture(Texture2D texture, SVector2 pos, Rectangle source, float scale = 1.0f)
+        {
+            Game1.spriteBatch.Draw(texture, pos.ToVector2(), source, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0.0f);
+        }
+
+        private SVector2 ClampToViewport(int x, int y, int w, int h, int viewportW, int viewportH, SVector2 mouse)
         {
             SVector2 p = new SVector2(x, y);
 
-            p.x = ClampToViewportAxis(p.xi, w, viewportW);
-            p.y = ClampToViewportAxis(p.yi, h, viewportH);
+            p.X = ClampToViewportAxis(p.XInt, w, viewportW);
+            p.Y = ClampToViewportAxis(p.YInt, h, viewportH);
 
             // Only adjust the position if there's another tooltip that we need to adjust for.
-            if (!origHoverTextSize.IsZero())
+            if (!this.OrigHoverTextSize.IsZero())
             {
                 // Only adjust x if the original tooltip isn't right up against the right side and the mouse is between them.
-                bool adjustX = (mouse.x <= (viewportW - AdjustForTileSize(origHoverTextSize.x, 1.0f)));
+                bool adjustX = (mouse.X <= (viewportW - AdjustForTileSize(this.OrigHoverTextSize.X, 1.0f)));
 
                 // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
                 int halfTileSize = AdjustForTileSize(0.0f);
-                p.y = Math.Max(0, p.y - ((p.x != x) ? halfTileSize : 0));
-                p.x = Math.Max(0, p.x - ((p.y != y && adjustX) ? halfTileSize : 0));
+                p.Y = Math.Max(0, p.Y - ((p.X != x) ? halfTileSize : 0));
+                p.X = Math.Max(0, p.X - ((p.Y != y && adjustX) ? halfTileSize : 0));
             }
             return p;
         }

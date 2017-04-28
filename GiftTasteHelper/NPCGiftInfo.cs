@@ -1,42 +1,38 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using StardewValley;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using StardewValley;
 
 namespace GiftTasteHelper
 {
-    public class NPCGiftInfo
+    internal class NpcGiftInfo
     {
-        public struct ItemData
-        {
-            public string name;
-            public int ID;
-            public Rectangle tileSheetSourceRect;
-
-            public override string ToString()
-            {
-                return "{ID: " + ID.ToString() + ", Name: " + name + "}";
-            }
-        }
-
+        /*********
+        ** Accessors
+        *********/
         public SVector2 MaxGiftNameSize { get; private set; }
-        public string Name { get { return npcName; } }
-        public ItemData[] FavouriteGifts { get { return favouriteGifts; } }
+        public string Name { get; }
+        public ItemData[] FavouriteGifts { get; }
 
-        private string npcName;
-        private ItemData[] favouriteGifts;
 
-        public NPCGiftInfo(string name, string[] favourite, int maxGiftsToDisplay)
+        /*********
+        ** Public methods
+        *********/
+        public NpcGiftInfo(string name, string[] favourite, int maxGiftsToDisplay)
         {
-            npcName = name;
-            MaxGiftNameSize = SVector2.Zero;
+            this.Name = name;
+            this.MaxGiftNameSize = SVector2.Zero;
 
             int[] favouriteGiftIDs = Utils.StringToIntArray(favourite);
-            int numGiftsToDisplay = CalculateNumberOfGiftsToDisplay(favouriteGiftIDs.Length, maxGiftsToDisplay);
+            int numGiftsToDisplay = this.CalculateNumberOfGiftsToDisplay(favouriteGiftIDs.Length, maxGiftsToDisplay);
 
-            favouriteGifts = ParseGifts(favouriteGiftIDs, numGiftsToDisplay);
+            this.FavouriteGifts = this.ParseGifts(favouriteGiftIDs, numGiftsToDisplay);
         }
 
+
+        /*********
+        ** Private methods
+        *********/
         private ItemData[] ParseGifts(int[] ids, int numToDisplay)
         {
             Debug.Assert(numToDisplay <= ids.Length);
@@ -53,17 +49,17 @@ namespace GiftTasteHelper
                 string objectInfo = Game1.objectInformation[ids[i]];
                 string[] parts = objectInfo.Split(new char[] { '/' });
 
-                ItemData itemData = new ItemData();
-                itemData.name = parts[0];
-                itemData.ID = ids[i];
-                itemData.tileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, ids[i], 16, 16);
+                ItemData itemData = new ItemData
+                {
+                    Name = parts[0],
+                    ID = ids[i],
+                    TileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, ids[i], 16, 16)
+                };
                 itemList.Add(itemData);
 
-                SVector2 nameLength = SVector2.MeasureString(itemData.name, Game1.smallFont);
-                if (nameLength.xi > MaxGiftNameSize.xi)
-                {
+                SVector2 nameLength = SVector2.MeasureString(itemData.Name, Game1.smallFont);
+                if (nameLength.XInt > MaxGiftNameSize.XInt)
                     MaxGiftNameSize = nameLength;
-                }
             }
             return itemList.ToArray();
         }
@@ -72,10 +68,8 @@ namespace GiftTasteHelper
         {
             // 0 or less means no limit
             if (maxGiftsToDisplay <= 0)
-            {
                 return numGifts;
-            }
-            return System.Math.Min(numGifts, maxGiftsToDisplay);
+            return Math.Min(numGifts, maxGiftsToDisplay);
         }
     }
 }

@@ -1,102 +1,72 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewValley.Menus;
-using StardewValley;
 
 namespace GiftTasteHelper
 {
-    public class Calendar
+    internal class Calendar
     {
-        public const int NUM_DAYS = 28;
-        private const string calendarDaysFieldName = "calendarDays";
-
-        public struct BirthdayEventInfo
+        /*********
+        ** Properties
+        *********/
+        private const int DaysPerMonth = 28;
+        private const string CalendarDaysFieldName = "calendarDays";
+        private struct BirthdayEventInfo
         {
-            public int day;
-            public string npcName;
+            public int Day;
+            public string NpcName;
+        }
+        private Billboard Billboard;
+        private List<ClickableTextureComponent> CalendarDays;
+
+
+        /*********
+        ** Accessors
+        *********/
+        public bool IsOpen { get; set; }
+        public bool IsInitialized { get; private set; }
+        public Rectangle Bounds { get; private set; }
+
+
+        /*********
+        ** Public methods
+        *********/
+        public void Init(Billboard menu)
+        {
+            this.Clear();
+
+            this.Billboard = menu;
+            this.Bounds = new Rectangle(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
+            this.CalendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(menu, Calendar.CalendarDaysFieldName);
+            this.IsInitialized = true;
         }
 
-        private Billboard billboard;
-        private List<ClickableTextureComponent> calendarDays;
-        private bool isOpen = false;
-        private Rectangle bounds;
-
-        public bool IsOpen
+        public void OnResize(Billboard menu)
         {
-            get { return isOpen; }
-            set { isOpen = value; }
-        }
-
-        public bool IsInitialized
-        {
-            get; private set;
-        }
-
-        public Rectangle Bounds
-        {
-            get { return bounds; }
-        }
-
-        public void Init(Billboard baseClass)
-        {
-            Clear();
-
-            billboard = baseClass;
-            bounds = new Rectangle(billboard.xPositionOnScreen, billboard.yPositionOnScreen, billboard.width, billboard.height);
-            calendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(billboard, calendarDaysFieldName);
-            IsInitialized = true;
-        }
-
-        public void OnResize(Billboard baseClass)
-        {
-            if (IsInitialized)
+            if (this.IsInitialized)
             {
                 // We seem to lose our billboard ref on re-size, so get it back
-                billboard = baseClass;
-                bounds = new Rectangle(billboard.xPositionOnScreen, billboard.yPositionOnScreen, billboard.width, billboard.height);
-                calendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(billboard, calendarDaysFieldName);
+                this.Billboard = menu;
+                this.Bounds = new Rectangle(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
+                this.CalendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(menu, Calendar.CalendarDaysFieldName);
             }
             else
-            {
-                Init(baseClass);
-            }
-        }
-
-        public void Clear()
-        {
-            billboard = null;
-            if (calendarDays != null)
-            {
-                calendarDays.Clear();
-                calendarDays = null;
-            }
-            isOpen = false;
-            IsInitialized = false;
-        }
-
-        public Rectangle GetDayBounds(int dayNumber)
-        {
-            Debug.Assert(dayNumber > 0 && dayNumber <= NUM_DAYS, "Day number out of range");
-            return calendarDays[dayNumber - 1].bounds;
+                this.Init(menu);
         }
 
         public string GetCurrentHoverText()
         {
-            return Utils.GetNativeField<string, Billboard>(billboard, "hoverText");
+            return Utils.GetNativeField<string, Billboard>(Billboard, "hoverText");
         }
 
-        public string GetHoveredBirthdayNPCName(SVector2 mouse)
+        public string GetHoveredBirthdayNpcName(SVector2 mouse)
         {
             string name = string.Empty;
-            if (!bounds.Contains(mouse.ToPoint()))
-            {
+            if (!this.Bounds.Contains(mouse.ToPoint()))
                 return name;
-            }
 
-            foreach (ClickableTextureComponent day in calendarDays)
+            foreach (ClickableTextureComponent day in this.CalendarDays)
             {
                 if (day.bounds.Contains(mouse.ToPoint()))
                 {
@@ -108,6 +78,28 @@ namespace GiftTasteHelper
                 }
             }
             return name;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        private void Clear()
+        {
+            this.Billboard = null;
+            if (this.CalendarDays != null)
+            {
+                this.CalendarDays.Clear();
+                this.CalendarDays = null;
+            }
+            this.IsOpen = false;
+            this.IsInitialized = false;
+        }
+
+        private Rectangle GetDayBounds(int dayNumber)
+        {
+            Debug.Assert(dayNumber > 0 && dayNumber <= Calendar.DaysPerMonth, "Day number out of range");
+            return this.CalendarDays[dayNumber - 1].bounds;
         }
     }
 }

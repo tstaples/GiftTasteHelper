@@ -1,18 +1,27 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using StardewValley.Menus;
+using System.Diagnostics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley.Menus;
 
 namespace GiftTasteHelper
 {
-    public class GiftTasteHelper : Mod
+    internal class GiftTasteHelper : Mod
     {
-        private Dictionary<Type, IGiftHelper> giftHelpers;
-        private IGiftHelper currentGiftHelper = null;
-        private bool wasResize = false;
+        /*********
+        ** Properties
+        *********/
+        private Dictionary<Type, IGiftHelper> GiftHelpers;
+        private IGiftHelper CurrentGiftHelper;
+        private bool WasResized;
 
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
+        /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
             // Set the monitor ref so we can have a cheeky global log function
@@ -21,32 +30,32 @@ namespace GiftTasteHelper
             ModConfig config = helper.ReadConfig<ModConfig>();
 
             // Add the helpers if they're enabled in config
-            giftHelpers = new Dictionary<Type, IGiftHelper>();
+            this.GiftHelpers = new Dictionary<Type, IGiftHelper>();
             if (config.ShowOnCalendar)
-            {
-                giftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(config.MaxGiftsToDisplay));
-            }
+                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(config.MaxGiftsToDisplay));
             if (config.ShowOnSocialPage)
-            {
-                giftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(config.MaxGiftsToDisplay));
-            }
+                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(config.MaxGiftsToDisplay));
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
-            GraphicsEvents.Resize += (sender, e) => wasResize = true;
+            GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
         }
 
+
+        /*********
+        ** Private methods
+        *********/
         private void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
         {
-            Utils.DebugLog(e.PriorMenu.GetType().ToString() + " menu closed.");
+            Utils.DebugLog(e.PriorMenu.GetType() + " menu closed.");
 
-            if (currentGiftHelper != null)
+            if (this.CurrentGiftHelper != null)
             {
-                Utils.DebugLog("Closing current helper: " + currentGiftHelper.GetType().ToString());
+                Utils.DebugLog("Closing current helper: " + this.CurrentGiftHelper.GetType());
 
                 UnsubscribeEvents();
 
-                currentGiftHelper.OnClose();
+                this.CurrentGiftHelper.OnClose();
             }
         }
 
@@ -56,42 +65,42 @@ namespace GiftTasteHelper
 
             Type newMenuType = e.NewMenu.GetType();
 
-            if (wasResize && currentGiftHelper != null && currentGiftHelper.IsOpen() && 
+            if (this.WasResized && this.CurrentGiftHelper != null && this.CurrentGiftHelper.IsOpen &&
                 e.PriorMenu != null && e.PriorMenu.GetType() == newMenuType)
             {
                 // resize event
-                Utils.DebugLog("[OnClickableMenuChanged] Invoking resize event on helper: " + currentGiftHelper.GetType().ToString());
+                Utils.DebugLog("[OnClickableMenuChanged] Invoking resize event on helper: " + this.CurrentGiftHelper.GetType());
 
-                currentGiftHelper.OnResize(e.NewMenu);
-                wasResize = false;
+                this.CurrentGiftHelper.OnResize(e.NewMenu);
+                this.WasResized = false;
                 return;
             }
-            wasResize = false;
+            this.WasResized = false;
 
 
-            if (giftHelpers.ContainsKey(newMenuType))
+            if (this.GiftHelpers.ContainsKey(newMenuType))
             {
                 // Close the current gift helper
-                if (currentGiftHelper != null)
+                if (this.CurrentGiftHelper != null)
                 {
-                    Utils.DebugLog("[OnClickableMenuChanged] Closing current helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged] Closing current helper: " + this.CurrentGiftHelper.GetType());
 
                     UnsubscribeEvents();
 
-                    currentGiftHelper.OnClose();
+                    this.CurrentGiftHelper.OnClose();
                 }
 
-                currentGiftHelper = giftHelpers[newMenuType];
-                if (!currentGiftHelper.IsInitialized())
+                this.CurrentGiftHelper = this.GiftHelpers[newMenuType];
+                if (!this.CurrentGiftHelper.IsInitialized)
                 {
-                    Utils.DebugLog("[OnClickableMenuChanged initialized helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged initialized helper: " + this.CurrentGiftHelper.GetType());
 
-                    currentGiftHelper.Init(e.NewMenu);
+                    this.CurrentGiftHelper.Init(e.NewMenu);
                 }
 
-                if (currentGiftHelper.OnOpen(e.NewMenu))
+                if (this.CurrentGiftHelper.OnOpen(e.NewMenu))
                 {
-                    Utils.DebugLog("[OnClickableMenuChanged Successfully opened helper: " + currentGiftHelper.GetType().ToString());
+                    Utils.DebugLog("[OnClickableMenuChanged Successfully opened helper: " + this.CurrentGiftHelper.GetType());
 
                     // Only subscribe to the events if it opened successfully
                     SubscribeEvents();
@@ -101,21 +110,21 @@ namespace GiftTasteHelper
 
         private void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {
-            Debug.Assert(currentGiftHelper != null, "OnMouseStateChange listener invoked when currentGiftHelper is null.");
+            Debug.Assert(this.CurrentGiftHelper != null, "OnMouseStateChange listener invoked when currentGiftHelper is null.");
 
-            if (currentGiftHelper.CanTick())
+            if (this.CurrentGiftHelper.CanTick())
             {
-                currentGiftHelper.OnMouseStateChange(e);
+                this.CurrentGiftHelper.OnMouseStateChange(e);
             }
         }
 
         private void OnDraw(object sender, EventArgs e)
         {
-            Debug.Assert(currentGiftHelper != null, "OnPostRenderEvent listener invoked when currentGiftHelper is null.");
+            Debug.Assert(this.CurrentGiftHelper != null, "OnPostRenderEvent listener invoked when currentGiftHelper is null.");
 
-            if (currentGiftHelper.CanDraw())
+            if (this.CurrentGiftHelper.CanDraw())
             {
-                currentGiftHelper.OnDraw();
+                this.CurrentGiftHelper.OnDraw();
             }
         }
 
@@ -133,7 +142,7 @@ namespace GiftTasteHelper
 
         private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
         {
-        #if DEBUG
+#if DEBUG
             try
             {
                 string priorName = "None";
@@ -148,7 +157,7 @@ namespace GiftTasteHelper
             {
                 Utils.DebugLog("Error getting menu name: " + ex);
             }
-        #endif
+#endif
         }
     }
 }

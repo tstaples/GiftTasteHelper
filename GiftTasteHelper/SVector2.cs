@@ -3,77 +3,84 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GiftTasteHelper
 {
-    public class SVector2
+    internal class SVector2
     {
-        public static SVector2 Zero { get { return new SVector2(); } }
+        /*********
+        ** Accessors
+        *********/
+        public static SVector2 Zero => new SVector2();
 
-        public float x { get; set; }
-        public float y { get; set; }
+        public float X { get; set; }
+        public float Y { get; set; }
 
-        public int xi
+        public int XInt
         {
-            get { return (int)x; }
-            set { x = (float)value; }
+            get => (int)this.X;
+            set => this.X = value;
         }
-        public int yi
+        public int YInt
         {
-            get { return (int)y; }
-            set { y = (float)value; }
+            get => (int)this.Y;
+            set => this.Y = value;
         }
 
+
+        /*********
+        ** Public methods
+        *********/
         public SVector2()
         {
-            x = 0;
-            y = 0;
+            this.X = 0;
+            this.Y = 0;
         }
 
         public SVector2(float x, float y)
         {
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
         }
 
         public SVector2(int x, int y)
         {
-            this.xi = x;
-            this.yi = y;
+            this.XInt = x;
+            this.YInt = y;
         }
 
         public SVector2(Vector2 v)
         {
-            x = v.X;
-            y = v.Y;
+            this.X = v.X;
+            this.Y = v.Y;
         }
 
         public SVector2(Point p)
         {
-            xi = p.X;
-            yi = p.Y;
+            this.XInt = p.X;
+            this.YInt = p.Y;
         }
 
         public bool IsZero()
         {
-            return (this == Zero);
+            return this == SVector2.Zero;
         }
 
-        public Vector2 ToXNAVector2()
+        public Vector2 ToVector2()
         {
-            return new Vector2(x, y);
+            return new Vector2(this.X, this.Y);
         }
 
         public Point ToPoint()
         {
-            return new Point(xi, yi);
+            return new Point(this.XInt, this.YInt);
         }
 
         public static SVector2 Max(SVector2 a, SVector2 b)
         {
-            return (a.x > b.x && a.y > b.y) ? a : b;
+            return (a.X > b.X && a.Y > b.Y) ? a : b;
         }
 
         public static SVector2 Min(SVector2 a, SVector2 b)
         {
-            return (a.x > b.x && a.y > b.y) ? b : a;
+            return (a.X > b.X && a.Y > b.Y) ? b : a;
         }
 
         public static SVector2 MeasureString(string s, SpriteFont font)
@@ -88,7 +95,7 @@ namespace GiftTasteHelper
 
         public override string ToString()
         {
-            return "{" + x + ", " + y + "}";
+            return "{" + this.X + ", " + this.Y + "}";
         }
 
         public override int GetHashCode()
@@ -99,47 +106,47 @@ namespace GiftTasteHelper
         #region operators
         public static SVector2 operator +(SVector2 a, SVector2 b)
         {
-            return new SVector2(a.x + b.x, a.y + b.y);
+            return new SVector2(a.X + b.X, a.Y + b.Y);
         }
 
         public static SVector2 operator -(SVector2 value)
         {
-            return new SVector2(-value.x, -value.y);
+            return new SVector2(-value.X, -value.Y);
         }
 
         public static SVector2 operator -(SVector2 a, SVector2 b)
         {
-            return new SVector2(a.x - b.x, a.y - b.y);
+            return new SVector2(a.X - b.X, a.Y - b.Y);
         }
 
         public static SVector2 operator *(SVector2 a, SVector2 b)
         {
-            return new SVector2(a.x * b.x, a.y * b.y);
+            return new SVector2(a.X * b.X, a.Y * b.Y);
         }
 
         public static SVector2 operator *(SVector2 v, float scaleFactor)
         {
-            return new SVector2(v.x * scaleFactor, v.y * scaleFactor);
+            return new SVector2(v.X * scaleFactor, v.Y * scaleFactor);
         }
 
         public static SVector2 operator *(float scaleFactor, SVector2 v)
         {
-            return new SVector2(v.x * scaleFactor, v.y * scaleFactor);
+            return new SVector2(v.X * scaleFactor, v.Y * scaleFactor);
         }
 
         public static SVector2 operator /(SVector2 v, SVector2 b)
         {
-            return new SVector2(v.x / b.x, v.y / b.y);
+            return new SVector2(v.X / b.X, v.Y / b.Y);
         }
 
         public static SVector2 operator /(SVector2 v, float divider)
         {
-            return new SVector2(v.x / divider, v.y / divider);
+            return new SVector2(v.X / divider, v.Y / divider);
         }
 
         public static bool operator ==(SVector2 a, SVector2 b)
         {
-            return (a.x == b.x && a.y == b.y);
+            return (a.X == b.X && a.Y == b.Y);
         }
 
         public static bool operator !=(SVector2 a, SVector2 b)

@@ -1,27 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using SDVSocialPage = StardewValley.Menus.SocialPage;
-using ClickableTextureComponent = StardewValley.Menus.ClickableTextureComponent;
 using StardewValley;
+using ClickableTextureComponent = StardewValley.Menus.ClickableTextureComponent;
+using SDVSocialPage = StardewValley.Menus.SocialPage;
 
 namespace GiftTasteHelper
 {
-    public class SocialPage
+    internal class SocialPage
     {
-        private SDVSocialPage nativeSocialPage;
-        private List<ClickableTextureComponent> friendSlots;
+        /*********
+        ** Properties
+        *********/
+        private SDVSocialPage NativeSocialPage;
+        private List<ClickableTextureComponent> FriendSlots;
 
-        private SVector2 offset;
-        private float slotHeight;
-        private float zoom;
-        private Rectangle pageBounds;
-        private int lastSlotIndex;
+        private SVector2 Offset;
+        private float SlotHeight;
+        private float Zoom;
+        private Rectangle PageBounds;
+        private int LastSlotIndex;
 
-        public SocialPage()
-        {
-        }
 
+        /*********
+        ** Public methods
+        *********/
         public void Init(SDVSocialPage nativePage)
         {
             OnResize(nativePage);
@@ -29,20 +31,20 @@ namespace GiftTasteHelper
 
         public void OnResize(SDVSocialPage nativePage)
         {
-            nativeSocialPage = nativePage;
-            friendSlots = Utils.GetNativeField<List<ClickableTextureComponent>, SDVSocialPage>(nativeSocialPage, "friendNames");
+            this.NativeSocialPage = nativePage;
+            this.FriendSlots = Utils.GetNativeField<List<ClickableTextureComponent>, SDVSocialPage>(this.NativeSocialPage, "friendNames");
 
             // Mostly arbitrary since there's no nice way (that i know of) to get the slots positioned correctly...
-            offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
-            zoom = Game1.options.zoomLevel;
-            slotHeight = GetSlotHeight();
-            lastSlotIndex = -1; // Invalidate
+            this.Offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
+            this.Zoom = Game1.options.zoomLevel;
+            this.SlotHeight = GetSlotHeight();
+            this.LastSlotIndex = -1; // Invalidate
         }
 
-        public string GetCurrentlyHoveredNPC(SVector2 mousePos)
+        public string GetCurrentlyHoveredNpc(SVector2 mousePos)
         {
             int slotIndex = GetSlotIndex();
-            if (slotIndex < 0 || slotIndex >= friendSlots.Count)
+            if (slotIndex < 0 || slotIndex >= this.FriendSlots.Count)
             {
                 Utils.DebugLog("SlotIndex is invalid", StardewModdingAPI.LogLevel.Error);
                 return string.Empty;
@@ -50,15 +52,15 @@ namespace GiftTasteHelper
 
             // Remake the page bounds if the slot index has changed
             // TODO: we can probably just do this once on resize with slot 0
-            if (slotIndex != lastSlotIndex)
+            if (slotIndex != this.LastSlotIndex)
             {
-                pageBounds = MakeBounds(slotIndex);
-                lastSlotIndex = slotIndex;
+                this.PageBounds = MakeBounds(slotIndex);
+                this.LastSlotIndex = slotIndex;
             }
 
             // Early out if the mouse isn't within the page bounds
             Point mousePoint = mousePos.ToPoint();
-            if (!pageBounds.Contains(mousePoint))
+            if (!this.PageBounds.Contains(mousePoint))
             {
                 return string.Empty;
             }
@@ -67,7 +69,7 @@ namespace GiftTasteHelper
             string hoveredFriendName = string.Empty;
             for (int i = slotIndex; i < slotIndex + SDVSocialPage.slotsOnPage; ++i)
             {
-                var friend = friendSlots[i];
+                var friend = this.FriendSlots[i];
                 var bounds = MakeSlotBounds(friend);
 
                 if (bounds.Contains(mousePoint))
@@ -82,18 +84,18 @@ namespace GiftTasteHelper
 
         private int GetSlotIndex()
         {
-            if (nativeSocialPage != null)
+            if (this.NativeSocialPage != null)
             {
-                return Utils.GetNativeField<int, SDVSocialPage>(nativeSocialPage, "slotPosition");
+                return Utils.GetNativeField<int, SDVSocialPage>(this.NativeSocialPage, "slotPosition");
             }
             return -1;
         }
 
         private float GetSlotHeight()
         {
-            if (friendSlots.Count > 1)
+            if (this.FriendSlots.Count > 1)
             {
-                return (friendSlots[1].bounds.Y - friendSlots[0].bounds.Y);
+                return (this.FriendSlots[1].bounds.Y - this.FriendSlots[0].bounds.Y);
             }
             return -1f;
         }
@@ -101,20 +103,21 @@ namespace GiftTasteHelper
         private Rectangle MakeBounds(int slotIndex)
         {
             // Subtrace tilesize from the width so it's not too wide. Sucks but not easy way around it
-            float x = (friendSlots[slotIndex].bounds.X - offset.x) * zoom;
-            float y = (friendSlots[slotIndex].bounds.Y - offset.y) * zoom;
-            float width = (friendSlots[slotIndex].bounds.Width - Game1.tileSize) * zoom;
-            float height = (slotHeight * SDVSocialPage.slotsOnPage) * zoom;
+            float x = (this.FriendSlots[slotIndex].bounds.X - this.Offset.X) * this.Zoom;
+            float y = (this.FriendSlots[slotIndex].bounds.Y - this.Offset.Y) * this.Zoom;
+            float width = (this.FriendSlots[slotIndex].bounds.Width - Game1.tileSize) * this.Zoom;
+            float height = (this.SlotHeight * SDVSocialPage.slotsOnPage) * this.Zoom;
             return Utils.MakeRect(x, y, width, height);
         }
 
         private Rectangle MakeSlotBounds(ClickableTextureComponent slot)
         {
             return Utils.MakeRect(
-                (slot.bounds.X - offset.x) * zoom,
-                (slot.bounds.Y - offset.y) * zoom,
-                (slot.bounds.Width - Game1.tileSize) * zoom,
-                slotHeight * zoom);
+                (slot.bounds.X - this.Offset.X) * this.Zoom,
+                (slot.bounds.Y - this.Offset.Y) * this.Zoom,
+                (slot.bounds.Width - Game1.tileSize) * this.Zoom,
+                this.SlotHeight * this.Zoom
+            );
         }
     }
 }
