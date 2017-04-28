@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GiftTasteHelper", "GiftTasteHelper.csproj", "{CA415B12-5C37-487A-92BE-0AED14440F36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GiftTasteHelper", "GiftTasteHelper\GiftTasteHelper.csproj", "{CA415B12-5C37-487A-92BE-0AED14440F36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI", "..\..\..\SMAPI\SMAPI-1.2-source\src\StardewModdingAPI\StardewModdingAPI.csproj", "{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI", "..\..\SMAPI\SMAPI-1.2-source\src\StardewModdingAPI\StardewModdingAPI.csproj", "{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
