@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using StardewValley.Menus;
 
@@ -10,13 +9,7 @@ namespace GiftTasteHelper
         /*********
         ** Properties
         *********/
-        private const int DaysPerMonth = 28;
         private const string CalendarDaysFieldName = "calendarDays";
-        private struct BirthdayEventInfo
-        {
-            public int Day;
-            public string NpcName;
-        }
         private Billboard Billboard;
         private List<ClickableTextureComponent> CalendarDays;
 
@@ -94,12 +87,6 @@ namespace GiftTasteHelper
             }
             this.IsOpen = false;
             this.IsInitialized = false;
-        }
-
-        private Rectangle GetDayBounds(int dayNumber)
-        {
-            Debug.Assert(dayNumber > 0 && dayNumber <= Calendar.DaysPerMonth, "Day number out of range");
-            return this.CalendarDays[dayNumber - 1].bounds;
         }
     }
 }

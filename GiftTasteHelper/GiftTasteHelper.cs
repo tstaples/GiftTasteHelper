@@ -139,25 +139,5 @@ namespace GiftTasteHelper
             ControlEvents.MouseChanged += OnMouseStateChange;
             GraphicsEvents.OnPostRenderEvent += OnDraw;
         }
-
-        private void DebugPrintMenuInfo(IClickableMenu priorMenu, IClickableMenu newMenu)
-        {
-#if DEBUG
-            try
-            {
-                string priorName = "None";
-                if (priorMenu != null)
-                {
-                    priorName = priorMenu.GetType().Name;
-                }
-                string newName = newMenu.GetType().Name;
-                Utils.DebugLog("Menu changed from: " + priorName + " to " + newName);
-            }
-            catch (Exception ex)
-            {
-                Utils.DebugLog("Error getting menu name: " + ex);
-            }
-#endif
-        }
     }
 }

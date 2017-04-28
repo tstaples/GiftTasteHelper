@@ -18,7 +18,7 @@ namespace GiftTasteHelper
         ** Public methods
         *********/
         public CalendarGiftHelper(int maxItemsToDisplay)
-            : base(global::GiftTasteHelper.GiftHelperType.Calendar, maxItemsToDisplay) { }
+            : base(GiftHelperType.Calendar, maxItemsToDisplay) { }
 
         public override void Init(IClickableMenu menu)
         {
