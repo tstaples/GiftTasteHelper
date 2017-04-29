@@ -33,9 +33,9 @@ namespace GiftTasteHelper
             // Add the helpers if they're enabled in config
             this.GiftHelpers = new Dictionary<Type, IGiftHelper>();
             if (config.ShowOnCalendar)
-                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(config.MaxGiftsToDisplay));
+                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(config.MaxGiftsToDisplay, helper.Reflection));
             if (config.ShowOnSocialPage)
-                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(config.MaxGiftsToDisplay));
+                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(config.MaxGiftsToDisplay, helper.Reflection));
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;

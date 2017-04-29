@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
@@ -19,6 +20,9 @@ namespace GiftTasteHelper.Framework
         private readonly int MaxItemsToDisplay;
         protected bool DrawCurrentFrame;
 
+        /// <summary>Simplifies access to private game code.</summary>
+        protected readonly IReflectionHelper Reflection;
+
 
         /*********
         ** Accessors
@@ -33,10 +37,11 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public GiftHelper(GiftHelperType helperType, int maxItemsToDisplay)
+        public GiftHelper(GiftHelperType helperType, int maxItemsToDisplay, IReflectionHelper reflection)
         {
             this.GiftHelperType = helperType;
             this.MaxItemsToDisplay = maxItemsToDisplay;
+            this.Reflection = reflection;
         }
 
         public virtual void Init(IClickableMenu menu)

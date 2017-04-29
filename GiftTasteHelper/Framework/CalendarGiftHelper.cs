@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
@@ -10,15 +11,17 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Properties
         *********/
+        /// <summary>The underlying calendar.</summary>
         private readonly Calendar Calendar = new Calendar();
+
         private string PreviousHoverText = "";
 
 
         /*********
         ** Public methods
         *********/
-        public CalendarGiftHelper(int maxItemsToDisplay)
-            : base(GiftHelperType.Calendar, maxItemsToDisplay) { }
+        public CalendarGiftHelper(int maxItemsToDisplay, IReflectionHelper reflection)
+            : base(GiftHelperType.Calendar, maxItemsToDisplay, reflection) { }
 
         public override void Init(IClickableMenu menu)
         {
@@ -30,7 +33,7 @@ namespace GiftTasteHelper.Framework
         public override bool OnOpen(IClickableMenu menu)
         {
             // The daily quest board logic is also in the billboard, so check for that
-            bool isDailyQuestBoard = Utils.GetNativeField<bool, Billboard>((Billboard)menu, "dailyQuestBoard");
+            bool isDailyQuestBoard = this.Reflection.GetPrivateValue<bool>(menu, "dailyQuestBoard");
             if (isDailyQuestBoard)
             {
                 Utils.DebugLog("[OnOpen] Daily quest board was opened; ignoring.");
@@ -41,7 +44,7 @@ namespace GiftTasteHelper.Framework
 
             // The calendar/billboard's internal data is re-initialized every time it's opened
             // So we need to update ours as well.
-            this.Calendar.Init((Billboard)menu);
+            this.Calendar.Init((Billboard)menu, this.Reflection);
             this.Calendar.IsOpen = true;
             this.PreviousHoverText = "";
 

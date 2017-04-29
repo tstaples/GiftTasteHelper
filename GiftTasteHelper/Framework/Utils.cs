@@ -58,12 +58,6 @@ namespace GiftTasteHelper.Framework
             return output;
         }
 
-        public static T GetNativeField<T, Instance>(Instance instance, string fieldName)
-        {
-            FieldInfo fieldInfo = typeof(Instance).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            return (T)fieldInfo.GetValue(instance);
-        }
-
         public static bool IsType<T>(object o)
         {
             if (o != null)

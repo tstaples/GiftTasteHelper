@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley.Menus;
 
 namespace GiftTasteHelper.Framework
@@ -13,6 +14,9 @@ namespace GiftTasteHelper.Framework
         private Billboard Billboard;
         private List<ClickableTextureComponent> CalendarDays;
 
+        /// <summary>Simplifies access to private game code.</summary>
+        private IReflectionHelper Reflection;
+
 
         /*********
         ** Accessors
@@ -25,13 +29,14 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public void Init(Billboard menu)
+        public void Init(Billboard menu, IReflectionHelper reflection)
         {
             this.Clear();
 
             this.Billboard = menu;
+            this.Reflection = reflection;
             this.Bounds = new Rectangle(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
-            this.CalendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(menu, Calendar.CalendarDaysFieldName);
+            this.CalendarDays = reflection.GetPrivateValue<List<ClickableTextureComponent>>(menu, Calendar.CalendarDaysFieldName);
             this.IsInitialized = true;
         }
 
@@ -42,15 +47,15 @@ namespace GiftTasteHelper.Framework
                 // We seem to lose our billboard ref on re-size, so get it back
                 this.Billboard = menu;
                 this.Bounds = new Rectangle(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
-                this.CalendarDays = Utils.GetNativeField<List<ClickableTextureComponent>, Billboard>(menu, Calendar.CalendarDaysFieldName);
+                this.CalendarDays = this.Reflection.GetPrivateValue<List<ClickableTextureComponent>>(menu, Calendar.CalendarDaysFieldName);
             }
             else
-                this.Init(menu);
+                this.Init(menu, this.Reflection);
         }
 
         public string GetCurrentHoverText()
         {
-            return Utils.GetNativeField<string, Billboard>(this.Billboard, "hoverText");
+            return this.Reflection.GetPrivateValue<string>(this.Billboard, "hoverText");
         }
 
         public string GetHoveredBirthdayNpcName(SVector2 mouse)

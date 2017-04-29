@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
@@ -21,8 +22,8 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public SocialPageGiftHelper(int maxItemsToDisplay)
-            : base(GiftHelperType.SocialPage, maxItemsToDisplay) { }
+        public SocialPageGiftHelper(int maxItemsToDisplay, IReflectionHelper reflection)
+            : base(GiftHelperType.SocialPage, maxItemsToDisplay, reflection) { }
 
         public override bool OnOpen(IClickableMenu menu)
         {
@@ -31,7 +32,7 @@ namespace GiftTasteHelper.Framework
 
             SDVSocialPage nativeSocialPage = this.GetNativeSocialPage(menu);
             if (nativeSocialPage != null)
-                this.SocialPage.Init(nativeSocialPage);
+                this.SocialPage.Init(nativeSocialPage, this.Reflection);
             return base.OnOpen(menu);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 using ClickableTextureComponent = StardewValley.Menus.ClickableTextureComponent;
 using SDVSocialPage = StardewValley.Menus.SocialPage;
@@ -11,7 +12,12 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Properties
         *********/
+        /// <summary>The underlying social menu.</summary>
         private SDVSocialPage NativeSocialPage;
+
+        /// <summary>Simplifies access to private game code.</summary>
+        private IReflectionHelper Reflection;
+
         private List<ClickableTextureComponent> FriendSlots;
 
         private SVector2 Offset;
@@ -24,15 +30,16 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public void Init(SDVSocialPage nativePage)
+        public void Init(SDVSocialPage nativePage, IReflectionHelper reflection)
         {
+            this.Reflection = reflection;
             this.OnResize(nativePage);
         }
 
         public void OnResize(SDVSocialPage nativePage)
         {
             this.NativeSocialPage = nativePage;
-            this.FriendSlots = Utils.GetNativeField<List<ClickableTextureComponent>, SDVSocialPage>(this.NativeSocialPage, "friendNames");
+            this.FriendSlots = this.Reflection.GetPrivateValue<List<ClickableTextureComponent>>(this.NativeSocialPage, "friendNames");
 
             // Mostly arbitrary since there's no nice way (that i know of) to get the slots positioned correctly...
             this.Offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
@@ -46,7 +53,7 @@ namespace GiftTasteHelper.Framework
             int slotIndex = this.GetSlotIndex();
             if (slotIndex < 0 || slotIndex >= this.FriendSlots.Count)
             {
-                Utils.DebugLog("SlotIndex is invalid", StardewModdingAPI.LogLevel.Error);
+                Utils.DebugLog("SlotIndex is invalid", LogLevel.Error);
                 return string.Empty;
             }
 
@@ -85,9 +92,7 @@ namespace GiftTasteHelper.Framework
         private int GetSlotIndex()
         {
             if (this.NativeSocialPage != null)
-            {
-                return Utils.GetNativeField<int, SDVSocialPage>(this.NativeSocialPage, "slotPosition");
-            }
+                return this.Reflection.GetPrivateValue<int>(this.NativeSocialPage, "slotPosition");
             return -1;
         }
 
