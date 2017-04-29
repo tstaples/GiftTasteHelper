@@ -37,25 +37,6 @@ namespace GiftTasteHelper.Framework
 #endif
         }
 
-        public static string ArrayToString<T>(T[] array)
-        {
-            string s = "";
-            int i = 0;
-            foreach (T item in array)
-            {
-                s += item + ((++i < array.Length) ? ", " : "");
-            }
-            return s;
-        }
-
-        public static T[] ConcatArrays<T>(T[] a, T[] b)
-        {
-            T[] c = new T[a.Length + b.Length];
-            Array.Copy(a, c, a.Length);
-            Array.Copy(b, c, b.Length);
-            return c;
-        }
-
         public static int[] StringToIntArray(string[] array, int defaultVal = 0)
         {
             int[] output = new int[array.Length];
