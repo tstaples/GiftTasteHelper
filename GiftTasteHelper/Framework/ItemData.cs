@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal struct ItemData
     {

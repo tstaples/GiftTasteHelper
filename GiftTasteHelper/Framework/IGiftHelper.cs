@@ -1,7 +1,7 @@
 ﻿using StardewModdingAPI.Events;
 using StardewValley.Menus;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     // TODO: document
     internal interface IGiftHelper

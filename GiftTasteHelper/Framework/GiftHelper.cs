@@ -6,7 +6,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal abstract class GiftHelper : IGiftHelper
     {

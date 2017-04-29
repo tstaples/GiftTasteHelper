@@ -4,7 +4,7 @@ using StardewValley;
 using ClickableTextureComponent = StardewValley.Menus.ClickableTextureComponent;
 using SDVSocialPage = StardewValley.Menus.SocialPage;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal class SocialPage
     {

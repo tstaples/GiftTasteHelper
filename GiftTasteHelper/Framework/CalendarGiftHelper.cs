@@ -3,7 +3,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal class CalendarGiftHelper : GiftHelper
     {

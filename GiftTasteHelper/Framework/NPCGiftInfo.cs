@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using StardewValley;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal class NpcGiftInfo
     {

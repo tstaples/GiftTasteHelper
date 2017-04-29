@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal class SVector2
     {

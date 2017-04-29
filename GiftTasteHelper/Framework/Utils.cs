@@ -4,7 +4,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal class Utils
     {

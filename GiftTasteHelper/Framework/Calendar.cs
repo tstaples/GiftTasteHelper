@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using StardewValley.Menus;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     internal class Calendar
     {

@@ -1,4 +1,4 @@
-﻿namespace GiftTasteHelper
+﻿namespace GiftTasteHelper.Framework
 {
     internal class ModConfig
     {
