@@ -10,7 +10,6 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Properties
         *********/
-        private const string CalendarDaysFieldName = "calendarDays";
         private Billboard Billboard;
         private List<ClickableTextureComponent> CalendarDays;
 
@@ -36,7 +35,7 @@ namespace GiftTasteHelper.Framework
             this.Billboard = menu;
             this.Reflection = reflection;
             this.Bounds = new Rectangle(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
-            this.CalendarDays = reflection.GetPrivateValue<List<ClickableTextureComponent>>(menu, Calendar.CalendarDaysFieldName);
+            this.CalendarDays = menu.calendarDays;
             this.IsInitialized = true;
         }
 
@@ -47,7 +46,7 @@ namespace GiftTasteHelper.Framework
                 // We seem to lose our billboard ref on re-size, so get it back
                 this.Billboard = menu;
                 this.Bounds = new Rectangle(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
-                this.CalendarDays = this.Reflection.GetPrivateValue<List<ClickableTextureComponent>>(menu, Calendar.CalendarDaysFieldName);
+                this.CalendarDays = menu.calendarDays;
             }
             else
                 this.Init(menu, this.Reflection);
