@@ -117,7 +117,7 @@ namespace GiftTasteHelper
             if (numItems == 0)
                 return;
 
-            float spriteScale = 2.0f * ZoomLevel; // 16x16 is pretty small
+            float spriteScale = 2.0f * this.ZoomLevel; // 16x16 is pretty small
             Rectangle spriteRect = giftInfo.FavouriteGifts[0].TileSheetSourceRect; // We just need the dimensions which we assume are all the same
             SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
 
@@ -128,11 +128,11 @@ namespace GiftTasteHelper
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 
             int padding = 4; // Chosen by fair dice roll
-            int rowHeight = (int)Math.Max(maxTextSize.Y * ZoomLevel, scaledSpriteSize.YInt) + padding;
-            int width = this.AdjustForTileSize((maxTextSize.X * ZoomLevel) + scaledSpriteSize.XInt) + padding;
+            int rowHeight = (int)Math.Max(maxTextSize.Y * this.ZoomLevel, scaledSpriteSize.YInt) + padding;
+            int width = this.AdjustForTileSize((maxTextSize.X * this.ZoomLevel) + scaledSpriteSize.XInt) + padding;
             int height = this.AdjustForTileSize(rowHeight * (numItems + 1)); // Add one to make room for the title
-            int x = this.AdjustForTileSize(mouse.X, 0.5f, ZoomLevel);
-            int y = this.AdjustForTileSize(mouse.Y, 0.5f, ZoomLevel);
+            int x = this.AdjustForTileSize(mouse.X, 0.5f, this.ZoomLevel);
+            int y = this.AdjustForTileSize(mouse.Y, 0.5f, this.ZoomLevel);
 
             int viewportW = Game1.viewport.Width;
             int viewportH = Game1.viewport.Height;
@@ -144,7 +144,7 @@ namespace GiftTasteHelper
             this.OrigHoverTextSize = SVector2.MeasureString(originalTooltipText, Game1.dialogueFont);
             int origTToffsetX = 0;
             if (this.OrigHoverTextSize.X > 0)
-                origTToffsetX = Math.Max(0, AdjustForTileSize(this.OrigHoverTextSize.X + mouse.X, 1.0f) - viewportW) + width;
+                origTToffsetX = Math.Max(0, this.AdjustForTileSize(this.OrigHoverTextSize.X + mouse.X, 1.0f) - viewportW) + width;
 
             // Consider the position of the original tooltip and ensure we don't cover it up
             SVector2 tooltipPos = this.ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH, mouse);
@@ -162,7 +162,7 @@ namespace GiftTasteHelper
 
             // Part of the spritesheet containing the texture we want to draw
             Rectangle menuTextureSourceRect = new Rectangle(0, 256, 60, 60);
-            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.XInt, tooltipPos.YInt, width, height, Color.White, ZoomLevel);
+            IClickableMenu.drawTextureBox(spriteBatch, Game1.menuTexture, menuTextureSourceRect, tooltipPos.XInt, tooltipPos.YInt, width, height, Color.White, this.ZoomLevel);
 
             // Offset the sprite from the corner of the bg, and the text to the right and centered vertically of the sprite
             SVector2 spriteOffset = new SVector2(this.AdjustForTileSize(tooltipPos.X, 0.25f), this.AdjustForTileSize(tooltipPos.Y, 0.25f));
@@ -205,7 +205,7 @@ namespace GiftTasteHelper
 
         private void DrawText(string text, SVector2 pos)
         {
-            Game1.spriteBatch.DrawString(Game1.smallFont, text, pos.ToVector2(), Game1.textColor, 0.0f, Vector2.Zero, ZoomLevel, SpriteEffects.None, 0.0f);
+            Game1.spriteBatch.DrawString(Game1.smallFont, text, pos.ToVector2(), Game1.textColor, 0.0f, Vector2.Zero, this.ZoomLevel, SpriteEffects.None, 0.0f);
         }
 
         private void DrawTexture(Texture2D texture, SVector2 pos, Rectangle source, float scale = 1.0f)
@@ -217,17 +217,17 @@ namespace GiftTasteHelper
         {
             SVector2 p = new SVector2(x, y);
 
-            p.X = ClampToViewportAxis(p.XInt, w, viewportW);
-            p.Y = ClampToViewportAxis(p.YInt, h, viewportH);
+            p.X = this.ClampToViewportAxis(p.XInt, w, viewportW);
+            p.Y = this.ClampToViewportAxis(p.YInt, h, viewportH);
 
             // Only adjust the position if there's another tooltip that we need to adjust for.
             if (!this.OrigHoverTextSize.IsZero())
             {
                 // Only adjust x if the original tooltip isn't right up against the right side and the mouse is between them.
-                bool adjustX = (mouse.X <= (viewportW - AdjustForTileSize(this.OrigHoverTextSize.X, 1.0f)));
+                bool adjustX = (mouse.X <= (viewportW - this.AdjustForTileSize(this.OrigHoverTextSize.X, 1.0f)));
 
                 // This mimics the regular tooltip behaviour; moving them out of the cursor's way slightly
-                int halfTileSize = AdjustForTileSize(0.0f);
+                int halfTileSize = this.AdjustForTileSize(0.0f);
                 p.Y = Math.Max(0, p.Y - ((p.X != x) ? halfTileSize : 0));
                 p.X = Math.Max(0, p.X - ((p.Y != y && adjustX) ? halfTileSize : 0));
             }

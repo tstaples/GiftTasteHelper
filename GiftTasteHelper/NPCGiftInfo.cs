@@ -58,8 +58,8 @@ namespace GiftTasteHelper
                 itemList.Add(itemData);
 
                 SVector2 nameLength = SVector2.MeasureString(itemData.Name, Game1.smallFont);
-                if (nameLength.XInt > MaxGiftNameSize.XInt)
-                    MaxGiftNameSize = nameLength;
+                if (nameLength.XInt > this.MaxGiftNameSize.XInt)
+                    this.MaxGiftNameSize = nameLength;
             }
             return itemList.ToArray();
         }

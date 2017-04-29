@@ -26,7 +26,7 @@ namespace GiftTasteHelper
         *********/
         public void Init(SDVSocialPage nativePage)
         {
-            OnResize(nativePage);
+            this.OnResize(nativePage);
         }
 
         public void OnResize(SDVSocialPage nativePage)
@@ -37,13 +37,13 @@ namespace GiftTasteHelper
             // Mostly arbitrary since there's no nice way (that i know of) to get the slots positioned correctly...
             this.Offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
             this.Zoom = Game1.options.zoomLevel;
-            this.SlotHeight = GetSlotHeight();
+            this.SlotHeight = this.GetSlotHeight();
             this.LastSlotIndex = -1; // Invalidate
         }
 
         public string GetCurrentlyHoveredNpc(SVector2 mousePos)
         {
-            int slotIndex = GetSlotIndex();
+            int slotIndex = this.GetSlotIndex();
             if (slotIndex < 0 || slotIndex >= this.FriendSlots.Count)
             {
                 Utils.DebugLog("SlotIndex is invalid", StardewModdingAPI.LogLevel.Error);
@@ -54,7 +54,7 @@ namespace GiftTasteHelper
             // TODO: we can probably just do this once on resize with slot 0
             if (slotIndex != this.LastSlotIndex)
             {
-                this.PageBounds = MakeBounds(slotIndex);
+                this.PageBounds = this.MakeBounds(slotIndex);
                 this.LastSlotIndex = slotIndex;
             }
 
@@ -70,7 +70,7 @@ namespace GiftTasteHelper
             for (int i = slotIndex; i < slotIndex + SDVSocialPage.slotsOnPage; ++i)
             {
                 var friend = this.FriendSlots[i];
-                var bounds = MakeSlotBounds(friend);
+                var bounds = this.MakeSlotBounds(friend);
 
                 if (bounds.Contains(mousePoint))
                 {

@@ -102,7 +102,7 @@ namespace GiftTasteHelper
         public override void OnDraw()
         {
             // Draw the tooltip
-            DrawGiftTooltip(this.CurrentGiftInfo, TooltipTitle, this.Calendar.GetCurrentHoverText());
+            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle, this.Calendar.GetCurrentHoverText());
         }
     }
 }

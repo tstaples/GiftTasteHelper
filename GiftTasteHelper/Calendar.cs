@@ -50,7 +50,7 @@ namespace GiftTasteHelper
 
         public string GetCurrentHoverText()
         {
-            return Utils.GetNativeField<string, Billboard>(Billboard, "hoverText");
+            return Utils.GetNativeField<string, Billboard>(this.Billboard, "hoverText");
         }
 
         public string GetHoveredBirthdayNpcName(SVector2 mouse)
