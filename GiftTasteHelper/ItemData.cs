@@ -2,7 +2,7 @@
 
 namespace GiftTasteHelper
 {
-    public struct ItemData
+    internal struct ItemData
     {
         /*********
         ** Accessors
