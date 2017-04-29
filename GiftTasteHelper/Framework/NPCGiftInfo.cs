@@ -47,7 +47,7 @@ namespace GiftTasteHelper.Framework
                 }
 
                 string objectInfo = Game1.objectInformation[ids[i]];
-                string[] parts = objectInfo.Split(new char[] { '/' });
+                string[] parts = objectInfo.Split('/');
 
                 ItemData itemData = new ItemData
                 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -96,21 +95,16 @@ namespace GiftTasteHelper.Framework
 
         private SDVSocialPage GetNativeSocialPage(IClickableMenu menu)
         {
-            SDVSocialPage nativeSocialPage;
             try
             {
-                nativeSocialPage = (SDVSocialPage)(
-                    (List<IClickableMenu>)typeof(GameMenu)
-                    .GetField("pages", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .GetValue(menu))[GameMenu.socialTab];
+                IClickableMenu tab = this.Reflection.GetPrivateValue<List<IClickableMenu>>(menu, "pages")[GameMenu.socialTab];
+                return (SDVSocialPage)tab;
             }
             catch (Exception ex)
             {
-                Utils.DebugLog("Failed to get native social page: " + ex, StardewModdingAPI.LogLevel.Warn);
+                Utils.DebugLog("Failed to get native social page: " + ex, LogLevel.Warn);
                 return null;
             }
-
-            return nativeSocialPage;
         }
 
     }
