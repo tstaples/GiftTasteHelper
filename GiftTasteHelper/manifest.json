@@ -3,13 +3,12 @@
   "Author": "tstaples (aka catman)",
   "Version": {
     "MajorVersion": 2,
-    "MinorVersion": 3,
-    "PatchVersion": 1,
-    "Build": "0"
+    "MinorVersion": 4,
+    "PatchVersion": 0,
+    "Build": null
   },
+  "MinimumApiVersion": "1.10",
   "Description": "Displays NPC gift tastes in a handy tooltip.",
-  "UniqueID": "8008db57-fa67-4730-978e-34b37ef191d6",
-  "PerSaveConfigs": false,
-  "MinimumApiVersion": "1.1",
+  "UniqueID": "tstaples.GiftTasteHelper",
   "EntryDll": "GiftTasteHelper.dll"
 }

@@ -1,16 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using StardewModdingAPI.Events;
 using StardewValley.Menus;
-using StardewModdingAPI;
-using StardewModdingAPI.Events;
 
-namespace GiftTasteHelper
+namespace GiftTasteHelper.Framework
 {
     // TODO: document
-    public interface IGiftHelper
+    internal interface IGiftHelper
     {
-        bool IsInitialized();
-        bool IsOpen();
+        /*********
+        ** Accessors
+        *********/
+        bool IsInitialized { get; }
+        bool IsOpen { get; }
+
+
+        /*********
+        ** Methods
+        *********/
         void Init(IClickableMenu menu);
         bool OnOpen(IClickableMenu menu);
         void OnResize(IClickableMenu menu);
