@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -13,8 +15,10 @@ namespace GiftTasteHelper.Framework
         *********/
         /// <summary>The underlying calendar.</summary>
         private readonly Calendar Calendar = new Calendar();
+        private readonly Dictionary<int, NPC> Birthdays = new Dictionary<int, NPC>();
 
-        private string PreviousHoverText = "";
+        // The currently hovered day.
+        private int HoveredDay = Calendar.InvalidDay;
 
 
         /*********
@@ -26,6 +30,15 @@ namespace GiftTasteHelper.Framework
         public override void Init(IClickableMenu menu)
         {
             Debug.Assert(!this.Calendar.IsInitialized, "Calendar is already initialized");
+
+            // Store all valid npc birthdays for the current season.
+            foreach (NPC npc in Utility.getAllCharacters())
+            {
+                if (npc.birthday_Season == Game1.currentSeason && Game1.player.friendships.ContainsKey(npc.name))
+                {
+                    this.Birthdays.Add(npc.birthday_Day, npc);
+                }
+            }
 
             base.Init(menu);
         }
@@ -46,7 +59,7 @@ namespace GiftTasteHelper.Framework
             // So we need to update ours as well.
             this.Calendar.Init((Billboard)menu, this.Reflection);
             this.Calendar.IsOpen = true;
-            this.PreviousHoverText = "";
+            this.HoveredDay = Calendar.InvalidDay;
 
             Utils.DebugLog("[OnOpen] Opening calendar");
 
@@ -76,28 +89,22 @@ namespace GiftTasteHelper.Framework
             // This gets the scaled mouse position
             SVector2 mouse = new SVector2(Game1.getMouseX(), Game1.getMouseY());
 
-            // Check if we're hovering over a day that has a birthday
-            string hoverText = this.Calendar.GetHoveredBirthdayNpcName(mouse);
-            if (hoverText.Length > 0)
+            int hoveredDay = this.Calendar.GetHoveredDayIndex(mouse) + 1; // Days start at one
+            if (hoveredDay == this.HoveredDay)
             {
-                // Check if it's the same as before
-                if (hoverText != this.PreviousHoverText)
-                {
-                    string npcName = Utils.ParseNameFromHoverText(hoverText);
-                    Debug.Assert(this.NpcGiftInfo.ContainsKey(npcName));
+                return;
+            }
 
-                    this.CurrentGiftInfo = this.NpcGiftInfo[npcName];
-                    //CurrentGiftInfo = NpcGiftInfo["Penny"]; // Temp for testing since she has the most items
-                    //Utils.DebugLog(npcName + " favourite gifts: " + Utils.ArrayToString(CurrentGiftInfo.FavouriteGifts));
-
-                    this.PreviousHoverText = hoverText;
-                }
-
+            this.HoveredDay = hoveredDay;
+            if (this.Birthdays.ContainsKey(hoveredDay))
+            {
+                string npcName = this.Birthdays[hoveredDay].name;
+                Debug.Assert(this.NpcGiftInfo.ContainsKey(npcName));
+                this.CurrentGiftInfo = this.NpcGiftInfo[npcName];
                 this.DrawCurrentFrame = true;
             }
             else
             {
-                this.PreviousHoverText = string.Empty;
                 this.DrawCurrentFrame = false;
             }
         }

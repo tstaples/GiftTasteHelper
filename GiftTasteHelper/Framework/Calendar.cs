@@ -10,6 +10,8 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Properties
         *********/
+        public static int InvalidDay => -1;
+
         private Billboard Billboard;
         private List<ClickableTextureComponent> CalendarDays;
 
@@ -55,6 +57,21 @@ namespace GiftTasteHelper.Framework
         public string GetCurrentHoverText()
         {
             return this.Reflection.GetPrivateValue<string>(this.Billboard, "hoverText");
+        }
+
+        public int GetHoveredDayIndex(SVector2 mouse)
+        {
+            if (!this.Bounds.Contains(mouse.ToPoint()))
+                return Calendar.InvalidDay;
+
+            for (int i = 0; i < this.CalendarDays.Count; ++i)
+            {
+                if (this.CalendarDays[i].bounds.Contains(mouse.ToPoint()))
+                {
+                    return i;
+                }
+            }
+            return Calendar.InvalidDay;
         }
 
         public string GetHoveredBirthdayNpcName(SVector2 mouse)
