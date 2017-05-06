@@ -55,8 +55,8 @@ namespace GiftTasteHelper.Framework
             this.NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
 
             // TODO: filter out names that will never be used
-            Dictionary<string, string> npcGiftTastes = Game1.NPCGiftTastes;
-            foreach (KeyValuePair<string, string> giftTaste in npcGiftTastes)
+            var npcGiftTastes = Game1.NPCGiftTastes;
+            foreach (var giftTaste in npcGiftTastes)
             {
                 // The first few elements are universal_tastes and we only want names.
                 // None of the names contain an underscore so we can check that way.
@@ -184,7 +184,7 @@ namespace GiftTasteHelper.Framework
                 ItemData item = giftInfo.FavouriteGifts[i];
 
                 // Draw the sprite for the item then the item text
-                this.DrawText(item.Name, textOffset);
+                this.DrawText(item.DisplayName, textOffset);
                 this.DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.TileSheetSourceRect, spriteScale);
 
                 // Move to the next row

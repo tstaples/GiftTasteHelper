@@ -37,7 +37,7 @@ namespace GiftTasteHelper.Framework
         {
             Debug.Assert(numToDisplay <= ids.Length);
 
-            List<ItemData> itemList = new List<ItemData>(numToDisplay);
+            var itemList = new List<ItemData>(numToDisplay);
             for (int i = 0; i < numToDisplay; ++i)
             {
                 if (!Game1.objectInformation.ContainsKey(ids[i]))
@@ -49,15 +49,16 @@ namespace GiftTasteHelper.Framework
                 string objectInfo = Game1.objectInformation[ids[i]];
                 string[] parts = objectInfo.Split('/');
 
-                ItemData itemData = new ItemData
+                var itemData = new ItemData
                 {
-                    Name = parts[0],
+                    Name = parts[ItemData.NameIndex],
+                    DisplayName = parts[ItemData.DisplayNameIndex],
                     ID = ids[i],
                     TileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, ids[i], 16, 16)
                 };
                 itemList.Add(itemData);
 
-                SVector2 nameLength = SVector2.MeasureString(itemData.Name, Game1.smallFont);
+                SVector2 nameLength = SVector2.MeasureString(itemData.DisplayName, Game1.smallFont);
                 if (nameLength.XInt > this.MaxGiftNameSize.XInt)
                     this.MaxGiftNameSize = nameLength;
             }
