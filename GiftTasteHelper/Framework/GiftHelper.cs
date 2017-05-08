@@ -29,7 +29,7 @@ namespace GiftTasteHelper.Framework
         *********/
         public bool IsInitialized { get; private set; }
         public bool IsOpen { get; private set; }
-        public string TooltipTitle { get; protected set; } = "Favourite Gifts";
+        public string TooltipTitle => LocaleHelper.GetTooltipTitle();
         public GiftHelperType GiftHelperType { get; }
         public float ZoomLevel => 1.0f; // SMAPI's draw call will handle zoom
 

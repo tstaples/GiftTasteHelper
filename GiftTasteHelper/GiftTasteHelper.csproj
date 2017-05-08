@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Framework\Calendar.cs" />
     <Compile Include="Framework\GiftHelperType.cs" />
+    <Compile Include="Framework\LocaleHelper.cs" />
     <Compile Include="GiftTasteHelper.cs" />
     <Compile Include="Framework\CalendarGiftHelper.cs" />
     <Compile Include="Framework\GiftHelper.cs" />

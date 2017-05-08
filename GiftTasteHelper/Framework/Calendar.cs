@@ -51,7 +51,9 @@ namespace GiftTasteHelper.Framework
                 this.CalendarDays = menu.calendarDays;
             }
             else
+            {
                 this.Init(menu, this.Reflection);
+            }
         }
 
         public string GetCurrentHoverText()

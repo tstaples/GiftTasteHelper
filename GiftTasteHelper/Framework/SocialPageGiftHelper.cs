@@ -69,7 +69,9 @@ namespace GiftTasteHelper.Framework
                 this.LastHoveredNpc = hoveredNpc;
             }
             else
+            {
                 this.LastHoveredNpc = string.Empty;
+            }
         }
 
 
