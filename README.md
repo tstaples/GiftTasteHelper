@@ -7,6 +7,10 @@ loved items.
 
 ![Social page preview image](images/social_page_example.png?raw=true)
 
+### Support for all locales!
+
+![Locale support preview image](images/locale_support.png?raw=true)
+
 ## Contents
 * [Install](#install)
 * [Configure](#configure)
