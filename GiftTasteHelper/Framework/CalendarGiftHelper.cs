@@ -32,6 +32,7 @@ namespace GiftTasteHelper.Framework
             Debug.Assert(!this.Calendar.IsInitialized, "Calendar is already initialized");
 
             // Store all valid npc birthdays for the current season.
+            this.Birthdays.Clear();
             foreach (NPC npc in Utility.getAllCharacters())
             {
                 if (npc.birthday_Season == Game1.currentSeason && Game1.player.friendships.ContainsKey(npc.name))
@@ -99,8 +100,8 @@ namespace GiftTasteHelper.Framework
             if (this.Birthdays.ContainsKey(hoveredDay))
             {
                 string npcName = this.Birthdays[hoveredDay].name;
-                Debug.Assert(this.NpcGiftInfo.ContainsKey(npcName));
-                this.CurrentGiftInfo = this.NpcGiftInfo[npcName];
+                Debug.Assert(GiftHelper.NpcGiftInfo.ContainsKey(npcName));
+                this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[npcName];
                 this.DrawCurrentFrame = true;
             }
             else

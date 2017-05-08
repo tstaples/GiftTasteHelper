@@ -14,7 +14,7 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Properties
         *********/
-        protected Dictionary<string, NpcGiftInfo> NpcGiftInfo; // Indexed by name
+        protected static Dictionary<string, NpcGiftInfo> NpcGiftInfo; // Indexed by name
         protected NpcGiftInfo CurrentGiftInfo;
         private SVector2 OrigHoverTextSize;
         private readonly int MaxItemsToDisplay;
@@ -44,6 +44,11 @@ namespace GiftTasteHelper.Framework
             this.Reflection = reflection;
         }
 
+        public static void ReloadGiftInfo(int maxItemsToDisplay)
+        {
+            LoadGiftInfo(maxItemsToDisplay);
+        }
+
         public virtual void Init(IClickableMenu menu)
         {
             if (this.IsInitialized)
@@ -52,24 +57,9 @@ namespace GiftTasteHelper.Framework
                 return;
             }
 
-            this.NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
-
-            // TODO: filter out names that will never be used
-            var npcGiftTastes = Game1.NPCGiftTastes;
-            foreach (var giftTaste in npcGiftTastes)
+            if (NpcGiftInfo == null)
             {
-                // The first few elements are universal_tastes and we only want names.
-                // None of the names contain an underscore so we can check that way.
-                string npcName = giftTaste.Key;
-                if (npcName.IndexOf('_') != -1)
-                    continue;
-
-                string[] giftTastes = giftTaste.Value.Split('/');
-                if (giftTastes.Length > 0)
-                {
-                    string[] favouriteGifts = giftTastes[1].Split(' ');
-                    this.NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts, this.MaxItemsToDisplay);
-                }
+                LoadGiftInfo(this.MaxItemsToDisplay);
             }
 
             this.IsInitialized = true;
@@ -197,6 +187,30 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Protected methods
         *********/
+        private static void LoadGiftInfo(int maxItemsToDisplay)
+        {
+            NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
+
+            // TODO: filter out names that will never be used
+            var npcGiftTastes = Game1.NPCGiftTastes;
+            foreach (var giftTaste in npcGiftTastes)
+            {
+                // The first few elements are universal_tastes and we only want names.
+                // None of the names contain an underscore so we can check that way.
+                string npcName = giftTaste.Key;
+                if (npcName.IndexOf('_') != -1)
+                    continue;
+
+                string[] giftTastes = giftTaste.Value.Split('/');
+                if (giftTastes.Length > 0)
+                {
+                    string[] favouriteGifts = giftTastes[1].Split(' ');
+                    NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts, maxItemsToDisplay);
+                }
+            }
+        }
+
+        #region Drawing
         protected virtual void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
         {
             // Empty
@@ -250,6 +264,7 @@ namespace GiftTasteHelper.Framework
             }
             return ca;
         }
+        #endregion Drawing
     }
 
 }

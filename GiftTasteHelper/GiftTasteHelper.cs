@@ -40,6 +40,7 @@ namespace GiftTasteHelper
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
             GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
+            ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(config.MaxGiftsToDisplay);
         }
 
 

@@ -19,7 +19,7 @@ namespace GiftTasteHelper.Framework
             { LanguageCode.pt, "Presentes favoritos" },     // Portugese
             { LanguageCode.es, "Regalos del favorito" },    // Spanish
             { LanguageCode.de, "Lieblingsgeschenke" },      // German
-            { LanguageCode.th, "ของขวัญที่ชอบ" },              // Thair
+            { LanguageCode.th, "ของขวัญที่ชอบ" },              // Thai
         };
 
         public static string GetTooltipTitle()

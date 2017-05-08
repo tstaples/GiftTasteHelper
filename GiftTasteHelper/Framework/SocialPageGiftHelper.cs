@@ -62,8 +62,8 @@ namespace GiftTasteHelper.Framework
 
             if (hoveredNpc != this.LastHoveredNpc)
             {
-                Debug.Assert(this.NpcGiftInfo.ContainsKey(hoveredNpc));
-                this.CurrentGiftInfo = this.NpcGiftInfo[hoveredNpc];
+                Debug.Assert(GiftHelper.NpcGiftInfo.ContainsKey(hoveredNpc));
+                this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[hoveredNpc];
 
                 this.DrawCurrentFrame = true;
                 this.LastHoveredNpc = hoveredNpc;
