@@ -74,13 +74,18 @@ namespace GiftTasteHelper.Framework
 
         public int[] GetGiftsForTaste(string npcName, GiftTaste taste)
         {
-            var entryForTaste = Database.Entries[npcName][taste];
-            return entryForTaste.Select(model => model.ItemId).ToArray();
+            if (Database.Entries.ContainsKey(npcName))
+            {
+                var entryForTaste = Database.Entries[npcName][taste];
+                return entryForTaste.Select(model => model.ItemId).ToArray();
+            }
+            return new int[] { };
         }
 
         protected GiftTaste GetTasteForGift(string npcName, int itemId)
         {
             // TODO
+            // TODO: debug option to ignore actual taste so we can test with any item.
             return GiftTaste.Love;
         }
     }

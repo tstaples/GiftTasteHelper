@@ -2,16 +2,6 @@
 
 namespace GiftTasteHelper.Framework
 {
-    internal enum GiftTaste : int
-    {
-        Love = 0,
-        Like,
-        Dislike,
-        Hate,
-        Neutral,
-        MAX
-    }
-
     internal class GiftModel
     {
         public int ItemId { get; set; }

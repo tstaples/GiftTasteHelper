@@ -43,12 +43,12 @@
     <Compile Include="Framework\Controllers\IGiftDataProvider.cs" />
     <Compile Include="Framework\Controllers\IGiftDatabase.cs" />
     <Compile Include="Framework\Models\GiftDatabaseModel.cs" />
-    <Compile Include="Framework\Controllers\GiftHelperType.cs" />
+    <Compile Include="Framework\GiftHelperTypes.cs" />
     <Compile Include="Framework\Controllers\LocaleHelper.cs" />
     <Compile Include="GiftTasteHelper.cs" />
     <Compile Include="Framework\Views\CalendarGiftHelper.cs" />
-    <Compile Include="Framework\Controllers\GiftHelper.cs" />
-    <Compile Include="Framework\Controllers\IGiftHelper.cs" />
+    <Compile Include="Framework\Views\GiftHelper.cs" />
+    <Compile Include="Framework\Views\IGiftHelper.cs" />
     <Compile Include="Framework\Models\ItemData.cs" />
     <Compile Include="Framework\Models\ModConfig.cs" />
     <Compile Include="Framework\Models\NPCGiftInfo.cs" />
