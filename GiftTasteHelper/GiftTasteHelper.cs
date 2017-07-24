@@ -20,8 +20,8 @@ namespace GiftTasteHelper
         private bool WasResized;
 
         private uint PriorGiftsGiven;
-        private bool HeldValidGift = false;
-
+        private StardewValley.Object HeldGift = null;
+        private Dictionary<string, bool> GiftsGivenToday;
 
         /*********
         ** Public methods
@@ -48,6 +48,7 @@ namespace GiftTasteHelper
             ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(config.MaxGiftsToDisplay);
             ControlEvents.MouseChanged += CheckGiftGiven;
             SaveEvents.AfterLoad += SaveEvents_AfterLoad;
+            TimeEvents.AfterDayStarted += (sender, e) => RebuildGiftsGiven();
 
 #if DEBUG
             helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>
@@ -56,6 +57,7 @@ namespace GiftTasteHelper
                 {
                     friendship.Value[1] = 0;
                     friendship.Value[3] = 0;
+                    RebuildGiftsGiven();
                 }
             });
 
@@ -87,25 +89,54 @@ namespace GiftTasteHelper
         private void SaveEvents_AfterLoad(object sender, EventArgs e)
         {
             PriorGiftsGiven = Game1.stats.GiftsGiven;
+            RebuildGiftsGiven();
+        }
+
+        private void RebuildGiftsGiven()
+        {
+            GiftsGivenToday = new Dictionary<string, bool>();
+            foreach (var friendpair in Game1.player.friendships)
+            {
+                // Third element is whether a gift has been given today.
+                GiftsGivenToday.Add(friendpair.Key, friendpair.Value[3] > 0);
+            }
         }
 
         private void CheckGiftGiven(object sender, EventArgsMouseStateChanged e)
         {
             if (e.NewState.RightButton != e.PriorState.RightButton && e.NewState.RightButton == ButtonState.Pressed)
             {
-                HeldValidGift = Game1.player.ActiveObject != null && Game1.player.ActiveObject.canBeGivenAsGift();
+                if (Game1.player.ActiveObject != null && Game1.player.ActiveObject.canBeGivenAsGift())
+                {
+                    HeldGift = Game1.player.ActiveObject;
+                }
             }
             else if (e.NewState.RightButton != e.PriorState.RightButton && e.NewState.RightButton == ButtonState.Released)
             {
-                if (!HeldValidGift)
+                if (HeldGift == null)
                     return;
 
                 Utils.DebugLog("Clicked with gift in hand");
                 if (Game1.stats.GiftsGiven != PriorGiftsGiven)
                 {
                     Utils.DebugLog($"GiftsGiven changed from {PriorGiftsGiven} to {Game1.stats.GiftsGiven}");
+                    Utils.DebugLog($"Given item: {HeldGift.DisplayName}");
+
+                    string npcGivenTo = null;
+                    foreach (var friendpair in Game1.player.friendships)
+                    {
+                        bool givenToday = friendpair.Value[3] > 0;
+                        if (GiftsGivenToday[friendpair.Key] != givenToday)
+                        {
+                            GiftsGivenToday[friendpair.Key] = true;
+                            npcGivenTo = friendpair.Key;
+                            break;
+                        }
+                    }
+
+                    Utils.DebugLog($"Gift given to {npcGivenTo}");
                     PriorGiftsGiven = Game1.stats.GiftsGiven;
-                    HeldValidGift = false;
+                    HeldGift = null;
                 }
             }
         }
