@@ -18,8 +18,9 @@ namespace GiftTasteHelper
         private ModConfig Config;
         private Dictionary<Type, IGiftHelper> GiftHelpers;
         private IGiftHelper CurrentGiftHelper;
-        private bool WasResized;
         private IGiftDatabase GiftDatabase;
+        private bool ReloadHelpers = false;
+        private bool WasResized;
 
         private uint PriorGiftsGiven;
         private StardewValley.Object HeldGift = null;
@@ -37,6 +38,48 @@ namespace GiftTasteHelper
 
             Config = helper.ReadConfig<ModConfig>();
 
+            LoadGiftHelpers(helper);
+
+            GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
+            ContentEvents.AfterLocaleChanged += (sender, e) => LoadGiftHelpers(helper);
+            SaveEvents.AfterLoad += SaveEvents_AfterLoad;
+            SaveEvents.AfterReturnToTitle += (sender, e) => OnReturnToTitleScreen();
+            TimeEvents.AfterDayStarted += (sender, e) => RebuildGiftsGiven();
+
+            InitDebugCommands(helper);
+        }
+
+        private void OnReturnToTitleScreen()
+        {
+            // A different save may be chosen which can have different progress, so we need to reload the db and helpers.
+            // TODO: Maybe add a shared progress option in the future.
+            UnsubscribeEvents();
+            this.ReloadHelpers = true;
+            this.CurrentGiftHelper = null;
+
+            MenuEvents.MenuClosed -= OnClickableMenuClosed;
+            MenuEvents.MenuChanged -= OnClickableMenuChanged;
+        }
+
+        private void SaveEvents_AfterLoad(object sender, EventArgs e)
+        {
+            PriorGiftsGiven = Game1.stats.GiftsGiven;
+            RebuildGiftsGiven();
+
+            if (ReloadHelpers)
+            {
+                Utils.DebugLog("Reloading gift helpers");
+                LoadGiftHelpers(Helper);
+                ReloadHelpers = false;
+            }
+        }
+
+        void LoadGiftHelpers(IModHelper helper)
+        {
+            Utils.DebugLog("Initializing gift helpers");
+
+            // TODO: add a reload method to the gift helpers instead of fully re-creating them
+            // Force the gift info to be rebuilt
             IGiftDataProvider dataProvider = null;
             if (Config.ShowOnlyKnownGifts)
             {
@@ -48,29 +91,23 @@ namespace GiftTasteHelper
             {
                 GiftDatabase = new GiftDatabase(helper);
                 dataProvider = new AllGiftDataProvider(GiftDatabase);
+                ControlEvents.MouseChanged -= CheckGiftGiven;
             }
 
             // Add the helpers if they're enabled in config
+            CurrentGiftHelper = null;
             this.GiftHelpers = new Dictionary<Type, IGiftHelper>();
             if (Config.ShowOnCalendar)
+            {
                 this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection));
+            }
             if (Config.ShowOnSocialPage)
+            {
                 this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection));
+            }
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
-            GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
-            ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(dataProvider, Config.MaxGiftsToDisplay);            
-            SaveEvents.AfterLoad += SaveEvents_AfterLoad;
-            TimeEvents.AfterDayStarted += (sender, e) => RebuildGiftsGiven();
-
-            InitDebugCommands(helper);
-        }
-
-        private void SaveEvents_AfterLoad(object sender, EventArgs e)
-        {
-            PriorGiftsGiven = Game1.stats.GiftsGiven;
-            RebuildGiftsGiven();
         }
 
         private void RebuildGiftsGiven()

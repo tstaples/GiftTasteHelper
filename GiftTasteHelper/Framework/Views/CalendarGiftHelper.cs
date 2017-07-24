@@ -100,7 +100,6 @@ namespace GiftTasteHelper.Framework
             if (this.Birthdays.ContainsKey(hoveredDay))
             {
                 string npcName = this.Birthdays[hoveredDay].name;
-                Debug.Assert(GiftHelper.NpcGiftInfo.ContainsKey(npcName));
                 this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[npcName];
                 this.DrawCurrentFrame = true;
             }

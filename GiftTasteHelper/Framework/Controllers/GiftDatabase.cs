@@ -56,12 +56,6 @@ namespace GiftTasteHelper.Framework
             return false;
         }
 
-        //public void AddGiftUnchecked(string npcName, int itemId, GiftTaste taste)
-        //{
-        //    var entryForTaste = Database.Entries[npcName][taste];
-        //    entryForTaste.Add(new GiftModel() { ItemId = itemId });
-        //}
-
         public virtual bool AddGifts(string npcName, GiftTaste taste, int[] itemIds)
         {
             if (!Database.Entries.ContainsKey(npcName))
@@ -77,12 +71,6 @@ namespace GiftTasteHelper.Framework
             }
             return false;
         }
-
-        //public virtual void AddGiftsUnchecked(string npcName, GiftTaste taste, int[] itemIds)
-        //{
-        //    var entryForTaste = Database.Entries[npcName][taste];
-        //    entryForTaste.AddRange(itemIds.Cast<GiftModel>());
-        //}
 
         public int[] GetGiftsForTaste(string npcName, GiftTaste taste)
         {

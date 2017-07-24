@@ -44,6 +44,7 @@ namespace GiftTasteHelper.Framework
             this.MaxItemsToDisplay = maxItemsToDisplay;
             this.Reflection = reflection;
             this.DataProvider = dataProvider;
+            NpcGiftInfo = null; // Force it to be rebuilt when re-created
         }
 
         public static void ReloadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay)

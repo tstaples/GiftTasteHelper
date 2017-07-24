@@ -35,9 +35,6 @@ namespace GiftTasteHelper.Framework
         public AllGiftDataProvider(IGiftDatabase database)
             : base(database)
         {
-            // TODO: find a nicer way to do this without putting the unchecked declarations in the interface.
-            var db = this.Database as GiftDatabase;
-
             // TODO: filter out names that will never be used
             foreach (var giftTaste in Game1.NPCGiftTastes)
             {
@@ -50,7 +47,7 @@ namespace GiftTasteHelper.Framework
                 string[] giftTastes = giftTaste.Value.Split('/');
                 if (giftTastes.Length > 0)
                 {
-                    Utils.DebugLog($"Adding favourite gifts for {npcName}");
+                    //Utils.DebugLog($"Adding favourite gifts for {npcName}");
                     int[] favouriteGifts = Utils.StringToIntArray(giftTastes[1].Split(' '));
 
                     // TODO: other gifts
