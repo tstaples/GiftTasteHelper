@@ -51,10 +51,17 @@ namespace GiftTasteHelper.Framework
                 if (giftTastes.Length > 0)
                 {
                     //Utils.DebugLog($"Adding favourite gifts for {npcName}");
-                    int[] favouriteGifts = Utils.StringToIntArray(giftTastes[1].Split(' '));
+                    var favourite = Utils.StringToIntArray(giftTastes[1].Split(' '));
+                    var liked = giftTastes[3].Length > 0 ? Utils.StringToIntArray(giftTastes[3].Split(' ')) : new int[] { };
+                    var disliked = giftTastes[5].Length > 0 ? Utils.StringToIntArray(giftTastes[5].Split(' ')) : new int[] { };
+                    var hated = giftTastes[7].Length > 0 ? Utils.StringToIntArray(giftTastes[7].Split(' ')) : new int[] { };
+                    var neutral = giftTastes[9].Length > 0 ? Utils.StringToIntArray(giftTastes[9].Split(' ')) : new int[] { };
 
-                    // TODO: other gifts
-                    Database.AddGifts(npcName, GiftTaste.Love, favouriteGifts);
+                    Database.AddGifts(npcName, GiftTaste.Love, favourite);
+                    Database.AddGifts(npcName, GiftTaste.Like, liked);
+                    Database.AddGifts(npcName, GiftTaste.Dislike, disliked);
+                    Database.AddGifts(npcName, GiftTaste.Hate, hated);
+                    Database.AddGifts(npcName, GiftTaste.Neutral, neutral);
                 }
             }
         }

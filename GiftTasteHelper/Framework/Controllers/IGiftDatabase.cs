@@ -6,7 +6,6 @@
     {
         event DataSourceChangedDelegate DatabaseChanged;
 
-        bool AddGift(string npcName, int itemId);
         bool AddGift(string npcName, int itemId, GiftTaste taste);
         bool AddGifts(string npcName, GiftTaste taste, int[] itemIds);
 

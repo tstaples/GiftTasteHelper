@@ -28,19 +28,22 @@ namespace GiftTasteHelper.Framework
 
         public bool ContainsGift(string npcName, int itemId, GiftTaste taste)
         {
+            if (taste == GiftTaste.MAX)
+            {
+                return false;
+            }
+
             var entryForTaste = Database.Entries[npcName][taste];
             return entryForTaste.Any(model => model.ItemId == itemId);
         }
 
-        // TODO: we should probably remove this overload so the caller is reponsible for getting the taste.
-        public bool AddGift(string npcName, int itemId)
-        {
-            GiftTaste taste = GetTasteForGift(npcName, itemId);
-            return AddGift(npcName, itemId, taste);            
-        }
-
         public virtual bool AddGift(string npcName, int itemId, GiftTaste taste)
         {
+            if (taste == GiftTaste.MAX)
+            {
+                return false;
+            }
+
             bool check = true;
             if (!Database.Entries.ContainsKey(npcName))
             {
@@ -62,6 +65,11 @@ namespace GiftTasteHelper.Framework
 
         public virtual bool AddGifts(string npcName, GiftTaste taste, int[] itemIds)
         {
+            if (taste == GiftTaste.MAX)
+            {
+                return false;
+            }
+
             if (!Database.Entries.ContainsKey(npcName))
             {
                 Database.Entries.Add(npcName, new CharacterTasteModel());
@@ -85,13 +93,6 @@ namespace GiftTasteHelper.Framework
                 return entryForTaste.Select(model => model.ItemId).ToArray();
             }
             return new int[] { };
-        }
-
-        protected GiftTaste GetTasteForGift(string npcName, int itemId)
-        {
-            // TODO
-            // TODO: debug option to ignore actual taste so we can test with any item.
-            return GiftTaste.Love;
         }
     }
 

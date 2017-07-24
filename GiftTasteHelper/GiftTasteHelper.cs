@@ -148,7 +148,8 @@ namespace GiftTasteHelper
                         {
                             GiftsGivenToday[friendpair.Key] = true;
                             npcGivenTo = friendpair.Key;
-                            this.GiftDatabase.AddGift(npcGivenTo, this.HeldGift.ParentSheetIndex);
+                            var taste = Utils.GetTasteForGift(npcGivenTo, this.HeldGift.ParentSheetIndex);
+                            this.GiftDatabase.AddGift(npcGivenTo, this.HeldGift.ParentSheetIndex, taste);
                             break;
                         }
                     }
