@@ -5,6 +5,8 @@ using GiftTasteHelper.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley.Menus;
+using Microsoft.Xna.Framework.Input;
+using StardewValley;
 
 namespace GiftTasteHelper
 {
@@ -16,6 +18,9 @@ namespace GiftTasteHelper
         private Dictionary<Type, IGiftHelper> GiftHelpers;
         private IGiftHelper CurrentGiftHelper;
         private bool WasResized;
+
+        private uint PriorGiftsGiven;
+        private bool HeldValidGift = false;
 
 
         /*********
@@ -41,8 +46,69 @@ namespace GiftTasteHelper
             MenuEvents.MenuChanged += OnClickableMenuChanged;
             GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
             ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(config.MaxGiftsToDisplay);
+            ControlEvents.MouseChanged += CheckGiftGiven;
+            SaveEvents.AfterLoad += SaveEvents_AfterLoad;
+
+#if DEBUG
+            helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>
+            {
+                foreach (var friendship in Game1.player.friendships)
+                {
+                    friendship.Value[1] = 0;
+                    friendship.Value[3] = 0;
+                }
+            });
+
+            helper.ConsoleCommands.Add("printcoords", "asdf", (name, args) =>
+            {
+                Utils.DebugLog($"Player coords: {Game1.player.position} | location: {Game1.player.currentLocation.name}");
+            });
+
+            helper.ConsoleCommands.Add("teleport", "", (name, args) =>
+            {
+                string location = args.Length > 0 ? args[0] : "Town";
+                int x = 635, y = 5506;
+                if (args.Length == 3)
+                {
+                    x = int.Parse(args[1]);
+                    y = int.Parse(args[2]);
+                }                
+                Game1.warpFarmer(location, x / Game1.tileSize, y / Game1.tileSize, false);
+            });
+
+            helper.ConsoleCommands.Add("setup", "", (name, args) =>
+            {
+                helper.ConsoleCommands.Trigger("world_settime", new string[] { "1000" });
+                helper.ConsoleCommands.Trigger("teleport", new string[] {"SamHouse", "306", "339"});
+            });
+#endif
         }
 
+        private void SaveEvents_AfterLoad(object sender, EventArgs e)
+        {
+            PriorGiftsGiven = Game1.stats.GiftsGiven;
+        }
+
+        private void CheckGiftGiven(object sender, EventArgsMouseStateChanged e)
+        {
+            if (e.NewState.RightButton != e.PriorState.RightButton && e.NewState.RightButton == ButtonState.Pressed)
+            {
+                HeldValidGift = Game1.player.ActiveObject != null && Game1.player.ActiveObject.canBeGivenAsGift();
+            }
+            else if (e.NewState.RightButton != e.PriorState.RightButton && e.NewState.RightButton == ButtonState.Released)
+            {
+                if (!HeldValidGift)
+                    return;
+
+                Utils.DebugLog("Clicked with gift in hand");
+                if (Game1.stats.GiftsGiven != PriorGiftsGiven)
+                {
+                    Utils.DebugLog($"GiftsGiven changed from {PriorGiftsGiven} to {Game1.stats.GiftsGiven}");
+                    PriorGiftsGiven = Game1.stats.GiftsGiven;
+                    HeldValidGift = false;
+                }
+            }
+        }
 
         /*********
         ** Private methods
