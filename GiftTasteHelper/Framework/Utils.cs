@@ -70,6 +70,26 @@ namespace GiftTasteHelper.Framework
             return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }
 
+        public static int[] GetItemsForTaste(string npcName, GiftTaste taste)
+        {
+            Debug.Assert(taste != GiftTaste.MAX);
+
+            var giftTaste = Game1.NPCGiftTastes[npcName];
+            string[] giftTastes = giftTaste.Split('/');
+            if (giftTastes.Length == 0)
+            {
+                return new int[] { };
+            }
+
+            // See http://stardewvalleywiki.com/Modding:Gift_taste_data
+            int tasteIndex = (int)taste * 2 + 1; // Convert the enum to the correct taste index
+            if (giftTastes[tasteIndex].Length > 0)
+            {
+                return Utils.StringToIntArray(giftTastes[tasteIndex].Split(' '));
+            }
+            return new int[] { };
+        }
+
         public static GiftTaste GetTasteForGift(string npcName, int itemId)
         {
             var giftTaste = Game1.NPCGiftTastes[npcName];

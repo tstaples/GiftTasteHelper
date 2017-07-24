@@ -16,7 +16,7 @@ namespace GiftTasteHelper.Framework
         public BaseGiftDataProvider(IGiftDatabase database)
         {
             this.Database = database;
-            this.Database.DatabaseChanged += () => DataSourceChanged();
+            this.Database.DatabaseChanged += () => DataSourceChanged?.Invoke();
         }
 
         public int[] GetFavouriteGifts(string npcName)
@@ -47,22 +47,11 @@ namespace GiftTasteHelper.Framework
                 if (npcName.IndexOf('_') != -1)
                     continue;
 
-                string[] giftTastes = giftTaste.Value.Split('/');
-                if (giftTastes.Length > 0)
-                {
-                    //Utils.DebugLog($"Adding favourite gifts for {npcName}");
-                    var favourite = Utils.StringToIntArray(giftTastes[1].Split(' '));
-                    var liked = giftTastes[3].Length > 0 ? Utils.StringToIntArray(giftTastes[3].Split(' ')) : new int[] { };
-                    var disliked = giftTastes[5].Length > 0 ? Utils.StringToIntArray(giftTastes[5].Split(' ')) : new int[] { };
-                    var hated = giftTastes[7].Length > 0 ? Utils.StringToIntArray(giftTastes[7].Split(' ')) : new int[] { };
-                    var neutral = giftTastes[9].Length > 0 ? Utils.StringToIntArray(giftTastes[9].Split(' ')) : new int[] { };
-
-                    Database.AddGifts(npcName, GiftTaste.Love, favourite);
-                    Database.AddGifts(npcName, GiftTaste.Like, liked);
-                    Database.AddGifts(npcName, GiftTaste.Dislike, disliked);
-                    Database.AddGifts(npcName, GiftTaste.Hate, hated);
-                    Database.AddGifts(npcName, GiftTaste.Neutral, neutral);
-                }
+                Database.AddGifts(npcName, GiftTaste.Love, Utils.GetItemsForTaste(npcName, GiftTaste.Love));
+                Database.AddGifts(npcName, GiftTaste.Like, Utils.GetItemsForTaste(npcName, GiftTaste.Like));
+                Database.AddGifts(npcName, GiftTaste.Dislike, Utils.GetItemsForTaste(npcName, GiftTaste.Dislike));
+                Database.AddGifts(npcName, GiftTaste.Hate, Utils.GetItemsForTaste(npcName, GiftTaste.Hate));
+                Database.AddGifts(npcName, GiftTaste.Neutral, Utils.GetItemsForTaste(npcName, GiftTaste.Neutral));
             }
         }
     }
