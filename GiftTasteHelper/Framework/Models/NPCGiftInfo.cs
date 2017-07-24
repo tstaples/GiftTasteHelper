@@ -18,12 +18,11 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public NpcGiftInfo(string name, string[] favourite, int maxGiftsToDisplay)
+        public NpcGiftInfo(string name, int[] favouriteGiftIDs, int maxGiftsToDisplay)
         {
             this.Name = name;
             this.MaxGiftNameSize = SVector2.Zero;
 
-            int[] favouriteGiftIDs = Utils.StringToIntArray(favourite);
             int numGiftsToDisplay = this.CalculateNumberOfGiftsToDisplay(favouriteGiftIDs.Length, maxGiftsToDisplay);
 
             this.FavouriteGifts = this.ParseGifts(favouriteGiftIDs, numGiftsToDisplay);

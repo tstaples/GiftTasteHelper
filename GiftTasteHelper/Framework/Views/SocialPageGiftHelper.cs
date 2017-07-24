@@ -21,8 +21,8 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public SocialPageGiftHelper(int maxItemsToDisplay, IReflectionHelper reflection)
-            : base(GiftHelperType.SocialPage, maxItemsToDisplay, reflection) { }
+        public SocialPageGiftHelper(IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection)
+            : base(GiftHelperType.SocialPage, dataProvider, maxItemsToDisplay, reflection) { }
 
         public override bool OnOpen(IClickableMenu menu)
         {

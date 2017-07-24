@@ -23,6 +23,7 @@ namespace GiftTasteHelper.Framework
         /// <summary>Simplifies access to private game code.</summary>
         protected readonly IReflectionHelper Reflection;
 
+        private IGiftDataProvider DataProvider;
 
         /*********
         ** Accessors
@@ -37,16 +38,17 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public GiftHelper(GiftHelperType helperType, int maxItemsToDisplay, IReflectionHelper reflection)
+        public GiftHelper(GiftHelperType helperType, IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection)
         {
             this.GiftHelperType = helperType;
             this.MaxItemsToDisplay = maxItemsToDisplay;
             this.Reflection = reflection;
+            this.DataProvider = dataProvider;
         }
 
-        public static void ReloadGiftInfo(int maxItemsToDisplay)
+        public static void ReloadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay)
         {
-            LoadGiftInfo(maxItemsToDisplay);
+            LoadGiftInfo(dataProvider, maxItemsToDisplay);
         }
 
         public virtual void Init(IClickableMenu menu)
@@ -59,7 +61,7 @@ namespace GiftTasteHelper.Framework
 
             if (NpcGiftInfo == null)
             {
-                LoadGiftInfo(this.MaxItemsToDisplay);
+                LoadGiftInfo(this.DataProvider, this.MaxItemsToDisplay);
             }
 
             this.IsInitialized = true;
@@ -187,30 +189,20 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Protected methods
         *********/
-        private static void LoadGiftInfo(int maxItemsToDisplay)
+        private static void LoadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay)
         {
             NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
 
-            // TODO: filter out names that will never be used
-            var npcGiftTastes = Game1.NPCGiftTastes;
-            foreach (var giftTaste in npcGiftTastes)
+            foreach (var friendship in Game1.player.friendships)
             {
-                // The first few elements are universal_tastes and we only want names.
-                // None of the names contain an underscore so we can check that way.
-                string npcName = giftTaste.Key;
-                if (npcName.IndexOf('_') != -1)
-                    continue;
-
-                string[] giftTastes = giftTaste.Value.Split('/');
-                if (giftTastes.Length > 0)
-                {
-                    string[] favouriteGifts = giftTastes[1].Split(' ');
-                    NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts, maxItemsToDisplay);
-                }
+                string npcName = friendship.Key;
+                var favouriteGifts = dataProvider.GetFavouriteGifts(npcName);
+                NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts, maxItemsToDisplay);
             }
         }
 
         #region Drawing
+        // TODO: move draw code into separate class so this remains purely a controller
         protected virtual void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
         {
             // Empty

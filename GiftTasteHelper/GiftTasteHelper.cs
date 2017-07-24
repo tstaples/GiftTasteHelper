@@ -18,6 +18,7 @@ namespace GiftTasteHelper
         private Dictionary<Type, IGiftHelper> GiftHelpers;
         private IGiftHelper CurrentGiftHelper;
         private bool WasResized;
+        private IGiftDatabase GiftDatabase;
 
         private uint PriorGiftsGiven;
         private StardewValley.Object HeldGift = null;
@@ -35,18 +36,30 @@ namespace GiftTasteHelper
 
             ModConfig config = helper.ReadConfig<ModConfig>();
 
+            IGiftDataProvider dataProvider = null;
+            if (config.ShowOnlyKnownGifts)
+            {
+                GiftDatabase = new StoredGiftDatabase(helper);
+                dataProvider = new ProgressionGiftDataProvider(GiftDatabase);
+                ControlEvents.MouseChanged += CheckGiftGiven;
+            }
+            else
+            {
+                GiftDatabase = new GiftDatabase(helper);
+                dataProvider = new AllGiftDataProvider(GiftDatabase);
+            }
+
             // Add the helpers if they're enabled in config
             this.GiftHelpers = new Dictionary<Type, IGiftHelper>();
             if (config.ShowOnCalendar)
-                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(config.MaxGiftsToDisplay, helper.Reflection));
+                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(dataProvider, config.MaxGiftsToDisplay, helper.Reflection));
             if (config.ShowOnSocialPage)
-                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(config.MaxGiftsToDisplay, helper.Reflection));
+                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(dataProvider, config.MaxGiftsToDisplay, helper.Reflection));
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
             GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
-            ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(config.MaxGiftsToDisplay);
-            ControlEvents.MouseChanged += CheckGiftGiven;
+            ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(dataProvider, config.MaxGiftsToDisplay);            
             SaveEvents.AfterLoad += SaveEvents_AfterLoad;
             TimeEvents.AfterDayStarted += (sender, e) => RebuildGiftsGiven();
 
@@ -130,6 +143,7 @@ namespace GiftTasteHelper
                         {
                             GiftsGivenToday[friendpair.Key] = true;
                             npcGivenTo = friendpair.Key;
+                            this.GiftDatabase.AddGift(npcGivenTo, this.HeldGift.ParentSheetIndex);
                             break;
                         }
                     }
