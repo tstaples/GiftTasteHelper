@@ -37,19 +37,20 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Framework\Calendar.cs" />
-    <Compile Include="Framework\GiftHelperType.cs" />
-    <Compile Include="Framework\LocaleHelper.cs" />
+    <Compile Include="Framework\Controllers\Calendar.cs" />
+    <Compile Include="Framework\Models\GiftDatabaseModel.cs" />
+    <Compile Include="Framework\Controllers\GiftHelperType.cs" />
+    <Compile Include="Framework\Controllers\LocaleHelper.cs" />
     <Compile Include="GiftTasteHelper.cs" />
-    <Compile Include="Framework\CalendarGiftHelper.cs" />
-    <Compile Include="Framework\GiftHelper.cs" />
-    <Compile Include="Framework\IGiftHelper.cs" />
-    <Compile Include="Framework\ItemData.cs" />
-    <Compile Include="Framework\ModConfig.cs" />
-    <Compile Include="Framework\NPCGiftInfo.cs" />
+    <Compile Include="Framework\Views\CalendarGiftHelper.cs" />
+    <Compile Include="Framework\Controllers\GiftHelper.cs" />
+    <Compile Include="Framework\Controllers\IGiftHelper.cs" />
+    <Compile Include="Framework\Models\ItemData.cs" />
+    <Compile Include="Framework\Models\ModConfig.cs" />
+    <Compile Include="Framework\Models\NPCGiftInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Framework\SocialPage.cs" />
-    <Compile Include="Framework\SocialPageGiftHelper.cs" />
+    <Compile Include="Framework\Controllers\SocialPage.cs" />
+    <Compile Include="Framework\Views\SocialPageGiftHelper.cs" />
     <Compile Include="Framework\SVector2.cs" />
     <Compile Include="Framework\Utils.cs" />
   </ItemGroup>
