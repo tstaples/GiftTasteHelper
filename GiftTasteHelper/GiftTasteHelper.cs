@@ -15,6 +15,7 @@ namespace GiftTasteHelper
         /*********
         ** Properties
         *********/
+        private ModConfig Config;
         private Dictionary<Type, IGiftHelper> GiftHelpers;
         private IGiftHelper CurrentGiftHelper;
         private bool WasResized;
@@ -34,10 +35,10 @@ namespace GiftTasteHelper
             // Set the monitor ref so we can have a cheeky global log function
             Utils.InitLog(this.Monitor);
 
-            ModConfig config = helper.ReadConfig<ModConfig>();
+            Config = helper.ReadConfig<ModConfig>();
 
             IGiftDataProvider dataProvider = null;
-            if (config.ShowOnlyKnownGifts)
+            if (Config.ShowOnlyKnownGifts)
             {
                 GiftDatabase = new StoredGiftDatabase(helper);
                 dataProvider = new ProgressionGiftDataProvider(GiftDatabase);
@@ -51,52 +52,19 @@ namespace GiftTasteHelper
 
             // Add the helpers if they're enabled in config
             this.GiftHelpers = new Dictionary<Type, IGiftHelper>();
-            if (config.ShowOnCalendar)
-                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(dataProvider, config.MaxGiftsToDisplay, helper.Reflection));
-            if (config.ShowOnSocialPage)
-                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(dataProvider, config.MaxGiftsToDisplay, helper.Reflection));
+            if (Config.ShowOnCalendar)
+                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection));
+            if (Config.ShowOnSocialPage)
+                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection));
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
             MenuEvents.MenuChanged += OnClickableMenuChanged;
             GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
-            ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(dataProvider, config.MaxGiftsToDisplay);            
+            ContentEvents.AfterLocaleChanged += (sender, e) => GiftHelper.ReloadGiftInfo(dataProvider, Config.MaxGiftsToDisplay);            
             SaveEvents.AfterLoad += SaveEvents_AfterLoad;
             TimeEvents.AfterDayStarted += (sender, e) => RebuildGiftsGiven();
 
-#if DEBUG
-            helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>
-            {
-                foreach (var friendship in Game1.player.friendships)
-                {
-                    friendship.Value[1] = 0;
-                    friendship.Value[3] = 0;
-                    RebuildGiftsGiven();
-                }
-            });
-
-            helper.ConsoleCommands.Add("printcoords", "asdf", (name, args) =>
-            {
-                Utils.DebugLog($"Player coords: {Game1.player.position} | location: {Game1.player.currentLocation.name}");
-            });
-
-            helper.ConsoleCommands.Add("teleport", "", (name, args) =>
-            {
-                string location = args.Length > 0 ? args[0] : "Town";
-                int x = 635, y = 5506;
-                if (args.Length == 3)
-                {
-                    x = int.Parse(args[1]);
-                    y = int.Parse(args[2]);
-                }                
-                Game1.warpFarmer(location, x / Game1.tileSize, y / Game1.tileSize, false);
-            });
-
-            helper.ConsoleCommands.Add("setup", "", (name, args) =>
-            {
-                helper.ConsoleCommands.Trigger("world_settime", new string[] { "1000" });
-                helper.ConsoleCommands.Trigger("teleport", new string[] {"SamHouse", "306", "339"});
-            });
-#endif
+            InitDebugCommands(helper);
         }
 
         private void SaveEvents_AfterLoad(object sender, EventArgs e)
@@ -252,5 +220,45 @@ namespace GiftTasteHelper
             ControlEvents.MouseChanged += OnMouseStateChange;
             GraphicsEvents.OnPostRenderEvent += OnDraw;
         }
+
+        #region Debug
+        void InitDebugCommands(IModHelper helper)
+        {
+#if DEBUG
+            helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>
+            {
+                foreach (var friendship in Game1.player.friendships)
+                {
+                    friendship.Value[1] = 0;
+                    friendship.Value[3] = 0;
+                    RebuildGiftsGiven();
+                }
+            });
+
+            helper.ConsoleCommands.Add("printcoords", "asdf", (name, args) =>
+            {
+                Utils.DebugLog($"Player coords: {Game1.player.position} | location: {Game1.player.currentLocation.name}");
+            });
+
+            helper.ConsoleCommands.Add("teleport", "", (name, args) =>
+            {
+                string location = args.Length > 0 ? args[0] : "Town";
+                int x = 635, y = 5506;
+                if (args.Length == 3)
+                {
+                    x = int.Parse(args[1]);
+                    y = int.Parse(args[2]);
+                }
+                Game1.warpFarmer(location, x / Game1.tileSize, y / Game1.tileSize, false);
+            });
+
+            helper.ConsoleCommands.Add("setup", "", (name, args) =>
+            {
+                helper.ConsoleCommands.Trigger("world_settime", new string[] { "1000" });
+                helper.ConsoleCommands.Trigger("teleport", new string[] { "SamHouse", "306", "339" });
+            });
+#endif
+        }
+        #endregion
     }
 }
