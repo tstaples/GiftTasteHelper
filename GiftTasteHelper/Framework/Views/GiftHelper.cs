@@ -45,6 +45,8 @@ namespace GiftTasteHelper.Framework
             this.Reflection = reflection;
             this.DataProvider = dataProvider;
             NpcGiftInfo = null; // Force it to be rebuilt when re-created
+
+            this.DataProvider.DataSourceChanged += () => ReloadGiftInfo(this.DataProvider, this.MaxItemsToDisplay);
         }
 
         public static void ReloadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay)

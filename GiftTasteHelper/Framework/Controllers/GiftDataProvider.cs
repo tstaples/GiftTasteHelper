@@ -9,11 +9,14 @@ namespace GiftTasteHelper.Framework
 {
     internal abstract class BaseGiftDataProvider : IGiftDataProvider
     {
+        public event DataSourceChangedDelegate DataSourceChanged;
+
         protected IGiftDatabase Database;
 
         public BaseGiftDataProvider(IGiftDatabase database)
         {
             this.Database = database;
+            this.Database.DatabaseChanged += () => DataSourceChanged();
         }
 
         public int[] GetFavouriteGifts(string npcName)

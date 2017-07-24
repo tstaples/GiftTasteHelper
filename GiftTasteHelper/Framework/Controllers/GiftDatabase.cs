@@ -9,8 +9,10 @@ namespace GiftTasteHelper.Framework
 {
     internal class GiftDatabase : IGiftDatabase
     {
-        protected readonly IModHelper Helper;
+        public event DataSourceChangedDelegate DatabaseChanged;
+
         public GiftDatabaseModel Database { get; protected set; }
+        protected readonly IModHelper Helper;
 
         public GiftDatabase(IModHelper helper)
         {
@@ -51,6 +53,8 @@ namespace GiftTasteHelper.Framework
             {
                 Utils.DebugLog($"Adding {itemId} to {npcName}'s {taste} tastes.");
                 entryForTaste.Add(new GiftModel() { ItemId = itemId });
+
+                DatabaseChanged();
                 return true;
             }
             return false;
@@ -67,6 +71,7 @@ namespace GiftTasteHelper.Framework
             if (unique.Count() > 0)
             {
                 Database.Entries[npcName][taste].AddRange(itemIds.Select(id => new GiftModel() { ItemId = id }));
+                DatabaseChanged();
                 return true;
             }
             return false;
