@@ -22,6 +22,7 @@ namespace GiftTasteHelper.Framework
 
         /// <summary>Simplifies access to private game code.</summary>
         protected readonly IReflectionHelper Reflection;
+        protected readonly ITranslationHelper Translation;
 
         private IGiftDataProvider DataProvider;
 
@@ -29,8 +30,7 @@ namespace GiftTasteHelper.Framework
         ** Accessors
         *********/
         public bool IsInitialized { get; private set; }
-        public bool IsOpen { get; private set; }
-        public string TooltipTitle => LocaleHelper.GetTooltipTitle();
+        public bool IsOpen { get; private set; }        
         public GiftHelperType GiftHelperType { get; }
         public float ZoomLevel => 1.0f; // SMAPI's draw call will handle zoom
 
@@ -38,11 +38,12 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public GiftHelper(GiftHelperType helperType, IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection)
+        public GiftHelper(GiftHelperType helperType, IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection, ITranslationHelper translation)
         {
             this.GiftHelperType = helperType;
             this.MaxItemsToDisplay = maxItemsToDisplay;
             this.Reflection = reflection;
+            this.Translation = translation;
             this.DataProvider = dataProvider;
             NpcGiftInfo = null; // Force it to be rebuilt when re-created
 
@@ -108,7 +109,14 @@ namespace GiftTasteHelper.Framework
 
         public virtual void OnDraw()
         {
-            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle);
+            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle());
+        }
+
+        public string TooltipTitle()
+        {
+            return this.CurrentGiftInfo.FavouriteGifts.Length > 0 
+                ? this.Translation.Get("tooltip.title.favorite") 
+                : this.Translation.Get("tooltip.title.none");
         }
 
         public void DrawGiftTooltip(NpcGiftInfo giftInfo, string title, string originalTooltipText = "")
@@ -121,9 +129,7 @@ namespace GiftTasteHelper.Framework
 
             // The longest length of text will help us determine how wide the tooltip box should be 
             SVector2 titleSize = SVector2.MeasureString(title, Game1.smallFont);
-            SVector2 maxTextSize = numItems > 0
-                ? (titleSize.X - scaledSpriteSize.X > giftInfo.MaxGiftNameSize.X) ? titleSize : giftInfo.MaxGiftNameSize
-                : SVector2.MeasureString("No Known Gifts", Game1.smallFont); // TODO: use localized
+            SVector2 maxTextSize = (titleSize.X - scaledSpriteSize.X > giftInfo.MaxGiftNameSize.X) ? titleSize : giftInfo.MaxGiftNameSize;
 
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 
@@ -168,31 +174,24 @@ namespace GiftTasteHelper.Framework
             SVector2 spriteOffset = new SVector2(this.AdjustForTileSize(tooltipPos.X, 0.25f), this.AdjustForTileSize(tooltipPos.Y, 0.25f));
             SVector2 textOffset = new SVector2(spriteOffset.X, spriteOffset.Y + (spriteRect.Height / 2));
 
+            // TODO: fix weird title y offset when there are > 0 items.
             // Draw the title then set up the offset for the remaining text
-            if (numItems > 0)
+            this.DrawText(title, textOffset);
+            textOffset.X += scaledSpriteSize.X + padding;
+            textOffset.Y += rowHeight;
+            spriteOffset.Y += rowHeight;
+
+            for (int i = 0; i < numItems; ++i)
             {
-                this.DrawText(title, textOffset);
-                textOffset.X += scaledSpriteSize.X + padding;
-                textOffset.Y += rowHeight;
+                ItemData item = giftInfo.FavouriteGifts[i];
+
+                // Draw the sprite for the item then the item text
+                this.DrawText(item.DisplayName, textOffset);
+                this.DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.TileSheetSourceRect, spriteScale);
+
+                // Move to the next row
                 spriteOffset.Y += rowHeight;
-
-                for (int i = 0; i < numItems; ++i)
-                {
-                    ItemData item = giftInfo.FavouriteGifts[i];
-
-                    // Draw the sprite for the item then the item text
-                    this.DrawText(item.DisplayName, textOffset);
-                    this.DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.TileSheetSourceRect, spriteScale);
-
-                    // Move to the next row
-                    spriteOffset.Y += rowHeight;
-                    textOffset.Y += rowHeight;
-                }
-            }
-            else
-            {
-                // TODO: localize
-                this.DrawText("No Known Gifts", textOffset);
+                textOffset.Y += rowHeight;
             }
         }
 

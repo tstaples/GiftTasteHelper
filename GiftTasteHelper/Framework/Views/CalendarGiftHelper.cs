@@ -24,8 +24,8 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public CalendarGiftHelper(IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection)
-            : base(GiftHelperType.Calendar, dataProvider, maxItemsToDisplay, reflection) { }
+        public CalendarGiftHelper(IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection, ITranslationHelper translation)
+            : base(GiftHelperType.Calendar, dataProvider, maxItemsToDisplay, reflection, translation) { }
 
         public override void Init(IClickableMenu menu)
         {
@@ -112,7 +112,7 @@ namespace GiftTasteHelper.Framework
         public override void OnDraw()
         {
             // Draw the tooltip
-            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle, this.Calendar.GetCurrentHoverText());
+            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle(), this.Calendar.GetCurrentHoverText());
         }
     }
 }

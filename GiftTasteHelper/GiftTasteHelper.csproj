@@ -44,7 +44,6 @@
     <Compile Include="Framework\Controllers\IGiftDatabase.cs" />
     <Compile Include="Framework\Models\GiftDatabaseModel.cs" />
     <Compile Include="Framework\GiftHelperTypes.cs" />
-    <Compile Include="Framework\Controllers\LocaleHelper.cs" />
     <Compile Include="GiftTasteHelper.cs" />
     <Compile Include="Framework\Views\CalendarGiftHelper.cs" />
     <Compile Include="Framework\Views\GiftHelper.cs" />
@@ -59,11 +58,20 @@
     <Compile Include="Framework\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="i18n\de.json" />
+    <None Include="i18n\default.json" />
+    <None Include="i18n\es.json" />
+    <None Include="i18n\ja.json" />
+    <None Include="i18n\pt.json" />
+    <None Include="i18n\ru.json" />
+    <None Include="i18n\th.json" />
+    <None Include="i18n\zh.json" />
     <None Include="manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Pathoschild.Stardew.ModBuildConfig.1.5.0\build\Pathoschild.Stardew.ModBuildConfig.targets" Condition="Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.1.5.0\build\Pathoschild.Stardew.ModBuildConfig.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -72,6 +80,11 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.1.5.0\build\Pathoschild.Stardew.ModBuildConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Pathoschild.Stardew.ModBuildConfig.1.5.0\build\Pathoschild.Stardew.ModBuildConfig.targets'))" />
   </Target>
+  <ItemGroup>
+    <_TranslationFiles Include="i18n\*.json">
+      <InProject>false</InProject>
+    </_TranslationFiles>
+  </ItemGroup>
   <Target Name="AfterBuild">
     <PropertyGroup>
       <ModPath>$(GamePath)\Mods\$(TargetName)</ModPath>
@@ -80,5 +93,6 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(ModPath)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll.mdb" DestinationFolder="$(ModPath)" Condition="Exists('$(TargetDir)\$(TargetName).dll.mdb')" />
     <Copy SourceFiles="$(ProjectDir)manifest.json" DestinationFolder="$(ModPath)" />
+    <Copy SourceFiles="@(_TranslationFiles)" DestinationFolder="$(ModPath)\i18n" />
   </Target>
 </Project>

@@ -99,11 +99,11 @@ namespace GiftTasteHelper
             this.GiftHelpers = new Dictionary<Type, IGiftHelper>();
             if (Config.ShowOnCalendar)
             {
-                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection));
+                this.GiftHelpers.Add(typeof(Billboard), new CalendarGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection, helper.Translation));
             }
             if (Config.ShowOnSocialPage)
             {
-                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection));
+                this.GiftHelpers.Add(typeof(GameMenu), new SocialPageGiftHelper(dataProvider, Config.MaxGiftsToDisplay, helper.Reflection, helper.Translation));
             }
 
             MenuEvents.MenuClosed += OnClickableMenuClosed;
