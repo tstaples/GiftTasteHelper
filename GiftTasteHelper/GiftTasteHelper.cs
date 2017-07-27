@@ -284,8 +284,15 @@ namespace GiftTasteHelper
                 int x = 635, y = 5506;
                 if (args.Length == 3)
                 {
-                    x = int.Parse(args[1]);
-                    y = int.Parse(args[2]);
+                    try
+                    {
+                        x = int.Parse(args[1]);
+                        y = int.Parse(args[2]);
+                    }                    
+                    catch (Exception)
+                    {
+                        Utils.DebugLog("Error parsing params", LogLevel.Error);
+                    }
                 }
                 Game1.warpFarmer(location, x / Game1.tileSize, y / Game1.tileSize, false);
             });

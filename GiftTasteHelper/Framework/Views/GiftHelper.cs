@@ -114,16 +114,16 @@ namespace GiftTasteHelper.Framework
         public void DrawGiftTooltip(NpcGiftInfo giftInfo, string title, string originalTooltipText = "")
         {
             int numItems = giftInfo.FavouriteGifts.Length;
-            if (numItems == 0)
-                return;
 
             float spriteScale = 2.0f * this.ZoomLevel; // 16x16 is pretty small
-            Rectangle spriteRect = giftInfo.FavouriteGifts[0].TileSheetSourceRect; // We just need the dimensions which we assume are all the same
+            Rectangle spriteRect = numItems > 0 ? giftInfo.FavouriteGifts[0].TileSheetSourceRect : new Rectangle(); // We just need the dimensions which we assume are all the same
             SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
 
             // The longest length of text will help us determine how wide the tooltip box should be 
             SVector2 titleSize = SVector2.MeasureString(title, Game1.smallFont);
-            SVector2 maxTextSize = (titleSize.X - scaledSpriteSize.X > giftInfo.MaxGiftNameSize.X) ? titleSize : giftInfo.MaxGiftNameSize;
+            SVector2 maxTextSize = numItems > 0
+                ? (titleSize.X - scaledSpriteSize.X > giftInfo.MaxGiftNameSize.X) ? titleSize : giftInfo.MaxGiftNameSize
+                : SVector2.MeasureString("No Known Gifts", Game1.smallFont); // TODO: use localized
 
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 
@@ -142,9 +142,9 @@ namespace GiftTasteHelper.Framework
 
             // Approximate where the original tooltip will be positioned if there is an existing one we need to account for
             this.OrigHoverTextSize = SVector2.MeasureString(originalTooltipText, Game1.dialogueFont);
-            int origTToffsetX = 0;
-            if (this.OrigHoverTextSize.X > 0)
-                origTToffsetX = Math.Max(0, this.AdjustForTileSize(this.OrigHoverTextSize.X + mouse.X, 1.0f) - viewportW) + width;
+            int origTToffsetX = this.OrigHoverTextSize.X > 0
+                ? Math.Max(0, this.AdjustForTileSize(this.OrigHoverTextSize.X + mouse.X, 1.0f) - viewportW) + width
+                : 0;
 
             // Consider the position of the original tooltip and ensure we don't cover it up
             SVector2 tooltipPos = this.ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH, mouse);
@@ -169,22 +169,30 @@ namespace GiftTasteHelper.Framework
             SVector2 textOffset = new SVector2(spriteOffset.X, spriteOffset.Y + (spriteRect.Height / 2));
 
             // Draw the title then set up the offset for the remaining text
-            this.DrawText(title, textOffset);
-            textOffset.X += scaledSpriteSize.X + padding;
-            textOffset.Y += rowHeight;
-            spriteOffset.Y += rowHeight;
-
-            for (int i = 0; i < numItems; ++i)
+            if (numItems > 0)
             {
-                ItemData item = giftInfo.FavouriteGifts[i];
-
-                // Draw the sprite for the item then the item text
-                this.DrawText(item.DisplayName, textOffset);
-                this.DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.TileSheetSourceRect, spriteScale);
-
-                // Move to the next row
-                spriteOffset.Y += rowHeight;
+                this.DrawText(title, textOffset);
+                textOffset.X += scaledSpriteSize.X + padding;
                 textOffset.Y += rowHeight;
+                spriteOffset.Y += rowHeight;
+
+                for (int i = 0; i < numItems; ++i)
+                {
+                    ItemData item = giftInfo.FavouriteGifts[i];
+
+                    // Draw the sprite for the item then the item text
+                    this.DrawText(item.DisplayName, textOffset);
+                    this.DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.TileSheetSourceRect, spriteScale);
+
+                    // Move to the next row
+                    spriteOffset.Y += rowHeight;
+                    textOffset.Y += rowHeight;
+                }
+            }
+            else
+            {
+                // TODO: localize
+                this.DrawText("No Known Gifts", textOffset);
             }
         }
 
