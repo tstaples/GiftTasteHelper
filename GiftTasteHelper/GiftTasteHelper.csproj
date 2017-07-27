@@ -81,7 +81,7 @@
     <Error Condition="!Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.1.5.0\build\Pathoschild.Stardew.ModBuildConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Pathoschild.Stardew.ModBuildConfig.1.5.0\build\Pathoschild.Stardew.ModBuildConfig.targets'))" />
   </Target>
   <ItemGroup>
-    <_TranslationFiles Include="i18n\*.json">
+    <_TranslationFiles Include="$(ProjectDir)\i18n\*.json">
       <InProject>false</InProject>
     </_TranslationFiles>
   </ItemGroup>
@@ -93,6 +93,6 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(ModPath)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll.mdb" DestinationFolder="$(ModPath)" Condition="Exists('$(TargetDir)\$(TargetName).dll.mdb')" />
     <Copy SourceFiles="$(ProjectDir)manifest.json" DestinationFolder="$(ModPath)" />
-    <Copy SourceFiles="@(_TranslationFiles)" DestinationFolder="$(ModPath)\i18n" />
+    <Copy SourceFiles="@(_TranslationFiles)" DestinationFolder="$(ModPath)\i18n" Condition="Exists('$(ProjectDir)\i18n')"/>
   </Target>
 </Project>
