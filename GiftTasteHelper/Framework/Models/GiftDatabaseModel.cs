@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace GiftTasteHelper.Framework
 {
@@ -17,21 +18,35 @@ namespace GiftTasteHelper.Framework
     internal class CharacterTasteModel
     {
         // Indexed by GiftTaste
-        public List<List<GiftModel>> Entries { get; set; }
-
-        public CharacterTasteModel()
-        {
-            Entries = new List<List<GiftModel>>();
-            for (int i = 0; i < (int)GiftTaste.MAX; ++i)
-            {
-                Entries.Add(new List<GiftModel>());
-            }
-        }
+        public Dictionary<GiftTaste, List<GiftModel>> Entries { get; set; } = new Dictionary<GiftTaste, List<GiftModel>>();
 
         public List<GiftModel> this[GiftTaste taste]
         {
-            get => Entries[(int)taste];
-            set => Entries[(int)taste] = value;
+            get => Entries.ContainsKey(taste) ? Entries[taste] : null;
+            private set => Entries[taste] = value;
+        }
+
+        public bool Contains(GiftTaste taste, int itemId)
+        {
+            return Entries.ContainsKey(taste) && Entries[taste].Any(model => model.ItemId == itemId);
+        }
+
+        public void Add(GiftTaste taste, GiftModel model)
+        {
+            if (!Entries.ContainsKey(taste))
+            {
+                Entries.Add(taste, new List<GiftModel>());
+            }
+            Entries[taste].Add(model);
+        }
+
+        public void AddRange(GiftTaste taste, IEnumerable<GiftModel> gifts)
+        {
+            if (!Entries.ContainsKey(taste))
+            {
+                Entries.Add(taste, new List<GiftModel>());
+            }
+            Entries[taste].AddRange(gifts);
         }
     }
 

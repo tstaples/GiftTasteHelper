@@ -34,9 +34,7 @@ namespace GiftTasteHelper.Framework
             {
                 return false;
             }
-
-            var entryForTaste = Database.Entries[npcName][taste];
-            return entryForTaste.Any(model => model.ItemId == itemId);
+            return Database.Entries[npcName].Contains(taste, itemId);
         }
 
         /// <summary>Adds an item for an npc to the database.</summary>
@@ -54,11 +52,10 @@ namespace GiftTasteHelper.Framework
                 check = false;
             }
 
-            var entryForTaste = Database.Entries[npcName][taste];
             if (!check || !ContainsGift(npcName, itemId, taste))
             {
                 Utils.DebugLog($"Adding {itemId} to {npcName}'s {taste} tastes.");
-                entryForTaste.Add(new GiftModel() { ItemId = itemId });
+                Database.Entries[npcName].Add(taste, new GiftModel() { ItemId = itemId });
 
                 DatabaseChanged();
                 return true;
@@ -79,10 +76,11 @@ namespace GiftTasteHelper.Framework
                 Database.Entries.Add(npcName, new CharacterTasteModel());
             }
 
+            // Add only the gifts that are not already in the DB.
             var unique = itemIds.Where(id => !ContainsGift(npcName, id, taste)).Select(id => id);
             if (unique.Count() > 0)
             {
-                Database.Entries[npcName][taste].AddRange(itemIds.Select(id => new GiftModel() { ItemId = id }));
+                Database.Entries[npcName].AddRange(taste, itemIds.Select(id => new GiftModel() { ItemId = id }));
                 DatabaseChanged();
                 return true;
             }
@@ -95,7 +93,10 @@ namespace GiftTasteHelper.Framework
             if (Database.Entries.ContainsKey(npcName))
             {
                 var entryForTaste = Database.Entries[npcName][taste];
-                return entryForTaste.Select(model => model.ItemId).ToArray();
+                if (entryForTaste != null)
+                {
+                    return entryForTaste.Select(model => model.ItemId).ToArray();
+                }
             }
             return new int[] { };
         }

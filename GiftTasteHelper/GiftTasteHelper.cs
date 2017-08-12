@@ -301,6 +301,7 @@ namespace GiftTasteHelper
             {
                 helper.ConsoleCommands.Trigger("world_settime", new string[] { "1000" });
                 helper.ConsoleCommands.Trigger("teleport", new string[] { "SamHouse", "306", "339" });
+                helper.ConsoleCommands.Trigger("player_add", new string[] { "Object", "220", "10" }); // Add chocolate cake for jodi
             });
 #endif
         }
