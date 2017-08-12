@@ -2,6 +2,7 @@
 
 namespace GiftTasteHelper.Framework
 {
+    /// <summary>Model for a gift item.</summary>
     internal class GiftModel
     {
         public int ItemId { get; set; }
@@ -12,6 +13,7 @@ namespace GiftTasteHelper.Framework
         }
     }
 
+    /// <summary>Model for an NPC's gift tastes.</summary>
     internal class CharacterTasteModel
     {
         // Indexed by GiftTaste
@@ -33,6 +35,7 @@ namespace GiftTasteHelper.Framework
         }
     }
 
+    /// <summary>Main Database model containing all NPC's and their gift tastes.</summary>
     internal class GiftDatabaseModel
     {
         public Dictionary<string, CharacterTasteModel> Entries { get; set; } = new Dictionary<string, CharacterTasteModel>();

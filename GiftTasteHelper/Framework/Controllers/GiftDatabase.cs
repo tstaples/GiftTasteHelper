@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace GiftTasteHelper.Framework
 {
+    /// <summary>Database for storing NPC gift tastes.</summary>
     internal class GiftDatabase : IGiftDatabase
     {
         public event DataSourceChangedDelegate DatabaseChanged;
@@ -26,6 +27,7 @@ namespace GiftTasteHelper.Framework
             this.Database = database;
         }
 
+        /// <summary>Returns if the database has an item for a particular NPC stored.</summary>
         public bool ContainsGift(string npcName, int itemId, GiftTaste taste)
         {
             if (taste == GiftTaste.MAX)
@@ -37,6 +39,7 @@ namespace GiftTasteHelper.Framework
             return entryForTaste.Any(model => model.ItemId == itemId);
         }
 
+        /// <summary>Adds an item for an npc to the database.</summary>
         public virtual bool AddGift(string npcName, int itemId, GiftTaste taste)
         {
             if (taste == GiftTaste.MAX)
@@ -63,6 +66,7 @@ namespace GiftTasteHelper.Framework
             return false;
         }
 
+        /// <summary>Adds a range of items for an npc to the database.</summary>
         public virtual bool AddGifts(string npcName, GiftTaste taste, int[] itemIds)
         {
             if (taste == GiftTaste.MAX)
@@ -85,6 +89,7 @@ namespace GiftTasteHelper.Framework
             return false;
         }
 
+        /// <summary>Returns all the gifts of the given taste in the database for that npc.</summary>
         public int[] GetGiftsForTaste(string npcName, GiftTaste taste)
         {
             if (Database.Entries.ContainsKey(npcName))
@@ -96,6 +101,7 @@ namespace GiftTasteHelper.Framework
         }
     }
 
+    /// <summary>A gift database that is stored on disk.</summary>
     internal class StoredGiftDatabase : GiftDatabase
     {
         private static string DBPath => "GiftDatabase.json";
