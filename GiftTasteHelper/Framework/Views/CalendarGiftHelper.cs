@@ -24,8 +24,8 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public CalendarGiftHelper(IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection, ITranslationHelper translation)
-            : base(GiftHelperType.Calendar, dataProvider, maxItemsToDisplay, reflection, translation) { }
+        public CalendarGiftHelper(IGiftDataProvider dataProvider, GiftConfig config, IReflectionHelper reflection, ITranslationHelper translation)
+            : base(GiftHelperType.Calendar, dataProvider, config, reflection, translation) { }
 
         public override void Init(IClickableMenu menu)
         {

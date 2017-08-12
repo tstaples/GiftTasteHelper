@@ -17,14 +17,12 @@ namespace GiftTasteHelper.Framework
         protected static Dictionary<string, NpcGiftInfo> NpcGiftInfo; // Indexed by name
         protected NpcGiftInfo CurrentGiftInfo;
         private SVector2 OrigHoverTextSize;
-        private readonly int MaxItemsToDisplay;
+        private readonly GiftConfig GiftConfig;
         protected bool DrawCurrentFrame;
 
-        /// <summary>Simplifies access to private game code.</summary>
         protected readonly IReflectionHelper Reflection;
         protected readonly ITranslationHelper Translation;
-
-        private IGiftDataProvider DataProvider;
+        private readonly IGiftDataProvider DataProvider;
 
         /*********
         ** Accessors
@@ -38,16 +36,16 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Public methods
         *********/
-        public GiftHelper(GiftHelperType helperType, IGiftDataProvider dataProvider, int maxItemsToDisplay, IReflectionHelper reflection, ITranslationHelper translation)
+        public GiftHelper(GiftHelperType helperType, IGiftDataProvider dataProvider, GiftConfig config, IReflectionHelper reflection, ITranslationHelper translation)
         {
             this.GiftHelperType = helperType;
-            this.MaxItemsToDisplay = maxItemsToDisplay;
+            this.GiftConfig = config;
             this.Reflection = reflection;
             this.Translation = translation;
             this.DataProvider = dataProvider;
             NpcGiftInfo = null; // Force it to be rebuilt when re-created
 
-            this.DataProvider.DataSourceChanged += () => ReloadGiftInfo(this.DataProvider, this.MaxItemsToDisplay);
+            this.DataProvider.DataSourceChanged += () => ReloadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay);
         }
 
         public static void ReloadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay)
@@ -65,7 +63,7 @@ namespace GiftTasteHelper.Framework
 
             if (NpcGiftInfo == null)
             {
-                LoadGiftInfo(this.DataProvider, this.MaxItemsToDisplay);
+                LoadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay);
             }
 
             this.IsInitialized = true;
@@ -122,6 +120,10 @@ namespace GiftTasteHelper.Framework
         public void DrawGiftTooltip(NpcGiftInfo giftInfo, string title, string originalTooltipText = "")
         {
             int numItems = giftInfo.FavouriteGifts.Length;
+            if (numItems == 0 && this.GiftConfig.HideTooltipWhenNoGiftsKnown)
+            {
+                return;
+            }
 
             float spriteScale = 2.0f * this.ZoomLevel; // 16x16 is pretty small
             Rectangle spriteRect = numItems > 0 ? giftInfo.FavouriteGifts[0].TileSheetSourceRect : new Rectangle(); // We just need the dimensions which we assume are all the same
