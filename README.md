@@ -11,6 +11,13 @@ loved items.
 
 ![Locale support preview image](images/locale_support.png?raw=true)
 
+Special thanks to the following for translation help:
+* Sasara
+* Missundomiel
+* Google Translate
+
+Also special thanks to PathosChild for help with fixes when I didn't have time and general help.
+
 ## Contents
 * [Install](#install)
 * [Configure](#configure)
