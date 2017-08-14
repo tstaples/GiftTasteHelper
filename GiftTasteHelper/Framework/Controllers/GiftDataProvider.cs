@@ -20,7 +20,7 @@ namespace GiftTasteHelper.Framework
             this.Database.DatabaseChanged += () => DataSourceChanged?.Invoke();
         }
 
-        public IEnumerable<int> GetGifts(string npcName, GiftTaste taste, bool includeUniversal)
+        public virtual IEnumerable<int> GetGifts(string npcName, GiftTaste taste, bool includeUniversal)
         {
             IEnumerable<int> gifts = Database.GetGiftsForTaste(npcName, taste);
             if (includeUniversal)
@@ -41,6 +41,19 @@ namespace GiftTasteHelper.Framework
         public ProgressionGiftDataProvider(IGiftDatabase database)
             : base(database)
         {
+        }
+
+        public override IEnumerable<int> GetGifts(string npcName, GiftTaste taste, bool includeUniversal)
+        {
+            var gifts = base.GetGifts(npcName, taste, includeUniversal);
+            if (!includeUniversal)
+            {
+                // Filter out any that are also in the universal table.
+                // Note that this probably won't work correctly for categories, but we're not bothering with those for now.
+                var universal = Utils.GetItemsForTaste(Utils.UniversalTasteNames[taste], taste);
+                return gifts.Where(itemId => !universal.Contains(itemId));
+            }
+            return gifts;
         }
     }
     #endregion ProgressionGiftDataProvider
