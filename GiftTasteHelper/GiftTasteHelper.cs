@@ -19,12 +19,9 @@ namespace GiftTasteHelper
         private Dictionary<Type, IGiftHelper> GiftHelpers;
         private IGiftHelper CurrentGiftHelper;
         private IGiftDatabase GiftDatabase;
+        private IGiftMonitor GiftMonitor;
         private bool ReloadHelpers = false;
         private bool WasResized;
-
-        private uint PriorGiftsGiven;
-        private StardewValley.Object HeldGift = null;
-        private Dictionary<string, bool> GiftsGivenToday;
 
         /*********
         ** Public methods
@@ -36,7 +33,15 @@ namespace GiftTasteHelper
             // Set the monitor ref so we can have a cheeky global log function
             Utils.InitLog(this.Monitor);
 
-            Config = helper.ReadConfig<ModConfig>();
+            this.Config = helper.ReadConfig<ModConfig>();
+
+            this.GiftMonitor = new GiftMonitor();
+            this.GiftMonitor.GiftGiven += (npc, itemId) =>
+            {
+                var taste = Utils.GetTasteForGift(npc, itemId);
+                Utils.DebugLog($"Gift given to Npc: {npc} | item: {itemId} | taste: {taste}");
+                this.GiftDatabase.AddGift(npc, itemId, taste);
+            };
 
             LoadGiftHelpers(helper);
 
@@ -44,7 +49,7 @@ namespace GiftTasteHelper
             ContentEvents.AfterLocaleChanged += (sender, e) => LoadGiftHelpers(helper);
             SaveEvents.AfterLoad += SaveEvents_AfterLoad;
             SaveEvents.AfterReturnToTitle += (sender, e) => OnReturnToTitleScreen();
-            TimeEvents.AfterDayStarted += (sender, e) => RebuildGiftsGiven();
+            TimeEvents.AfterDayStarted += (sender, e) => this.GiftMonitor.Reset();
 
             InitDebugCommands(helper);
         }
@@ -63,8 +68,7 @@ namespace GiftTasteHelper
 
         private void SaveEvents_AfterLoad(object sender, EventArgs e)
         {
-            PriorGiftsGiven = Game1.stats.GiftsGiven;
-            RebuildGiftsGiven();
+            GiftMonitor.Load();
 
             if (ReloadHelpers)
             {
@@ -110,55 +114,15 @@ namespace GiftTasteHelper
             MenuEvents.MenuChanged += OnClickableMenuChanged;
         }
 
-        private void RebuildGiftsGiven()
-        {
-            GiftsGivenToday = new Dictionary<string, bool>();
-            foreach (var friendpair in Game1.player.friendships)
-            {
-                // Third element is whether a gift has been given today.
-                GiftsGivenToday.Add(friendpair.Key, friendpair.Value[3] > 0);
-            }
-        }
-
         private void CheckGiftGiven(object sender, EventArgsMouseStateChanged e)
         {
             if (e.NewState.RightButton != e.PriorState.RightButton && e.NewState.RightButton == ButtonState.Pressed)
             {
-                if (Game1.player.ActiveObject != null && Game1.player.ActiveObject.canBeGivenAsGift())
-                {
-                    HeldGift = Game1.player.ActiveObject;
-                }
+                this.GiftMonitor.UpdateHeldGift();
             }
             else if (e.NewState.RightButton != e.PriorState.RightButton && e.NewState.RightButton == ButtonState.Released)
             {
-                if (HeldGift == null)
-                    return;
-
-                Utils.DebugLog("Clicked with gift in hand");
-                if (Game1.stats.GiftsGiven != PriorGiftsGiven)
-                {
-                    Utils.DebugLog($"GiftsGiven changed from {PriorGiftsGiven} to {Game1.stats.GiftsGiven}");
-                    Utils.DebugLog($"Given item: {HeldGift.DisplayName}");
-
-                    string npcGivenTo = null;
-                    foreach (var friendpair in Game1.player.friendships)
-                    {
-                        bool givenToday = friendpair.Value[3] > 0;
-                        if (GiftsGivenToday[friendpair.Key] != givenToday)
-                        {
-                            GiftsGivenToday[friendpair.Key] = true;
-                            npcGivenTo = friendpair.Key;
-                            var taste = Utils.GetTasteForGift(npcGivenTo, this.HeldGift.ParentSheetIndex);
-                            Utils.DebugLog($"Npc: {friendpair.Key} item: {this.HeldGift.ParentSheetIndex} taste: {taste}");
-                            this.GiftDatabase.AddGift(npcGivenTo, this.HeldGift.ParentSheetIndex, taste);
-                            break;
-                        }
-                    }
-
-                    Utils.DebugLog($"Gift given to {npcGivenTo}");
-                    PriorGiftsGiven = Game1.stats.GiftsGiven;
-                    HeldGift = null;
-                }
+                this.GiftMonitor.CheckGiftGiven();
             }
         }
 
@@ -270,7 +234,7 @@ namespace GiftTasteHelper
                 {
                     friendship.Value[1] = 0;
                     friendship.Value[3] = 0;
-                    RebuildGiftsGiven();
+                    this.GiftMonitor.Reset();
                 }
             });
 
@@ -302,7 +266,7 @@ namespace GiftTasteHelper
             {
                 helper.ConsoleCommands.Trigger("world_settime", new string[] { "1000" });
                 helper.ConsoleCommands.Trigger("teleport", new string[] { "SamHouse", "306", "339" });
-                var items = new int[] { 74, 773, 417, 324, 92, 220, 176, 417, 404, 22, 18 };
+                var items = new int[] { 74, 773, 417, 324, 92, 220, 176, 417, 404, 22, 18 }; // Test items for all of jodi's tastes.
                 foreach (var item in items)
                 {
                     helper.ConsoleCommands.Trigger("player_add", new string[] { "Object", item.ToString(), "10" });
