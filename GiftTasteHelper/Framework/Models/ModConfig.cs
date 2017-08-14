@@ -22,5 +22,8 @@
 
         /// <summary>Show only favourite gifts that you haven given to that NPC instead of all of them.</summary>
         public bool ShowOnlyKnownGifts { get; set; } = false;
+
+        /// <summary>Should your gift progress be saved across all saves, or unique per save.</summary>
+        public bool ShareKnownGiftsWithAllSaves { get; set; } = true;
     }
 }

@@ -105,11 +105,16 @@ namespace GiftTasteHelper.Framework
     /// <summary>A gift database that is stored on disk.</summary>
     internal class StoredGiftDatabase : GiftDatabase
     {
-        private static string DBPath => "GiftDatabase.json";
+        public static string DBRoot => "DB";
+        public static string DBFileName => "GiftDatabase.json";
 
-        public StoredGiftDatabase(IModHelper helper)
-            : base(helper, helper.ReadJsonFile<GiftDatabaseModel>(DBPath) ?? new GiftDatabaseModel())
+        private string DBPath;
+
+        public StoredGiftDatabase(IModHelper helper, string path)
+            : base(helper, helper.ReadJsonFile<GiftDatabaseModel>(path) ?? new GiftDatabaseModel())
         {
+            Utils.DebugLog($"Setting DB path to {path}", LogLevel.Info);
+            this.DBPath = path;
         }
 
         public override bool AddGift(string npcName, int itemId, GiftTaste taste)
@@ -134,7 +139,7 @@ namespace GiftTasteHelper.Framework
 
         private void Write()
         {
-            Utils.DebugLog("Writing gift database");
+            Utils.DebugLog($"Writing gift database to: {this.DBPath}");
             Helper.WriteJsonFile(DBPath, Database);
         }
     }

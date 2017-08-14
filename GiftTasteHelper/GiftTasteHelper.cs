@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using GiftTasteHelper.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -43,7 +44,8 @@ namespace GiftTasteHelper
                 this.GiftDatabase.AddGift(npc, itemId, taste);
             };
 
-            LoadGiftHelpers(helper);
+            // Wait until after the save is loaded before loading the helpers.
+            this.ReloadHelpers = true;
 
             GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
             ContentEvents.AfterLocaleChanged += (sender, e) => LoadGiftHelpers(helper);
@@ -70,11 +72,11 @@ namespace GiftTasteHelper
         {
             GiftMonitor.Load();
 
-            if (ReloadHelpers)
+            if (this.ReloadHelpers)
             {
                 Utils.DebugLog("Reloading gift helpers");
                 LoadGiftHelpers(Helper);
-                ReloadHelpers = false;
+                this.ReloadHelpers = false;
             }
         }
 
@@ -87,7 +89,11 @@ namespace GiftTasteHelper
             IGiftDataProvider dataProvider = null;
             if (Config.ShowOnlyKnownGifts)
             {
-                GiftDatabase = new StoredGiftDatabase(helper);
+                string path = this.Config.ShareKnownGiftsWithAllSaves
+                    ? Path.Combine(StoredGiftDatabase.DBRoot, StoredGiftDatabase.DBFileName)
+                    : Path.Combine(StoredGiftDatabase.DBRoot, Constants.SaveFolderName, StoredGiftDatabase.DBFileName);
+
+                GiftDatabase = new StoredGiftDatabase(helper, path);
                 dataProvider = new ProgressionGiftDataProvider(GiftDatabase);
                 ControlEvents.MouseChanged += CheckGiftGiven;
             }
