@@ -22,10 +22,7 @@ namespace GiftTasteHelper.Framework
         {
             this.Name = name;
             this.MaxGiftNameSize = SVector2.Zero;
-
-            int numGiftsToDisplay = this.CalculateNumberOfGiftsToDisplay(favouriteGiftIDs.Length, maxGiftsToDisplay);
-
-            this.FavouriteGifts = this.ParseGifts(favouriteGiftIDs, numGiftsToDisplay);
+            this.FavouriteGifts = this.ParseGifts(favouriteGiftIDs, CalculateNumberOfGiftsToDisplay(favouriteGiftIDs.Length, maxGiftsToDisplay));
         }
 
 
@@ -45,31 +42,22 @@ namespace GiftTasteHelper.Framework
                     continue;
                 }
 
-                string objectInfo = Game1.objectInformation[ids[i]];
-                string[] parts = objectInfo.Split('/');
-
-                var itemData = new ItemData
-                {
-                    Name = parts[ItemData.NameIndex],
-                    DisplayName = parts[ItemData.DisplayNameIndex],
-                    ID = ids[i],
-                    TileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, ids[i], 16, 16)
-                };
+                var itemData = ItemData.MakeItem(ids[i]);
                 itemList.Add(itemData);
 
                 SVector2 nameLength = SVector2.MeasureString(itemData.DisplayName, Game1.smallFont);
                 if (nameLength.XInt > this.MaxGiftNameSize.XInt)
+                {
                     this.MaxGiftNameSize = nameLength;
+                }
             }
             return itemList.ToArray();
         }
 
-        private int CalculateNumberOfGiftsToDisplay(int numGifts, int maxGiftsToDisplay)
+        private static int CalculateNumberOfGiftsToDisplay(int numGifts, int maxGiftsToDisplay)
         {
             // 0 or less means no limit
-            if (maxGiftsToDisplay <= 0)
-                return numGifts;
-            return Math.Min(numGifts, maxGiftsToDisplay);
+            return maxGiftsToDisplay <= 0 ? numGifts : Math.Min(numGifts, maxGiftsToDisplay);
         }
     }
 }

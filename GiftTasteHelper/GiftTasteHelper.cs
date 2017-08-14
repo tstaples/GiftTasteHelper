@@ -149,6 +149,7 @@ namespace GiftTasteHelper
                             GiftsGivenToday[friendpair.Key] = true;
                             npcGivenTo = friendpair.Key;
                             var taste = Utils.GetTasteForGift(npcGivenTo, this.HeldGift.ParentSheetIndex);
+                            Utils.DebugLog($"Npc: {friendpair.Key} item: {this.HeldGift.ParentSheetIndex} taste: {taste}");
                             this.GiftDatabase.AddGift(npcGivenTo, this.HeldGift.ParentSheetIndex, taste);
                             break;
                         }
@@ -301,7 +302,11 @@ namespace GiftTasteHelper
             {
                 helper.ConsoleCommands.Trigger("world_settime", new string[] { "1000" });
                 helper.ConsoleCommands.Trigger("teleport", new string[] { "SamHouse", "306", "339" });
-                helper.ConsoleCommands.Trigger("player_add", new string[] { "Object", "220", "10" }); // Add chocolate cake for jodi
+                var items = new int[] { 74, 773, 417, 324, 92, 220, 176, 417, 404, 22, 18 };
+                foreach (var item in items)
+                {
+                    helper.ConsoleCommands.Trigger("player_add", new string[] { "Object", item.ToString(), "10" });
+                }
             });
 #endif
         }

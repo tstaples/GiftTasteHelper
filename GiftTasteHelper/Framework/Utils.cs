@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
+using System.Collections.Generic;
 
 namespace GiftTasteHelper.Framework
 {
@@ -43,9 +44,9 @@ namespace GiftTasteHelper.Framework
             int[] output = new int[array.Length];
             for (int i = 0; i < array.Length; ++i)
             {
-                int value;
-                if (int.TryParse(array[i], out value))
-                    output[i] = value;
+                int value = defaultVal;
+                int.TryParse(array[i], out value);
+                output[i] = value;
             }
             return output;
         }
@@ -70,11 +71,26 @@ namespace GiftTasteHelper.Framework
             return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }
 
+        static readonly Dictionary<string, GiftTaste> UniversalTastes = new Dictionary<string, GiftTaste>
+        {
+            ["Universal_Love"] = GiftTaste.Love,
+            ["Universal_Like"] = GiftTaste.Like,
+            ["Universal_Neutral"] = GiftTaste.Neutral,
+            ["Universal_Dislike"] = GiftTaste.Dislike,
+            ["Universal_Hate"] = GiftTaste.Hate
+        };
+
         public static int[] GetItemsForTaste(string npcName, GiftTaste taste)
         {
             Debug.Assert(taste != GiftTaste.MAX);
 
             var giftTaste = Game1.NPCGiftTastes[npcName];
+            if (UniversalTastes.ContainsKey(npcName))
+            {
+                // Universal tastes are parsed differently
+                return Utils.StringToIntArray(giftTaste.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+            }
+
             string[] giftTastes = giftTaste.Split('/');
             if (giftTastes.Length == 0)
             {
@@ -82,38 +98,103 @@ namespace GiftTasteHelper.Framework
             }
 
             // See http://stardewvalleywiki.com/Modding:Gift_taste_data
-            int tasteIndex = (int)taste * 2 + 1; // Convert the enum to the correct taste index
+            int tasteIndex = (int)taste + 1; // Enum value is the even number which is the dialogue, odd is the list of item refs.
             if (giftTastes[tasteIndex].Length > 0)
             {
-                return Utils.StringToIntArray(giftTastes[tasteIndex].Split(' '));
+                return Utils.StringToIntArray(giftTastes[tasteIndex].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
             }
             return new int[] { };
         }
 
+        // See http://stardewvalleywiki.com/Modding:Gift_taste_data
         public static GiftTaste GetTasteForGift(string npcName, int itemId)
         {
-            var giftTaste = Game1.NPCGiftTastes[npcName];
-            string[] giftTastes = giftTaste.Split('/');
-            if (giftTastes.Length == 0)
+            GiftTaste taste = GiftTaste.Neutral;
+
+            string[] giftTastes = Game1.NPCGiftTastes[npcName].Split('/');
+            Debug.Assert(giftTastes.Length > 0);
+
+            var itemData = ItemData.MakeItem(itemId);
+
+            // Part I: universal taste by category
+            GiftTaste UniversalTasteForCategory(int cat)
             {
+                foreach (var pair in UniversalTastes)
+                {
+                    if (GetItemsForTaste(pair.Key, pair.Value).Contains(cat))
+                    {
+                        return pair.Value;
+                    }
+                }
+                return GiftTaste.Neutral;
+            }
+
+            if (itemData.Category.Valid)
+            {
+                taste = UniversalTasteForCategory(itemData.Category.ID);
+            }
+
+           // Part II: universal taste by item ID
+           GiftTaste GetUniversalTaste(int id)
+            {
+                foreach (var pair in UniversalTastes)
+                {
+                    if (GetItemsForTaste(pair.Key, pair.Value).Contains(id))
+                    {
+                        return pair.Value;
+                    }
+                }
                 return GiftTaste.MAX;
             }
 
-            // See http://stardewvalleywiki.com/Modding:Gift_taste_data
-            GiftTaste taste = GiftTaste.Love;
-            for (int i = 1; i <= 9; i += 2)
+            var universalTaste = GetUniversalTaste(itemData.ID);
+            bool hasUniversalId = universalTaste != GiftTaste.MAX;
+            bool hasUniversalNeutralId = universalTaste == GiftTaste.Neutral;
+            taste = universalTaste != GiftTaste.MAX ? universalTaste : taste;
+
+            // Part III: override neutral if it's from universal category
+            if (taste == GiftTaste.Neutral && !hasUniversalNeutralId)
             {
-                if (giftTastes[i].Length > 0)
+                if (itemData.Edible && itemData.TastesBad)
                 {
-                    var items = Utils.StringToIntArray(giftTastes[i].Split(' '));
-                    if (items.Contains(itemId))
+                    taste = GiftTaste.Hate;
+                }
+                else if (itemData.Price < 20)
+                {
+                    taste = GiftTaste.Dislike;
+                }
+                else if (itemData.Category.Name == "Arch")
+                {
+                    taste = npcName == "Penny" ? GiftTaste.Like : GiftTaste.Dislike;
+                }
+            }
+
+            // part IV: sometimes override with personal tastes
+            var personalMetadataKeys = new Dictionary<int, GiftTaste>
+            {
+                // metadata is paired: odd values contain a list of item references, even values contain the reaction dialogue
+                [1] = GiftTaste.Love,
+                [7] = GiftTaste.Hate, // Hate comes before rest
+                [3] = GiftTaste.Like,
+                [5] = GiftTaste.Dislike,
+                [9] = GiftTaste.Neutral
+            };
+
+            foreach (var pair in personalMetadataKeys)
+            {
+                if (giftTastes[pair.Key].Length > 0)
+                {
+                    var items = Utils.StringToIntArray(giftTastes[pair.Key].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+
+                    bool hasTasteForItemOrCategory = items.Contains(itemData.ID) || (itemData.Category.Valid && items.Contains(itemData.Category.ID));
+                    bool noCategoryOrNoTasteForCategory = !itemData.Category.Valid || !items.Contains(itemData.Category.ID);
+                    if (hasTasteForItemOrCategory && (noCategoryOrNoTasteForCategory || !hasUniversalId))
                     {
-                        return taste;
+                        return pair.Value;
                     }
                 }
-                taste++;
             }
-            return GiftTaste.MAX;
+            return taste;
         }
     }
 }

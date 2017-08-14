@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace GiftTasteHelper.Framework
 {
+    #region BaseGiftDataProvider
     internal abstract class BaseGiftDataProvider : IGiftDataProvider
     {
         public event DataSourceChangedDelegate DataSourceChanged;
@@ -24,7 +25,9 @@ namespace GiftTasteHelper.Framework
             return Database.GetGiftsForTaste(npcName, GiftTaste.Love);
         }
     }
+    #endregion BaseGiftDataProvider
 
+    #region ProgressionGiftDataProvider
     internal class ProgressionGiftDataProvider : BaseGiftDataProvider
     {
         public ProgressionGiftDataProvider(IGiftDatabase database)
@@ -32,7 +35,9 @@ namespace GiftTasteHelper.Framework
         {
         }
     }
+    #endregion ProgressionGiftDataProvider
 
+    #region AllGiftDataProvider 
     internal class AllGiftDataProvider : BaseGiftDataProvider
     {
         public AllGiftDataProvider(IGiftDatabase database)
@@ -44,8 +49,8 @@ namespace GiftTasteHelper.Framework
                 // The first few elements are universal_tastes and we only want names.
                 // None of the names contain an underscore so we can check that way.
                 string npcName = giftTaste.Key;
-                if (npcName.IndexOf('_') != -1)
-                    continue;
+                //if (npcName.IndexOf('_') != -1)
+                    //continue;
 
                 Database.AddGifts(npcName, GiftTaste.Love, Utils.GetItemsForTaste(npcName, GiftTaste.Love));
                 Database.AddGifts(npcName, GiftTaste.Like, Utils.GetItemsForTaste(npcName, GiftTaste.Like));
@@ -55,4 +60,5 @@ namespace GiftTasteHelper.Framework
             }
         }
     }
+    #endregion AllGiftDataProvider
 }
