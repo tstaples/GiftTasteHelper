@@ -209,7 +209,7 @@ namespace GiftTasteHelper.Framework
             foreach (var friendship in Game1.player.friendships)
             {
                 string npcName = friendship.Key;
-                var favouriteGifts = dataProvider.GetFavouriteGifts(npcName, includeUniversal);
+                var favouriteGifts = dataProvider.GetGifts(npcName, GiftTaste.Love, includeUniversal);
                 NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts.ToArray(), maxItemsToDisplay);
             }
         }

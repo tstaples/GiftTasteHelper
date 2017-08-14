@@ -184,7 +184,7 @@ namespace GiftTasteHelper.Framework
             {
                 // metadata is paired: odd values contain a list of item references, even values contain the reaction dialogue
                 [1] = GiftTaste.Love,
-                [7] = GiftTaste.Hate, // Hate comes before rest
+                [7] = GiftTaste.Hate, // Hate has precedence
                 [3] = GiftTaste.Like,
                 [5] = GiftTaste.Dislike,
                 [9] = GiftTaste.Neutral

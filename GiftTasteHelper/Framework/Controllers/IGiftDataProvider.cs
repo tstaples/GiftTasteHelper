@@ -7,6 +7,6 @@ namespace GiftTasteHelper.Framework
     {
         event DataSourceChangedDelegate DataSourceChanged;
 
-        IEnumerable<int> GetFavouriteGifts(string npcName, bool includeUniversal);
+        IEnumerable<int> GetGifts(string npcName, GiftTaste taste, bool includeUniversal);
     }
 }

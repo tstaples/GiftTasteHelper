@@ -20,14 +20,17 @@ namespace GiftTasteHelper.Framework
             this.Database.DatabaseChanged += () => DataSourceChanged?.Invoke();
         }
 
-        public IEnumerable<int> GetFavouriteGifts(string npcName, bool includeUniversal)
+        public IEnumerable<int> GetGifts(string npcName, GiftTaste taste, bool includeUniversal)
         {
+            IEnumerable<int> gifts = Database.GetGiftsForTaste(npcName, taste);
             if (includeUniversal)
             {
-                return Database.GetGiftsForTaste(Utils.UniversalTasteNames[GiftTaste.Love], GiftTaste.Love)
-                    .Concat(Database.GetGiftsForTaste(npcName, GiftTaste.Love));
+                // Individual NPC tastes may conflict with the universal ones.
+                var universal = Database.GetGiftsForTaste(Utils.UniversalTasteNames[taste], taste)
+                    .Where(itemId => Utils.GetTasteForGift(npcName, itemId) == taste);
+                return universal.Concat(gifts);
             }
-            return Database.GetGiftsForTaste(npcName, GiftTaste.Love);
+            return gifts;
         }
     }
     #endregion BaseGiftDataProvider
@@ -48,17 +51,13 @@ namespace GiftTasteHelper.Framework
         public AllGiftDataProvider(IGiftDatabase database)
             : base(database)
         {
-            // TODO: filter out names that will never be used
+            var tasteTypes = Enum.GetValues(typeof(GiftTaste)).Cast<GiftTaste>();
             foreach (var giftTaste in Game1.NPCGiftTastes)
             {
-                // The first few elements are universal_tastes and we only want names.
-                // None of the names contain an underscore so we can check that way.
-                string npcName = giftTaste.Key;
-                Database.AddGifts(npcName, GiftTaste.Love, Utils.GetItemsForTaste(npcName, GiftTaste.Love));
-                Database.AddGifts(npcName, GiftTaste.Like, Utils.GetItemsForTaste(npcName, GiftTaste.Like));
-                Database.AddGifts(npcName, GiftTaste.Dislike, Utils.GetItemsForTaste(npcName, GiftTaste.Dislike));
-                Database.AddGifts(npcName, GiftTaste.Hate, Utils.GetItemsForTaste(npcName, GiftTaste.Hate));
-                Database.AddGifts(npcName, GiftTaste.Neutral, Utils.GetItemsForTaste(npcName, GiftTaste.Neutral));
+                foreach (var taste in tasteTypes)
+                {
+                    Database.AddGifts(giftTaste.Key, taste, Utils.GetItemsForTaste(giftTaste.Key, taste));
+                }
             }
         }
     }
