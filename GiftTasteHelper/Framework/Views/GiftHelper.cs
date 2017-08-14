@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -45,12 +46,12 @@ namespace GiftTasteHelper.Framework
             this.DataProvider = dataProvider;
             NpcGiftInfo = null; // Force it to be rebuilt when re-created
 
-            this.DataProvider.DataSourceChanged += () => ReloadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay);
+            this.DataProvider.DataSourceChanged += () => ReloadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay, this.GiftConfig.ShowUniversalGifts);
         }
 
-        public static void ReloadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay)
+        public static void ReloadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay, bool includeUniversal)
         {
-            LoadGiftInfo(dataProvider, maxItemsToDisplay);
+            LoadGiftInfo(dataProvider, maxItemsToDisplay, includeUniversal);
         }
 
         public virtual void Init(IClickableMenu menu)
@@ -63,7 +64,7 @@ namespace GiftTasteHelper.Framework
 
             if (NpcGiftInfo == null)
             {
-                LoadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay);
+                LoadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay, this.GiftConfig.ShowUniversalGifts);
             }
 
             this.IsInitialized = true;
@@ -201,15 +202,15 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Protected methods
         *********/
-        private static void LoadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay)
+        private static void LoadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay, bool includeUniversal)
         {
             NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
 
             foreach (var friendship in Game1.player.friendships)
             {
                 string npcName = friendship.Key;
-                var favouriteGifts = dataProvider.GetFavouriteGifts(npcName);
-                NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts, maxItemsToDisplay);
+                var favouriteGifts = dataProvider.GetFavouriteGifts(npcName, includeUniversal);
+                NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts.ToArray(), maxItemsToDisplay);
             }
         }
 

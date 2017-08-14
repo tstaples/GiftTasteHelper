@@ -71,13 +71,23 @@ namespace GiftTasteHelper.Framework
             return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }
 
-        static readonly Dictionary<string, GiftTaste> UniversalTastes = new Dictionary<string, GiftTaste>
+        // TODO: Move all the gift stuff elsewhere
+        public static readonly Dictionary<string, GiftTaste> UniversalTastes = new Dictionary<string, GiftTaste>
         {
-            ["Universal_Love"] = GiftTaste.Love,
-            ["Universal_Like"] = GiftTaste.Like,
-            ["Universal_Neutral"] = GiftTaste.Neutral,
-            ["Universal_Dislike"] = GiftTaste.Dislike,
-            ["Universal_Hate"] = GiftTaste.Hate
+            ["Universal_Love"]      = GiftTaste.Love,
+            ["Universal_Like"]      = GiftTaste.Like,
+            ["Universal_Neutral"]   = GiftTaste.Neutral,
+            ["Universal_Dislike"]   = GiftTaste.Dislike,
+            ["Universal_Hate"]      = GiftTaste.Hate
+        };
+
+        public static readonly Dictionary<GiftTaste, string> UniversalTasteNames = new Dictionary<GiftTaste, string>
+        {
+            [GiftTaste.Love]        = "Universal_Love",
+            [GiftTaste.Like]        = "Universal_Like",
+            [GiftTaste.Neutral]     = "Universal_Neutral",
+            [GiftTaste.Dislike]     = "Universal_Dislike",
+            [GiftTaste.Hate]        = "Universal_Hate"
         };
 
         public static int[] GetItemsForTaste(string npcName, GiftTaste taste)

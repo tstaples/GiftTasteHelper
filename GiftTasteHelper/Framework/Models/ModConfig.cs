@@ -7,6 +7,9 @@
 
         /// <summary>The maximum number of gifts to display on the tooltip (or 0 for unlimited).</summary>
         public int MaxGiftsToDisplay { get; set; } = 0;
+
+        /// <summary>Should universal gifts be shown on the tooltip.</summary>
+        public bool ShowUniversalGifts { get; set; } = true;
     }
 
     internal class ModConfig : GiftConfig

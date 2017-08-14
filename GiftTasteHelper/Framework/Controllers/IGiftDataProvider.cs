@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace GiftTasteHelper.Framework
 {
     internal interface IGiftDataProvider
     {
         event DataSourceChangedDelegate DataSourceChanged;
 
-        int[] GetFavouriteGifts(string npcName);
+        IEnumerable<int> GetFavouriteGifts(string npcName, bool includeUniversal);
     }
 }

@@ -20,8 +20,13 @@ namespace GiftTasteHelper.Framework
             this.Database.DatabaseChanged += () => DataSourceChanged?.Invoke();
         }
 
-        public int[] GetFavouriteGifts(string npcName)
+        public IEnumerable<int> GetFavouriteGifts(string npcName, bool includeUniversal)
         {
+            if (includeUniversal)
+            {
+                return Database.GetGiftsForTaste(Utils.UniversalTasteNames[GiftTaste.Love], GiftTaste.Love)
+                    .Concat(Database.GetGiftsForTaste(npcName, GiftTaste.Love));
+            }
             return Database.GetGiftsForTaste(npcName, GiftTaste.Love);
         }
     }
@@ -49,9 +54,6 @@ namespace GiftTasteHelper.Framework
                 // The first few elements are universal_tastes and we only want names.
                 // None of the names contain an underscore so we can check that way.
                 string npcName = giftTaste.Key;
-                //if (npcName.IndexOf('_') != -1)
-                    //continue;
-
                 Database.AddGifts(npcName, GiftTaste.Love, Utils.GetItemsForTaste(npcName, GiftTaste.Love));
                 Database.AddGifts(npcName, GiftTaste.Like, Utils.GetItemsForTaste(npcName, GiftTaste.Like));
                 Database.AddGifts(npcName, GiftTaste.Dislike, Utils.GetItemsForTaste(npcName, GiftTaste.Dislike));
