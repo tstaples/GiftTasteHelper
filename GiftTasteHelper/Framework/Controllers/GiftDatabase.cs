@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GiftTasteHelper.Framework
 {
@@ -100,7 +101,7 @@ namespace GiftTasteHelper.Framework
             }
             return new int[] { };
         }
-    }
+    }   
 
     /// <summary>A gift database that is stored on disk.</summary>
     internal class StoredGiftDatabase : GiftDatabase
@@ -115,6 +116,16 @@ namespace GiftTasteHelper.Framework
         {
             Utils.DebugLog($"Setting DB path to {path}", LogLevel.Info);
             this.DBPath = path;
+
+            Utils.DebugLog($"Database version: {this.Database.Version}", LogLevel.Info);
+            if (this.Database.Version.IsOlderThan(GiftDatabaseModel.CurrentVersion))
+            {
+                // Any upgrade path stuff that would need to happen can go here.
+                // Likelyhood of needing to do this is pretty rare though.
+                Utils.DebugLog($"Upgrading DB version from {this.Database.Version} to {GiftDatabaseModel.CurrentVersion}", LogLevel.Info);
+                this.Database.Version = GiftDatabaseModel.CurrentVersion;
+                Write();
+            }
         }
 
         public override bool AddGift(string npcName, int itemId, GiftTaste taste)

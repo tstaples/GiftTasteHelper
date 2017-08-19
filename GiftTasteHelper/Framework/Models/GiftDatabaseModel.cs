@@ -53,6 +53,12 @@ namespace GiftTasteHelper.Framework
     /// <summary>Main Database model containing all NPC's and their gift tastes.</summary>
     internal class GiftDatabaseModel
     {
+        /// <summary>
+        /// Current DB version. This should be updated if there are schema changes that can't be handled by the serializer and a corresponding upgrade path should be made in GiftDatabase.cs.
+        /// </summary>
+        public static readonly SemanticVersion CurrentVersion = new SemanticVersion("1.0");
+
+        public SemanticVersion Version { get; set; } = new SemanticVersion("1.0");
         public Dictionary<string, CharacterTasteModel> Entries { get; set; } = new Dictionary<string, CharacterTasteModel>();
     }
 }
