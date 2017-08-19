@@ -8,7 +8,9 @@ loved items.
 ![Gift progression gif](images/progressive_gifts.gif)
 
 In this mode you will only be shown the loved gifts that you have already given to an NPC. This mode can be enabled via the config (see below).
+
 Note that you can freely turn this mode on/off and your progress will be kept. You can also switch between sharing known gifts between saves and having unique ones per save seamlessly too.
+
 Also note that only the gifts you have given after downloading GiftTasteHelper 2.6 or later will be tracked.
 
 ---
