@@ -3,6 +3,16 @@ tooltip with a villager's favourite gifts when you point at them on the calendar
 [dreamsicl](https://github.com/dreamsicl)) on the social page. It won't show the two universal
 loved items.
 
+## New "Progression" Mode
+
+![Gift progression gif](images/progressive_gifts.gif)
+
+In this mode you will only be shown the loved gifts that you have already given to an NPC. This mode can be enabled via the config (see below).
+Note that you can freely turn this mode on/off and your progress will be kept. You can also switch between sharing known gifts between saves and having unique ones per save seamlessly too.
+Also note that only the gifts you have given after downloading GiftTasteHelper 2.6 or later will be tracked.
+
+---
+
 ![Calendar preview image](images/calendar_example.png?raw=true)
 
 ![Social page preview image](images/social_page_example.png?raw=true)
@@ -39,11 +49,14 @@ setting           | what it affects
 :---------------- | :------------------
 `ShowOnCalendar` | Default `true`. Whether the tooltip should be displayed on the calendar.
 `ShowOnSocialPage` | Default `true`. Whether the tooltip should be displayed on the social page.
+`ShowOnlyKnownGifts` | Default `false`. Only show the loved gifts that you have given to that NPC.
+`ShareKnownGiftsWithAllSaves` | Default `true`. Should known loved gifts be shared between saves or unique per save. Ignored unless ShowOnlyKnownGifts is true.
+`HideTooltipWhenNoGiftsKnown` | Default `false`. Hide the tooltip if you don't know any of that NPC's loved gifts. Ignored unless ShowOnlyKnownGifts is true.
 `MaxGiftsToDisplay` | Default unlimited. The maximum number of gifts to list in the tooltip (or `0` for unlimited).
+`ShowUniversalGifts` | Default `true`. Should the universally loved gifts be shown on the tooltip.
 
 ## Future features
 * Display more than just loved gifts (if I can find a way to do it without cluttering the UI).
-* Add config option to change tooltip to only show known gifts.
 
 ## See also
 * [Nexus mod](http://www.nexusmods.com/stardewvalley/mods/229)
