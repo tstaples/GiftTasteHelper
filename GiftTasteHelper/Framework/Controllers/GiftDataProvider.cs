@@ -64,7 +64,7 @@ namespace GiftTasteHelper.Framework
         public AllGiftDataProvider(IGiftDatabase database)
             : base(database)
         {
-            var tasteTypes = Enum.GetValues(typeof(GiftTaste)).Cast<GiftTaste>();
+            var tasteTypes = Enum.GetValues(typeof(GiftTaste)).Cast<GiftTaste>().Where(val => val != GiftTaste.MAX);
             foreach (var giftTaste in Game1.NPCGiftTastes)
             {
                 foreach (var taste in tasteTypes)

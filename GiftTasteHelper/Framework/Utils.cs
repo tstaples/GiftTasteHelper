@@ -123,6 +123,10 @@ namespace GiftTasteHelper.Framework
 
             string[] giftTastes = Game1.NPCGiftTastes[npcName].Split('/');
             Debug.Assert(giftTastes.Length > 0);
+            if (giftTastes.Length == 0)
+            {
+                return taste;
+            }
 
             var itemData = ItemData.MakeItem(itemId);
 
