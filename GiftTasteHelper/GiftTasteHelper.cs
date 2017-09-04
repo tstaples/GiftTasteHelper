@@ -40,8 +40,11 @@ namespace GiftTasteHelper
             this.GiftMonitor.GiftGiven += (npc, itemId) =>
             {
                 var taste = Utils.GetTasteForGift(npc, itemId);
-                Utils.DebugLog($"Gift given to Npc: {npc} | item: {itemId} | taste: {taste}");
-                this.GiftDatabase.AddGift(npc, itemId, taste);
+                if (taste != GiftTaste.MAX)
+                {
+                    Utils.DebugLog($"Gift given to Npc: {npc} | item: {itemId} | taste: {taste}");
+                    this.GiftDatabase.AddGift(npc, itemId, taste);
+                }                
             };
 
             // Wait until after the save is loaded before loading the helpers.

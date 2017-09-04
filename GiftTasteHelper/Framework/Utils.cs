@@ -93,6 +93,10 @@ namespace GiftTasteHelper.Framework
         public static int[] GetItemsForTaste(string npcName, GiftTaste taste)
         {
             Debug.Assert(taste != GiftTaste.MAX);
+            if (!Game1.NPCGiftTastes.ContainsKey(npcName))
+            {
+                return new int[] { };
+            }
 
             var giftTaste = Game1.NPCGiftTastes[npcName];
             if (UniversalTastes.ContainsKey(npcName))
@@ -119,6 +123,11 @@ namespace GiftTasteHelper.Framework
         // See http://stardewvalleywiki.com/Modding:Gift_taste_data
         public static GiftTaste GetTasteForGift(string npcName, int itemId)
         {
+            if (!Game1.NPCGiftTastes.ContainsKey(npcName))
+            {
+                return GiftTaste.MAX;
+            }
+
             GiftTaste taste = GiftTaste.Neutral;
 
             string[] giftTastes = Game1.NPCGiftTastes[npcName].Split('/');
