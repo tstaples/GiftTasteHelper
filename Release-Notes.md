@@ -1,5 +1,12 @@
 # Release Notes
 
+## 2.6.2
+* Fixed an issue where an exception would be thrown if you had an NPC with no gift taste data in your save.
+* Fixed an issue where the calendar wouldn't update live when the season changed.
+
+## 2.6.1
+* Added missing translation files.
+
 ## 2.6
 * New optional 'progression' mode where you will only see the loved gifts for gifts you have already given.
 * Config option to switch between sharing known gifts between saves and storing it per-save.
