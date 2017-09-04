@@ -31,17 +31,14 @@ namespace GiftTasteHelper.Framework
         {
             Debug.Assert(!this.Calendar.IsInitialized, "Calendar is already initialized");
 
-            // Store all valid npc birthdays for the current season.
-            this.Birthdays.Clear();
-            foreach (NPC npc in Utility.getAllCharacters())
-            {
-                if (npc.birthday_Season == Game1.currentSeason && Game1.player.friendships.ContainsKey(npc.name))
-                {
-                    this.Birthdays.Add(npc.birthday_Day, npc);
-                }
-            }
+            LoadBirthdays();
 
             base.Init(menu);
+        }
+
+        public override void Reset()
+        {
+            LoadBirthdays();
         }
 
         public override bool OnOpen(IClickableMenu menu)
@@ -100,8 +97,11 @@ namespace GiftTasteHelper.Framework
             if (this.Birthdays.ContainsKey(hoveredDay))
             {
                 string npcName = this.Birthdays[hoveredDay].name;
-                this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[npcName];
-                this.DrawCurrentFrame = true;
+                if (GiftHelper.NpcGiftInfo.ContainsKey(npcName))
+                {
+                    this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[npcName];
+                    this.DrawCurrentFrame = true;
+                }                
             }
             else
             {
@@ -113,6 +113,21 @@ namespace GiftTasteHelper.Framework
         {
             // Draw the tooltip
             this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle(), this.Calendar.GetCurrentHoverText());
+        }
+
+        private void LoadBirthdays()
+        {
+            // Store all valid npc birthdays for the current season.
+            this.Birthdays.Clear();
+            foreach (NPC npc in Utility.getAllCharacters())
+            {
+                if (npc.birthday_Season == Game1.currentSeason && 
+                    Game1.player.friendships.ContainsKey(npc.name) &&
+                    !this.Birthdays.ContainsKey(npc.birthday_Day)) // getAllCharacters can contain duplicates.
+                {
+                    this.Birthdays.Add(npc.birthday_Day, npc);
+                }
+            }
         }
     }
 }

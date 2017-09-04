@@ -70,6 +70,11 @@ namespace GiftTasteHelper.Framework
             this.IsInitialized = true;
         }
 
+        public virtual void Reset()
+        {
+            // Empty
+        }
+
         public virtual bool OnOpen(IClickableMenu menu)
         {
             this.CurrentGiftInfo = null;

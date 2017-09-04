@@ -17,6 +17,7 @@ namespace GiftTasteHelper.Framework
         ** Methods
         *********/
         void Init(IClickableMenu menu);
+        void Reset();
         bool OnOpen(IClickableMenu menu);
         void OnResize(IClickableMenu menu);
         void OnClose();

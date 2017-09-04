@@ -54,7 +54,15 @@ namespace GiftTasteHelper
             ContentEvents.AfterLocaleChanged += (sender, e) => LoadGiftHelpers(helper);
             SaveEvents.AfterLoad += SaveEvents_AfterLoad;
             SaveEvents.AfterReturnToTitle += (sender, e) => OnReturnToTitleScreen();
-            TimeEvents.AfterDayStarted += (sender, e) => this.GiftMonitor.Reset();
+            TimeEvents.AfterDayStarted += (sender, e) =>
+            {
+                if (Game1.dayOfMonth == 1 && this.GiftHelpers.ContainsKey(typeof(Billboard)))
+                {
+                    // Reset the birthdays when season changes
+                    this.GiftHelpers[typeof(Billboard)].Reset();
+                }
+                this.GiftMonitor.Reset();
+            };
 
             InitDebugCommands(helper);
         }
