@@ -67,6 +67,11 @@ namespace GiftTasteHelper.Framework
 
         public static ItemData MakeItem(int itemId)
         {
+            if (!Game1.objectInformation.ContainsKey(itemId))
+            {
+                throw new System.ArgumentException($"Tried creating an item with an invalid id: {itemId}");
+            }
+
             string objectInfo = Game1.objectInformation[itemId];
             string[] parts = objectInfo.Split('/');
 

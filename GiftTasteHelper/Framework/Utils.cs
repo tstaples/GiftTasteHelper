@@ -128,6 +128,12 @@ namespace GiftTasteHelper.Framework
                 return GiftTaste.MAX;
             }
 
+            if (!Game1.objectInformation.ContainsKey(itemId))
+            {
+                Utils.DebugLog($"Failed to find object info for id {itemId}");
+                return GiftTaste.MAX;
+            }
+
             GiftTaste taste = GiftTaste.Neutral;
 
             string[] giftTastes = Game1.NPCGiftTastes[npcName].Split('/');
