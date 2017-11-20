@@ -4,6 +4,9 @@
 * Option to only show gifts if you're above a certain heart level with that NPC.
 * Option to show more than just loved gifts in the tooltip.
 
+### 2.6.4
+* Fixed an exception when hovering over unknown NPC's in the social page.
+
 ### 2.6.3
 * Fixed an exception when giving an NPC an invalid item.
 
