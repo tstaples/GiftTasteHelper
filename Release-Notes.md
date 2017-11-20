@@ -7,6 +7,7 @@
 ### 2.6.4
 * Fixed an exception when hovering over unknown NPC's in the social page.
 * Fixed an exception when giving a gift to an NPC you haven't spoken to before.
+* Fixed an issue where the gift database would fail to load when using the Categorize Chests mod.
 
 ### 2.6.3
 * Fixed an exception when giving an NPC an invalid item.

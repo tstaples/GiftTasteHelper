@@ -7,7 +7,7 @@
     "PatchVersion": 4,
     "Build": null
   },
-  "MinimumApiVersion": "1.14",
+  "MinimumApiVersion": "1.15.2",
   "Description": "Displays NPC gift tastes in a handy tooltip.",
   "UniqueID": "tstaples.GiftTasteHelper",
   "EntryDll": "GiftTasteHelper.dll"

@@ -49,7 +49,6 @@
     <Compile Include="Framework\Controllers\IGiftMonitor.cs" />
     <Compile Include="Framework\Models\GiftDatabaseModel.cs" />
     <Compile Include="Framework\GiftHelperTypes.cs" />
-    <Compile Include="Framework\SemanticVersion.cs" />
     <Compile Include="GiftTasteHelper.cs" />
     <Compile Include="Framework\Views\CalendarGiftHelper.cs" />
     <Compile Include="Framework\Views\GiftHelper.cs" />
