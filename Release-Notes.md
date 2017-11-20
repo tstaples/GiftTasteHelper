@@ -9,6 +9,7 @@
 * Fixed an exception when giving a gift to an NPC you haven't spoken to before.
 * Fixed an issue where the gift database would fail to load when using the Categorize Chests mod.
 * Fixed an issue where the calendar would show the incorrect birthdays if the season was changed with the console command.
+* Updated minimum SMAPI version to 1.15.2.
 
 ### 2.6.3
 * Fixed an exception when giving an NPC an invalid item.
