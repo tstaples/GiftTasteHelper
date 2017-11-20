@@ -1,10 +1,17 @@
 # Release Notes
 
-## 2.6.2
+## Upcoming
+* Option to only show gifts if you're above a certain heart level with that NPC.
+* Option to show more than just loved gifts in the tooltip.
+
+### 2.6.3
+* Fixed an exception when giving an NPC an invalid item.
+
+### 2.6.2
 * Fixed an issue where an exception would be thrown if you had an NPC with no gift taste data in your save.
 * Fixed an issue where the calendar wouldn't update live when the season changed.
 
-## 2.6.1
+### 2.6.1
 * Added missing translation files.
 
 ## 2.6
