@@ -6,6 +6,7 @@
 
 ### 2.6.4
 * Fixed an exception when hovering over unknown NPC's in the social page.
+* Fixed an exception when giving a gift to an NPC you haven't spoken to before.
 
 ### 2.6.3
 * Fixed an exception when giving an NPC an invalid item.
