@@ -19,7 +19,7 @@ namespace GiftTasteHelper.Framework
 
         // The currently hovered day.
         private int HoveredDay = Calendar.InvalidDay;
-
+        private string SeasonLastOpenedOn = null;
 
         /*********
         ** Public methods
@@ -31,6 +31,8 @@ namespace GiftTasteHelper.Framework
         {
             Debug.Assert(!this.Calendar.IsInitialized, "Calendar is already initialized");
 
+            this.SeasonLastOpenedOn = Game1.currentSeason;
+
             LoadBirthdays();
 
             base.Init(menu);
@@ -39,6 +41,8 @@ namespace GiftTasteHelper.Framework
         public override void Reset()
         {
             LoadBirthdays();
+
+            this.SeasonLastOpenedOn = Game1.currentSeason;
         }
 
         public override bool OnOpen(IClickableMenu menu)
@@ -58,6 +62,13 @@ namespace GiftTasteHelper.Framework
             this.Calendar.Init((Billboard)menu, this.Reflection);
             this.Calendar.IsOpen = true;
             this.HoveredDay = Calendar.InvalidDay;
+
+            // This is mainly to handle the season changing with the debug command.
+            if (this.SeasonLastOpenedOn != Game1.currentSeason)
+            {
+                Utils.DebugLog("Rebuilding birthdays since season changed since last opening the calendar");
+                Reset();
+            }
 
             Utils.DebugLog("[OnOpen] Opening calendar");
 
