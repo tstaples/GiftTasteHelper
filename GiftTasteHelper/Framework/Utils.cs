@@ -39,6 +39,17 @@ namespace GiftTasteHelper.Framework
 #endif
         }
 
+        public static bool Ensure(bool condition, string message)
+        {
+#if DEBUG
+            if (!condition)
+            {
+                DebugLog($"Failed Ensure: {message}");
+            }
+#endif
+            return !!condition;
+        }
+
         public static int[] StringToIntArray(string[] array, int defaultVal = 0)
         {
             int[] output = new int[array.Length];

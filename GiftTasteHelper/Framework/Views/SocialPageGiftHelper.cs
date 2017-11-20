@@ -50,7 +50,10 @@ namespace GiftTasteHelper.Framework
         public override void OnMouseStateChange(EventArgsMouseStateChanged e)
         {
             Debug.Assert(this.IsCorrectMenuTab(Game1.activeClickableMenu));
-            Debug.Assert(this.SocialPage != null);
+            if (!Utils.Ensure(this.SocialPage != null, "Social Page is null!"))
+            {
+                return;
+            }
 
             SVector2 mousePos = new SVector2(e.NewState.X, e.NewState.Y);
             string hoveredNpc = this.SocialPage.GetCurrentlyHoveredNpc(mousePos);
@@ -62,11 +65,18 @@ namespace GiftTasteHelper.Framework
 
             if (hoveredNpc != this.LastHoveredNpc)
             {
-                Debug.Assert(GiftHelper.NpcGiftInfo.ContainsKey(hoveredNpc));
-                this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[hoveredNpc];
+                if (GiftHelper.NpcGiftInfo.ContainsKey(hoveredNpc))
+                {
+                    this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[hoveredNpc];
 
-                this.DrawCurrentFrame = true;
-                this.LastHoveredNpc = hoveredNpc;
+                    this.DrawCurrentFrame = true;
+                    this.LastHoveredNpc = hoveredNpc;
+                }
+                else
+                {
+                    this.DrawCurrentFrame = false;
+                    this.LastHoveredNpc = string.Empty;
+                }
             }
             else
             {
