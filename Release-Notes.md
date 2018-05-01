@@ -4,6 +4,10 @@
 * Option to only show gifts if you're above a certain heart level with that NPC.
 * Option to show more than just loved gifts in the tooltip.
 
+### 2.7
+* Updated to be compatible with SMAPI 2.3 and higher. **This also means the minimum SMAPI version is now 2.3**.
+* Fixed an issue where giving gifts while using a controller wouldn't update the gift progression.
+
 ### 2.6.4
 * Fixed an exception when hovering over unknown NPC's in the social page.
 * Fixed an exception when giving a gift to an NPC you haven't spoken to before.
