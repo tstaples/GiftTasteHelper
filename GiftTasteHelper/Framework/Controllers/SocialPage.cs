@@ -39,7 +39,7 @@ namespace GiftTasteHelper.Framework
         public void OnResize(SDVSocialPage nativePage)
         {
             this.NativeSocialPage = nativePage;
-            this.FriendSlots = this.Reflection.GetPrivateValue<List<ClickableTextureComponent>>(this.NativeSocialPage, "friendNames");
+            this.FriendSlots = this.Reflection.GetField<List<ClickableTextureComponent>>(this.NativeSocialPage, "friendNames").GetValue();
 
             // Mostly arbitrary since there's no nice way (that i know of) to get the slots positioned correctly...
             this.Offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
@@ -92,7 +92,7 @@ namespace GiftTasteHelper.Framework
         private int GetSlotIndex()
         {
             if (this.NativeSocialPage != null)
-                return this.Reflection.GetPrivateValue<int>(this.NativeSocialPage, "slotPosition");
+                return this.Reflection.GetField<int>(this.NativeSocialPage, "slotPosition").GetValue();
             return -1;
         }
 

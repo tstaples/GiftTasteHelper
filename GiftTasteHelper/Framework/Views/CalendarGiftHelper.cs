@@ -48,7 +48,7 @@ namespace GiftTasteHelper.Framework
         public override bool OnOpen(IClickableMenu menu)
         {
             // The daily quest board logic is also in the billboard, so check for that
-            bool isDailyQuestBoard = this.Reflection.GetPrivateValue<bool>(menu, "dailyQuestBoard");
+            bool isDailyQuestBoard = this.Reflection.GetField<bool>(menu, "dailyQuestBoard").GetValue();
             if (isDailyQuestBoard)
             {
                 Utils.DebugLog("[OnOpen] Daily quest board was opened; ignoring.");

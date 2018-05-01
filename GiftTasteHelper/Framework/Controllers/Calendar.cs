@@ -58,7 +58,7 @@ namespace GiftTasteHelper.Framework
 
         public string GetCurrentHoverText()
         {
-            return this.Reflection.GetPrivateValue<string>(this.Billboard, "hoverText");
+            return this.Reflection.GetField<string>(this.Billboard, "hoverText").GetValue();
         }
 
         public int GetHoveredDayIndex(SVector2 mouse)

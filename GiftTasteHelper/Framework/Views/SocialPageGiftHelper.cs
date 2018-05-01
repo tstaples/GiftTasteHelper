@@ -109,7 +109,7 @@ namespace GiftTasteHelper.Framework
         {
             try
             {
-                IClickableMenu tab = this.Reflection.GetPrivateValue<List<IClickableMenu>>(menu, "pages")[GameMenu.socialTab];
+                IClickableMenu tab = this.Reflection.GetField<List<IClickableMenu>>(menu, "pages").GetValue()[GameMenu.socialTab];
                 return (SDVSocialPage)tab;
             }
             catch (Exception ex)
