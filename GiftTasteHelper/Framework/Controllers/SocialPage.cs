@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -19,6 +20,7 @@ namespace GiftTasteHelper.Framework
         private IReflectionHelper Reflection;
 
         private List<ClickableTextureComponent> FriendSlots;
+        private List<object> Names; // Other player names are ints, NPC names are strings.
 
         private SVector2 Offset;
         private float SlotHeight;
@@ -39,7 +41,8 @@ namespace GiftTasteHelper.Framework
         public void OnResize(SDVSocialPage nativePage)
         {
             this.NativeSocialPage = nativePage;
-            this.FriendSlots = this.Reflection.GetField<List<ClickableTextureComponent>>(this.NativeSocialPage, "friendNames").GetValue();
+            this.FriendSlots = this.Reflection.GetField<List<ClickableTextureComponent>>(this.NativeSocialPage, "sprites").GetValue();
+            this.Names = this.Reflection.GetField<List<object>>(this.NativeSocialPage, "names").GetValue();
 
             // Mostly arbitrary since there's no nice way (that i know of) to get the slots positioned correctly...
             this.Offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
@@ -79,14 +82,14 @@ namespace GiftTasteHelper.Framework
                 var friend = this.FriendSlots[i];
                 var bounds = this.MakeSlotBounds(friend);
 
-                if (bounds.Contains(mousePoint))
+                if (bounds.Contains(mousePoint) && Utils.Ensure(i < this.Names.Count, "Name index out of range"))
                 {
-                    hoveredFriendName = friend.name;
+                    hoveredFriendName = this.Names[i] as string;
                     break;
                 }
             }
 
-            return hoveredFriendName;
+            return hoveredFriendName ?? string.Empty;
         }
 
         private int GetSlotIndex()

@@ -275,10 +275,10 @@ namespace GiftTasteHelper
 #if DEBUG
             helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>
             {
-                foreach (var friendship in Game1.player.friendships)
+                foreach (var friendship in Game1.player.friendshipData.Pairs)
                 {
-                    friendship.Value[1] = 0;
-                    friendship.Value[3] = 0;
+                    friendship.Value.GiftsThisWeek = 0;
+                    friendship.Value.GiftsToday = 0;
                     this.GiftMonitor.Reset();
                 }
             });

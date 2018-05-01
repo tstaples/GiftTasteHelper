@@ -211,7 +211,7 @@ namespace GiftTasteHelper.Framework
         {
             NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
 
-            foreach (var friendship in Game1.player.friendships)
+            foreach (var friendship in Game1.player.friendshipData.Pairs)
             {
                 string npcName = friendship.Key;
                 var favouriteGifts = dataProvider.GetGifts(npcName, GiftTaste.Love, includeUniversal);

@@ -97,9 +97,8 @@ namespace GiftTasteHelper.Framework
 
         private bool IsCorrectMenuTab(IClickableMenu menu)
         {
-            if (menu is GameMenu)
+            if (menu is GameMenu gameMenu)
             {
-                GameMenu gameMenu = (GameMenu)menu;
                 return gameMenu.currentTab == GameMenu.socialTab;
             }
             return false;
@@ -109,7 +108,8 @@ namespace GiftTasteHelper.Framework
         {
             try
             {
-                IClickableMenu tab = this.Reflection.GetField<List<IClickableMenu>>(menu, "pages").GetValue()[GameMenu.socialTab];
+                var tabs = this.Reflection.GetField<List<IClickableMenu>>(menu, "pages").GetValue();
+                IClickableMenu tab = tabs[GameMenu.socialTab];
                 return (SDVSocialPage)tab;
             }
             catch (Exception ex)

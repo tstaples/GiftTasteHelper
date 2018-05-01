@@ -1,4 +1,6 @@
-﻿using StardewValley;
+﻿using Netcode;
+using StardewValley;
+using StardewValley.Network;
 using System.Collections.Generic;
 
 namespace GiftTasteHelper.Framework
@@ -16,7 +18,7 @@ namespace GiftTasteHelper.Framework
         // 3 = has player given them a gift today
         // 4 = has proposed when friendship level too low?
         // 5 = ?
-        private Dictionary<string, int[]> Friendships => Game1.player.friendships;
+        private NetStringDictionary<Friendship, NetRef<Friendship>> Friendships => Game1.player.friendshipData;
 
         // Last known number of gifts given so we can check when the stat value changes.
         private uint PriorGiftsGiven;
@@ -63,7 +65,7 @@ namespace GiftTasteHelper.Framework
             if (this.GiftsGiven != this.PriorGiftsGiven)
             {
                 string npcGivenTo = null;
-                foreach (var friendpair in this.Friendships)
+                foreach (var friendpair in this.Friendships.Pairs)
                 {
                     if (!this.GiftsGivenToday.ContainsKey(friendpair.Key))
                     {
@@ -72,7 +74,7 @@ namespace GiftTasteHelper.Framework
                     }
 
                     // Find whose 'given today' state has changed.
-                    bool givenToday = friendpair.Value[3] > 0;
+                    bool givenToday = friendpair.Value.GiftsToday > 0;
                     if (this.GiftsGivenToday[friendpair.Key] != givenToday)
                     {
                         this.GiftsGivenToday[friendpair.Key] = true;
@@ -96,10 +98,10 @@ namespace GiftTasteHelper.Framework
         private void RebuildGiftsGiven()
         {
             this.GiftsGivenToday = new Dictionary<string, bool>();
-            foreach (var friendpair in this.Friendships)
+            foreach (var friendpair in this.Friendships.Pairs)
             {
                 // Third element is whether a gift has been given today.
-                GiftsGivenToday.Add(friendpair.Key, friendpair.Value[3] > 0);
+                GiftsGivenToday.Add(friendpair.Key, friendpair.Value.GiftsToday > 0);
             }
         }
     }
