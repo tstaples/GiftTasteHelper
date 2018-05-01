@@ -23,6 +23,7 @@ namespace GiftTasteHelper
         private IGiftMonitor GiftMonitor;
         private bool ReloadHelpers = false;
         private bool WasResized;
+        private bool CheckGiftGivenNextInput = false;
 
         /*********
         ** Public methods
@@ -37,15 +38,7 @@ namespace GiftTasteHelper
             this.Config = helper.ReadConfig<ModConfig>();
 
             this.GiftMonitor = new GiftMonitor();
-            this.GiftMonitor.GiftGiven += (npc, itemId) =>
-            {
-                var taste = Utils.GetTasteForGift(npc, itemId);
-                if (taste != GiftTaste.MAX)
-                {
-                    Utils.DebugLog($"Gift given to Npc: {npc} | item: {itemId} | taste: {taste}");
-                    this.GiftDatabase.AddGift(npc, itemId, taste);
-                }                
-            };
+            this.GiftMonitor.GiftGiven += OnGiftGiven;
 
             // Wait until after the save is loaded before loading the helpers.
             this.ReloadHelpers = true;
@@ -91,7 +84,7 @@ namespace GiftTasteHelper
             }
         }
 
-        void LoadGiftHelpers(IModHelper helper)
+        private void LoadGiftHelpers(IModHelper helper)
         {
             Utils.DebugLog("Initializing gift helpers");
 
@@ -106,13 +99,15 @@ namespace GiftTasteHelper
 
                 GiftDatabase = new StoredGiftDatabase(helper, path);
                 dataProvider = new ProgressionGiftDataProvider(GiftDatabase);
-                ControlEvents.MouseChanged += CheckGiftGiven;
+                ControlEvents.MouseChanged += CheckGiftGivenAfterMouseChanged;
+                ControlEvents.ControllerButtonPressed += CheckGiftGivenAfterControllerButtonPressed;
             }
             else
             {
                 GiftDatabase = new GiftDatabase(helper);
                 dataProvider = new AllGiftDataProvider(GiftDatabase);
-                ControlEvents.MouseChanged -= CheckGiftGiven;
+                ControlEvents.MouseChanged -= CheckGiftGivenAfterMouseChanged;
+                ControlEvents.ControllerButtonPressed -= CheckGiftGivenAfterControllerButtonPressed;
             }
 
             // Add the helpers if they're enabled in config
@@ -131,7 +126,40 @@ namespace GiftTasteHelper
             MenuEvents.MenuChanged += OnClickableMenuChanged;
         }
 
-        private void CheckGiftGiven(object sender, EventArgsMouseStateChanged e)
+        // ===================================================================
+        // Gift Monitor Handling
+        // ===================================================================
+
+        private void OnGiftGiven(string npc, int itemId)
+        {
+            var taste = Utils.GetTasteForGift(npc, itemId);
+            if (taste != GiftTaste.MAX)
+            {
+                Utils.DebugLog($"Gift given to Npc: {npc} | item: {itemId} | taste: {taste}");
+                this.GiftDatabase.AddGift(npc, itemId, taste);
+            }
+
+            this.CheckGiftGivenNextInput = false;
+        }
+
+        private void CheckGiftGivenAfterControllerButtonPressed(object sender, EventArgsControllerButtonPressed e)
+        {
+            // Giving a gift with a controller is done on button down so we can't use the same
+            // trick to do the check if the gift was given. Since a dialogue is always opened after giving a gift
+            // the user has to press something to proceed so it's during that input that we'll do the check (if the flag is set).
+            if (e.ButtonPressed == Buttons.A)
+            {
+                this.GiftMonitor.UpdateHeldGift();
+                this.CheckGiftGivenNextInput = this.GiftMonitor.IsHoldingValidGift;
+            }
+
+            if (this.CheckGiftGivenNextInput)
+            {
+                this.GiftMonitor.CheckGiftGiven();
+            }
+        }
+
+        private void CheckGiftGivenAfterMouseChanged(object sender, EventArgsMouseStateChanged e)
         {
             if (e.NewState.RightButton != e.PriorState.RightButton && e.NewState.RightButton == ButtonState.Pressed)
             {

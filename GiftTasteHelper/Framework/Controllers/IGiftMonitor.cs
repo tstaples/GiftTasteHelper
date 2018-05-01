@@ -11,6 +11,8 @@
         /// <summary>Invoked when a gift is given to an npc.</summary>
         event GiftGivenDelegate GiftGiven;
 
+        bool IsHoldingValidGift { get; }
+
         /// <summary>Initializes the GiftMonitor.</summary>
         void Load();
 

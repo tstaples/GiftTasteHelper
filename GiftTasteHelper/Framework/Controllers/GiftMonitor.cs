@@ -25,6 +25,8 @@ namespace GiftTasteHelper.Framework
         // Last known state of which npc's have been given gifts. Must be reset when the day changes.
         private Dictionary<string, bool> GiftsGivenToday;
 
+        public bool IsHoldingValidGift => this.HeldGift != null;
+
         /// <summary>Initializes the GiftMonitor.</summary>
         public void Load()
         {
