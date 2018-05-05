@@ -285,7 +285,7 @@ namespace GiftTasteHelper
 
             helper.ConsoleCommands.Add("printcoords", "asdf", (name, args) =>
             {
-                Utils.DebugLog($"Player coords: {Game1.player.position} | location: {Game1.player.currentLocation.name}");
+                Utils.DebugLog($"Player coords: {Game1.player.position} | location: {Game1.player.currentLocation.Name}");
             });
 
             helper.ConsoleCommands.Add("teleport", "", (name, args) =>

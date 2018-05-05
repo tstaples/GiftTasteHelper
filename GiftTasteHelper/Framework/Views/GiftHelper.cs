@@ -98,7 +98,7 @@ namespace GiftTasteHelper.Framework
                 return false;
             }
 
-            if (!this.GiftConfig.ShowGiftsForUnmetNPCs && !Game1.player.friendships.ContainsKey(this.CurrentGiftDrawData.NpcName))
+            if (!this.GiftConfig.ShowGiftsForUnmetNPCs && !Game1.player.friendshipData.ContainsKey(this.CurrentGiftDrawData.NpcName))
             {
                 return false;
             }

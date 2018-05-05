@@ -107,7 +107,7 @@ namespace GiftTasteHelper.Framework
             this.HoveredDay = hoveredDay;
             if (this.Birthdays.ContainsKey(hoveredDay))
             {
-                string npcName = this.Birthdays[hoveredDay].name;
+                string npcName = this.Birthdays[hoveredDay].Name;
                 this.DrawCurrentFrame = SetSelectedNPC(npcName);
             }
             else
@@ -128,11 +128,11 @@ namespace GiftTasteHelper.Framework
             this.Birthdays.Clear();
             foreach (NPC npc in Utility.getAllCharacters())
             {
-                if (npc.birthday_Season == Game1.currentSeason && 
-                    Game1.player.friendshipData.ContainsKey(npc.name) &&
-                    !this.Birthdays.ContainsKey(npc.birthday_Day)) // getAllCharacters can contain duplicates (if you break your save)
+                if (npc.Birthday_Season == Game1.currentSeason && 
+                    Game1.player.friendshipData.ContainsKey(npc.Name) &&
+                    !this.Birthdays.ContainsKey(npc.Birthday_Day)) // getAllCharacters can contain duplicates (if you break your save)
                 {
-                    this.Birthdays.Add(npc.birthday_Day, npc);
+                    this.Birthdays.Add(npc.Birthday_Day, npc);
                 }
             }
         }

@@ -1,15 +1,10 @@
 {
   "Name": "GiftTasteHelper",
   "Author": "tstaples (aka catman)",
-  "Version": {
-    "MajorVersion": 2,
-    "MinorVersion": 8,
-    "PatchVersion": 0,
-    "Build": null
-  },
+  "Version": "2.8-beta",
   "MinimumApiVersion": "2.6-beta",
   "Description": "Displays NPC gift tastes in a handy tooltip.",
   "UniqueID": "tstaples.GiftTasteHelper",
   "EntryDll": "GiftTasteHelper.dll",
-  "UpdateKeys": [ "Nexus:229" ]
+  "UpdateKeys": [ "Nexus:229", "GitHub:tstaples/GiftTasteHelper" ]
 }
