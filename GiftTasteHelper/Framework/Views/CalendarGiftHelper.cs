@@ -129,7 +129,7 @@ namespace GiftTasteHelper.Framework
             foreach (NPC npc in Utility.getAllCharacters())
             {
                 if (npc.Birthday_Season == Game1.currentSeason && 
-                    Game1.player.friendshipData.ContainsKey(npc.Name) &&
+                    this.GiftDrawDataProvider.HasDataForNpc(npc.Name) &&
                     !this.Birthdays.ContainsKey(npc.Birthday_Day)) // getAllCharacters can contain duplicates (if you break your save)
                 {
                     this.Birthdays.Add(npc.Birthday_Day, npc);
