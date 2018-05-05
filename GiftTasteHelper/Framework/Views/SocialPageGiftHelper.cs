@@ -65,10 +65,9 @@ namespace GiftTasteHelper.Framework
 
             if (hoveredNpc != this.LastHoveredNpc)
             {
-                if (GiftHelper.NpcGiftInfo.ContainsKey(hoveredNpc))
+                if (this.GiftDrawDataProvider.HasDataForNpc(hoveredNpc) &&
+                    SetSelectedNPC(hoveredNpc))
                 {
-                    this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[hoveredNpc];
-
                     this.DrawCurrentFrame = true;
                     this.LastHoveredNpc = hoveredNpc;
                 }

@@ -43,9 +43,11 @@
     <Compile Include="Framework\Controllers\Calendar.cs" />
     <Compile Include="Framework\Controllers\GiftDatabase.cs" />
     <Compile Include="Framework\Controllers\GiftDataProvider.cs" />
+    <Compile Include="Framework\Controllers\GiftDrawDataProvider.cs" />
     <Compile Include="Framework\Controllers\GiftMonitor.cs" />
     <Compile Include="Framework\Controllers\IGiftDataProvider.cs" />
     <Compile Include="Framework\Controllers\IGiftDatabase.cs" />
+    <Compile Include="Framework\Controllers\IGiftDrawDataProvider.cs" />
     <Compile Include="Framework\Controllers\IGiftMonitor.cs" />
     <Compile Include="Framework\Models\GiftDatabaseModel.cs" />
     <Compile Include="Framework\GiftHelperTypes.cs" />
