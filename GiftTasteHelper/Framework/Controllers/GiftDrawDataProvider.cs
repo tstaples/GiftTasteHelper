@@ -31,14 +31,16 @@ namespace GiftTasteHelper.Framework
         // Contains all the gift info for all npcs (or just what's known if we're in prog mode).
         private static Dictionary<string, NpcGiftInfo> NpcGiftInfo;
 
-        public GiftDrawDataProvider(IGiftDataProvider GiftDataProvider)
+        public GiftDrawDataProvider(IGiftDataProvider GiftDataProvider, bool rebuildGiftData = true)
         {
             this.GiftDataProvider = GiftDataProvider;
             this.GiftDataProvider.DataSourceChanged += () => BuildGiftData();
 
             // Only build once the first time, after that it only needs to be rebuilt
             // if the datasource changes (in progression mode).
-            if (NpcGiftInfo == null)
+            // TODO: this rebuild flag is causing it to be built twice (once for calendar, once for social).
+            // It only happens once so it's not a big deal, but if there's a nice way to avoid it that would be better.
+            if (NpcGiftInfo == null || rebuildGiftData)
             {
                 BuildGiftData();
             }

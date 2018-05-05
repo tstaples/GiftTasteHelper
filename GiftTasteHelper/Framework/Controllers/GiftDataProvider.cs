@@ -60,6 +60,12 @@ namespace GiftTasteHelper.Framework
             }
             return gifts;
         }
+
+        public override IEnumerable<int> GetUniversalGifts(string npcName, GiftTaste taste)
+        {
+            var universal = Utils.GetItemsForTaste(Utils.UniversalTasteNames[taste], taste);
+            return Database.GetGiftsForTaste(npcName, taste).Intersect(universal);
+        }
     }
     #endregion ProgressionGiftDataProvider
 
