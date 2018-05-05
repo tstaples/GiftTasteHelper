@@ -107,12 +107,8 @@ namespace GiftTasteHelper.Framework
             this.HoveredDay = hoveredDay;
             if (this.Birthdays.ContainsKey(hoveredDay))
             {
-                string npcName = this.Birthdays[hoveredDay].Name;
-                if (GiftHelper.NpcGiftInfo.ContainsKey(npcName))
-                {
-                    this.CurrentGiftInfo = GiftHelper.NpcGiftInfo[npcName];
-                    this.DrawCurrentFrame = true;
-                }                
+                string npcName = this.Birthdays[hoveredDay].name;
+                this.DrawCurrentFrame = SetSelectedNPC(npcName);
             }
             else
             {
@@ -123,7 +119,7 @@ namespace GiftTasteHelper.Framework
         public override void OnDraw()
         {
             // Draw the tooltip
-            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle(), this.Calendar.GetCurrentHoverText());
+            this.DrawGiftTooltip(this.CurrentGiftDrawData, this.TooltipTitle(), this.Calendar.GetCurrentHoverText());
         }
 
         private void LoadBirthdays()

@@ -82,6 +82,11 @@ namespace GiftTasteHelper.Framework
             return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }
 
+        public static SVector2 CreateMax(SVector2 a, SVector2 b)
+        {
+            return new SVector2(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y));
+        }
+
         // TODO: Move all the gift stuff elsewhere
         public static readonly Dictionary<string, GiftTaste> UniversalTastes = new Dictionary<string, GiftTaste>
         {
@@ -141,7 +146,7 @@ namespace GiftTasteHelper.Framework
 
             if (!Game1.objectInformation.ContainsKey(itemId))
             {
-                Utils.DebugLog($"Failed to find object info for id {itemId}");
+                // Item is likely a category
                 return GiftTaste.MAX;
             }
 

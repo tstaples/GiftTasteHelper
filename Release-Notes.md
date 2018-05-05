@@ -4,6 +4,13 @@
 * Option to only show gifts if you're above a certain heart level with that NPC.
 * Option to show more than just loved gifts in the tooltip.
 
+### 2.7.1
+* Added config option to show gifts for NPCs you haven't met.
+* Added config option to colorize universal gifts.
+* Gifts are now listed alphabetically.
+* Fixed an issue where gifts wouldn't display for a newly met npc until you restarted the game.
+* Refactored a bunch of the gift management/handling code which will make it easier to extend. Also probably introduced some new bugs :)
+
 ### 2.7
 * Updated to be compatible with SMAPI 2.3 and higher. **This also means the minimum SMAPI version is now 2.3**.
 * Fixed an issue where giving gifts while using a controller wouldn't update the gift progression.

@@ -15,15 +15,14 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Properties
         *********/
-        protected static Dictionary<string, NpcGiftInfo> NpcGiftInfo; // Indexed by name
-        protected NpcGiftInfo CurrentGiftInfo;
-        private SVector2 OrigHoverTextSize;
         private readonly GiftConfig GiftConfig;
+        private SVector2 OrigHoverTextSize;
+        protected GiftDrawData CurrentGiftDrawData { get; private set; }
         protected bool DrawCurrentFrame;
 
         protected readonly IReflectionHelper Reflection;
         protected readonly ITranslationHelper Translation;
-        private readonly IGiftDataProvider DataProvider;
+        protected readonly IGiftDrawDataProvider GiftDrawDataProvider;
 
         /*********
         ** Accessors
@@ -43,15 +42,7 @@ namespace GiftTasteHelper.Framework
             this.GiftConfig = config;
             this.Reflection = reflection;
             this.Translation = translation;
-            this.DataProvider = dataProvider;
-            NpcGiftInfo = null; // Force it to be rebuilt when re-created
-
-            this.DataProvider.DataSourceChanged += () => ReloadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay, this.GiftConfig.ShowUniversalGifts);
-        }
-
-        public static void ReloadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay, bool includeUniversal)
-        {
-            LoadGiftInfo(dataProvider, maxItemsToDisplay, includeUniversal);
+            this.GiftDrawDataProvider = new GiftDrawDataProvider(dataProvider);
         }
 
         public virtual void Init(IClickableMenu menu)
@@ -61,12 +52,6 @@ namespace GiftTasteHelper.Framework
                 Utils.DebugLog("BaseGiftHelper already initialized; skipping");
                 return;
             }
-
-            if (NpcGiftInfo == null)
-            {
-                LoadGiftInfo(this.DataProvider, this.GiftConfig.MaxGiftsToDisplay, this.GiftConfig.ShowUniversalGifts);
-            }
-
             this.IsInitialized = true;
         }
 
@@ -77,7 +62,7 @@ namespace GiftTasteHelper.Framework
 
         public virtual bool OnOpen(IClickableMenu menu)
         {
-            this.CurrentGiftInfo = null;
+            this.CurrentGiftDrawData = null;
             this.IsOpen = true;
 
             return true;
@@ -90,7 +75,7 @@ namespace GiftTasteHelper.Framework
 
         public virtual void OnClose()
         {
-            this.CurrentGiftInfo = null;
+            this.CurrentGiftDrawData = null;
             this.DrawCurrentFrame = false;
             this.IsOpen = false;
         }
@@ -108,43 +93,78 @@ namespace GiftTasteHelper.Framework
         public virtual bool CanDraw()
         {
             // Double check here since we may not be unsubscribed from post render right away when the calendar closes
-            return (this.DrawCurrentFrame && this.CurrentGiftInfo != null);
+            if (!this.DrawCurrentFrame || this.CurrentGiftDrawData == null)
+            {
+                return false;
+            }
+
+            if (!this.GiftConfig.ShowGiftsForUnmetNPCs && !Game1.player.friendships.ContainsKey(this.CurrentGiftDrawData.NpcName))
+            {
+                return false;
+            }
+            return true;
         }
 
         public virtual void OnDraw()
         {
-            this.DrawGiftTooltip(this.CurrentGiftInfo, this.TooltipTitle());
+            this.DrawGiftTooltip(this.CurrentGiftDrawData, this.TooltipTitle());
         }
 
-        public string TooltipTitle()
+        protected bool SetSelectedNPC(string npcName)
         {
-            return this.CurrentGiftInfo.FavouriteGifts.Length > 0 
-                ? this.Translation.Get("tooltip.title.favorite") 
+            // TODO: cache these so we only create them once per npc.
+            this.CurrentGiftDrawData = this.GiftDrawDataProvider.GetDrawData(npcName, GetTastesToDisplay(), this.GiftConfig.ShowUniversalGifts);
+            return this.CurrentGiftDrawData != null;
+        }
+
+        private GiftTaste[] GetTastesToDisplay()
+        {
+            // TODO: load these from what is set in config.
+            return new GiftTaste[] { GiftTaste.Love };
+        }
+
+        #region Drawing
+        protected string TooltipTitle()
+        {
+            return this.CurrentGiftDrawData.Gifts.Length > 0
+                ? this.Translation.Get("tooltip.title.favorite")
                 : this.Translation.Get("tooltip.title.none");
         }
 
-        public void DrawGiftTooltip(NpcGiftInfo giftInfo, string title, string originalTooltipText = "")
+        private static int CalculateNumberOfGiftsToDisplay(int numGifts, int maxGiftsToDisplay)
         {
-            int numItems = giftInfo.FavouriteGifts.Length;
-            if (numItems == 0 && this.GiftConfig.HideTooltipWhenNoGiftsKnown)
+            // 0 or less means no limit
+            return maxGiftsToDisplay <= 0 ? numGifts : Math.Min(numGifts, maxGiftsToDisplay);
+        }
+
+        protected void DrawGiftTooltip(GiftDrawData drawData, string title, string originalTooltipText = "")
+        {
+            int numItemsToDraw = CalculateNumberOfGiftsToDisplay(drawData.Gifts.Length, this.GiftConfig.MaxGiftsToDisplay);
+            if (numItemsToDraw == 0 && this.GiftConfig.HideTooltipWhenNoGiftsKnown)
             {
                 return;
             }
 
+            SVector2 maxNameSize = new SVector2(0, 0);
+            for (int i = 0; i < numItemsToDraw; ++i)
+            {
+                maxNameSize = Utils.CreateMax(maxNameSize, drawData.Gifts[i].Item.NameSize);
+            }
+
             float spriteScale = 2.0f * this.ZoomLevel; // 16x16 is pretty small
-            Rectangle spriteRect = numItems > 0 ? giftInfo.FavouriteGifts[0].TileSheetSourceRect : new Rectangle(); // We just need the dimensions which we assume are all the same
+            Rectangle spriteRect = numItemsToDraw > 0 ? drawData.IconSize : new Rectangle(0,0,0,0); // We just need the dimensions which we assume are all the same
             SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
 
             // The longest length of text will help us determine how wide the tooltip box should be 
             SVector2 titleSize = SVector2.MeasureString(title, Game1.smallFont);
-            SVector2 maxTextSize = (titleSize.X - scaledSpriteSize.X > giftInfo.MaxGiftNameSize.X) ? titleSize : giftInfo.MaxGiftNameSize;
+            SVector2 maxTextSize = (titleSize.X - scaledSpriteSize.X > maxNameSize.X) ? titleSize : maxNameSize;
 
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 
             int padding = 4; // Chosen by fair dice roll
             int rowHeight = (int)Math.Max(maxTextSize.Y * this.ZoomLevel, scaledSpriteSize.YInt) + padding;
             int width = this.AdjustForTileSize((maxTextSize.X * this.ZoomLevel) + scaledSpriteSize.XInt) + padding;
-            int height = this.AdjustForTileSize(rowHeight * (numItems + 1)); // Add one to make room for the title
+            int height = this.AdjustForTileSize(rowHeight * (numItemsToDraw + 1)); // Add one to make room for the title
             int x = this.AdjustForTileSize(mouse.X, 0.5f, this.ZoomLevel);
             int y = this.AdjustForTileSize(mouse.Y, 0.5f, this.ZoomLevel);
 
@@ -164,11 +184,11 @@ namespace GiftTasteHelper.Framework
             SVector2 tooltipPos = this.ClampToViewport(x - origTToffsetX, y, width, height, viewportW, viewportH, mouse);
 
             // Reduce the number items shown if it will go off screen.
-            // TODO: add a scrollbar or second column
+            // TODO: perhaps add a second column
             if (height > viewportH)
             {
-                numItems = (viewportH / rowHeight) - 1; // Remove an item to make space for the title
-                height = this.AdjustForTileSize(rowHeight * numItems);
+                numItemsToDraw = (viewportH / rowHeight) - 1; // Remove an item to make space for the title
+                height = this.AdjustForTileSize(rowHeight * numItemsToDraw);
             }
 
             // Draw the background of the tooltip
@@ -189,12 +209,15 @@ namespace GiftTasteHelper.Framework
             textOffset.Y += rowHeight;
             spriteOffset.Y += rowHeight;
 
-            for (int i = 0; i < numItems; ++i)
+            // Draw all the items
+            for (int i = 0; i < numItemsToDraw; ++i)
             {
-                ItemData item = giftInfo.FavouriteGifts[i];
+                GiftInfo gift = drawData.Gifts[i];
+                ItemData item = gift.Item;
 
                 // Draw the sprite for the item then the item text
-                this.DrawText(item.DisplayName, textOffset);
+                var textColor = gift.Universal && this.GiftConfig.ColorizeUniversalGiftNames ? Color.Blue : Game1.textColor;
+                this.DrawText(item.DisplayName, textOffset, textColor);
                 this.DrawTexture(Game1.objectSpriteSheet, spriteOffset, item.TileSheetSourceRect, spriteScale);
 
                 // Move to the next row
@@ -203,24 +226,6 @@ namespace GiftTasteHelper.Framework
             }
         }
 
-
-        /*********
-        ** Protected methods
-        *********/
-        private static void LoadGiftInfo(IGiftDataProvider dataProvider, int maxItemsToDisplay, bool includeUniversal)
-        {
-            NpcGiftInfo = new Dictionary<string, NpcGiftInfo>();
-
-            foreach (var friendship in Game1.player.friendshipData.Pairs)
-            {
-                string npcName = friendship.Key;
-                var favouriteGifts = dataProvider.GetGifts(npcName, GiftTaste.Love, includeUniversal);
-                NpcGiftInfo[npcName] = new NpcGiftInfo(npcName, favouriteGifts.ToArray(), maxItemsToDisplay);
-            }
-        }
-
-        #region Drawing
-        // TODO: move draw code into separate class so this remains purely a controller
         protected virtual void AdjustTooltipPosition(ref int x, ref int y, int width, int height, int viewportW, int viewportHeight)
         {
             // Empty
@@ -234,7 +239,12 @@ namespace GiftTasteHelper.Framework
 
         private void DrawText(string text, SVector2 pos)
         {
-            Game1.spriteBatch.DrawString(Game1.smallFont, text, pos.ToVector2(), Game1.textColor, 0.0f, Vector2.Zero, this.ZoomLevel, SpriteEffects.None, 0.0f);
+            DrawText(text, pos, Game1.textColor);
+        }
+
+        private void DrawText(string text, SVector2 pos, Color textColor)
+        {
+            Game1.spriteBatch.DrawString(Game1.smallFont, text, pos.ToVector2(), textColor, 0.0f, Vector2.Zero, this.ZoomLevel, SpriteEffects.None, 0.0f);
         }
 
         private void DrawTexture(Texture2D texture, SVector2 pos, Rectangle source, float scale = 1.0f)

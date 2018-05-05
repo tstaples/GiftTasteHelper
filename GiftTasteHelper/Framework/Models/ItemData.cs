@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using StardewValley;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GiftTasteHelper.Framework
 {
@@ -35,6 +37,7 @@ namespace GiftTasteHelper.Framework
         public ItemCategory Category;
         public int ID;
         public Rectangle TileSheetSourceRect;
+        public SVector2 NameSize;
 
         public bool Edible => Edibility > InEdible;
         public bool TastesBad => Edibility < 0;
@@ -75,7 +78,7 @@ namespace GiftTasteHelper.Framework
             string objectInfo = Game1.objectInformation[itemId];
             string[] parts = objectInfo.Split('/');
 
-            var itemData = new ItemData
+            return new ItemData
             {
                 Name = parts[ItemData.NameIndex],
                 DisplayName = parts[ItemData.DisplayNameIndex],
@@ -83,9 +86,16 @@ namespace GiftTasteHelper.Framework
                 Edibility = int.Parse(parts[ItemData.EdibilityIndex]),
                 ID = itemId,
                 Category = ItemData.GetCategory(objectInfo),
-                TileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, itemId, 16, 16)
+                TileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, itemId, 16, 16),
+                NameSize = SVector2.MeasureString(parts[ItemData.DisplayNameIndex], Game1.smallFont)
             };
-            return itemData;
+        }
+
+        public static ItemData[] MakeItemsFromIds(IEnumerable<int> itemIds)
+        {
+            return itemIds
+                .Where(id => Game1.objectInformation.ContainsKey(id))
+                .Select(id => ItemData.MakeItem(id)).ToArray();
         }
     }
 }

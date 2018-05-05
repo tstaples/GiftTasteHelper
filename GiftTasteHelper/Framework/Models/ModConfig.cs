@@ -10,6 +10,12 @@
 
         /// <summary>Should universal gifts be shown on the tooltip.</summary>
         public bool ShowUniversalGifts { get; set; } = true;
+
+        /// <summary>Should the names of universal gifts be a different color.</summary>
+        public bool ColorizeUniversalGiftNames { get; set; } = false;
+
+        /// <summary>Should gift info for NPCs that haven't been met be displayed.</summary>
+        public bool ShowGiftsForUnmetNPCs { get; set; } = false;
     }
 
     internal class ModConfig : GiftConfig

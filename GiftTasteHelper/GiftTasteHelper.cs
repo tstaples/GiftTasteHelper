@@ -63,7 +63,6 @@ namespace GiftTasteHelper
         private void OnReturnToTitleScreen()
         {
             // A different save may be chosen which can have different progress, so we need to reload the db and helpers.
-            // TODO: Maybe add a shared progress option in the future.
             UnsubscribeEvents();
             this.ReloadHelpers = true;
             this.CurrentGiftHelper = null;
@@ -126,6 +125,7 @@ namespace GiftTasteHelper
             MenuEvents.MenuChanged += OnClickableMenuChanged;
         }
 
+        #region Gift Monitor Handling
         // ===================================================================
         // Gift Monitor Handling
         // ===================================================================
@@ -170,10 +170,9 @@ namespace GiftTasteHelper
                 this.GiftMonitor.CheckGiftGiven();
             }
         }
+        #endregion Gift Monitor Handling
 
-        /*********
-        ** Private methods
-        *********/
+        #region Menu Handling
         private void OnClickableMenuClosed(object sender, EventArgsClickableMenuClosed e)
         {
             Utils.DebugLog(e.PriorMenu.GetType() + " menu closed.");
@@ -236,6 +235,7 @@ namespace GiftTasteHelper
                 }
             }
         }
+        #endregion Menu Handling
 
         private void OnMouseStateChange(object sender, EventArgsMouseStateChanged e)
         {

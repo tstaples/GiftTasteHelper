@@ -26,11 +26,15 @@ namespace GiftTasteHelper.Framework
             if (includeUniversal)
             {
                 // Individual NPC tastes may conflict with the universal ones.
-                var universal = Database.GetGiftsForTaste(Utils.UniversalTasteNames[taste], taste)
-                    .Where(itemId => Utils.GetTasteForGift(npcName, itemId) == taste);
-                return universal.Concat(gifts);
+                return GetUniversalGifts(npcName, taste).Concat(gifts);
             }
             return gifts;
+        }
+
+        public virtual IEnumerable<int> GetUniversalGifts(string npcName, GiftTaste taste)
+        {
+            return Database.GetGiftsForTaste(Utils.UniversalTasteNames[taste], taste)
+                .Where(itemId => Utils.GetTasteForGift(npcName, itemId) == taste);
         }
     }
     #endregion BaseGiftDataProvider
@@ -45,15 +49,22 @@ namespace GiftTasteHelper.Framework
 
         public override IEnumerable<int> GetGifts(string npcName, GiftTaste taste, bool includeUniversal)
         {
+            // Universal gifts are stored with the regular ones in the DB so we need to remove them if they shouldn't be included.
             var gifts = base.GetGifts(npcName, taste, includeUniversal);
             if (!includeUniversal)
             {
                 // Filter out any that are also in the universal table.
                 // Note that this probably won't work correctly for categories, but we're not bothering with those for now.
                 var universal = Utils.GetItemsForTaste(Utils.UniversalTasteNames[taste], taste);
-                return gifts.Where(itemId => !universal.Contains(itemId));
+                return gifts.Except(universal);
             }
             return gifts;
+        }
+
+        public override IEnumerable<int> GetUniversalGifts(string npcName, GiftTaste taste)
+        {
+            var universal = Utils.GetItemsForTaste(Utils.UniversalTasteNames[taste], taste);
+            return Database.GetGiftsForTaste(npcName, taste).Intersect(universal);
         }
     }
     #endregion ProgressionGiftDataProvider
