@@ -21,7 +21,6 @@ namespace GiftTasteHelper.Framework
         public string NpcName;
         public GiftInfo[] Gifts;
         public Rectangle IconSize;
-        public SVector2 MaxGiftNameSize;
     }
 
     internal class GiftDrawDataProvider : IGiftDrawDataProvider
@@ -58,10 +57,10 @@ namespace GiftTasteHelper.Framework
                 return null;
             }
 
-            IEnumerable<GiftInfo> MakeGifts(Dictionary<GiftTaste, GiftCollection> allGifts, bool universal = false)
+            IEnumerable<GiftInfo> MakeGifts(Dictionary<GiftTaste, ItemData[]> allGifts, bool universal = false)
             {
                 return tastesToDisplay
-                .SelectMany(taste => allGifts[taste].Items
+                .SelectMany(taste => allGifts[taste]
                 .Select(item => new GiftInfo() { Item = item, Taste = taste, Universal = universal }))
                 .OrderBy(gift => gift.Item.Name);
             }
@@ -76,8 +75,7 @@ namespace GiftTasteHelper.Framework
             {
                 NpcName = npcName,
                 Gifts = gifts.ToArray(),
-                IconSize = gifts.Count() > 0 ? gifts.First().Item.TileSheetSourceRect : GiftDrawData.DefaultIconSize,
-                MaxGiftNameSize = infoForNpc.GetLargestItemNameForTastes(tastesToDisplay, includeUniversal)
+                IconSize = gifts.Count() > 0 ? gifts.First().Item.TileSheetSourceRect : GiftDrawData.DefaultIconSize
             };
         }
 
@@ -96,21 +94,6 @@ namespace GiftTasteHelper.Framework
                     continue;
                 }
 
-                GiftCollection MakeGiftCollection(IEnumerable<int> itemIds)
-                {
-                    var items = itemIds
-                        .Where(id => Game1.objectInformation.ContainsKey(id))
-                        .Select(id => ItemData.MakeItem(id)).ToArray();
-
-                    float maxWidth = items.Length > 0 ? items.Max(item => SVector2.MeasureString(item.Name, Game1.smallFont).X) : 0f;
-                    float maxHeight = items.Length > 0 ? items.Max(item => SVector2.MeasureString(item.Name, Game1.smallFont).Y) : 0f;
-                    return new GiftCollection()
-                    {
-                        Items = items,
-                        MaxGiftNameSize = new SVector2(maxWidth, maxHeight)
-                    };
-                }
-
                 NpcGiftInfo npcInfo = new NpcGiftInfo();
                 foreach (GiftTaste taste in Enum.GetValues(typeof(GiftTaste)))
                 {
@@ -120,8 +103,8 @@ namespace GiftTasteHelper.Framework
                     var itemIds = this.GiftDataProvider.GetGifts(npcName, taste, false);
                     var universalItemIds = this.GiftDataProvider.GetUniversalGifts(npcName, taste);
 
-                    npcInfo.Gifts.Add(taste, MakeGiftCollection(itemIds));
-                    npcInfo.UniversalGifts.Add(taste, MakeGiftCollection(universalItemIds));
+                    npcInfo.Gifts.Add(taste, ItemData.MakeItemsFromIds(itemIds));
+                    npcInfo.UniversalGifts.Add(taste, ItemData.MakeItemsFromIds(universalItemIds));
                 }
 
                 NpcGiftInfo.Add(npcName, npcInfo);

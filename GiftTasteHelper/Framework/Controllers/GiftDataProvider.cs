@@ -56,7 +56,7 @@ namespace GiftTasteHelper.Framework
                 // Filter out any that are also in the universal table.
                 // Note that this probably won't work correctly for categories, but we're not bothering with those for now.
                 var universal = Utils.GetItemsForTaste(Utils.UniversalTasteNames[taste], taste);
-                return gifts.Where(itemId => !universal.Contains(itemId));
+                return gifts.Except(universal);
             }
             return gifts;
         }

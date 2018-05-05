@@ -145,13 +145,19 @@ namespace GiftTasteHelper.Framework
                 return;
             }
 
+            SVector2 maxNameSize = new SVector2(0, 0);
+            for (int i = 0; i < numItemsToDraw; ++i)
+            {
+                maxNameSize = Utils.CreateMax(maxNameSize, drawData.Gifts[i].Item.NameSize);
+            }
+
             float spriteScale = 2.0f * this.ZoomLevel; // 16x16 is pretty small
             Rectangle spriteRect = drawData.IconSize; // We just need the dimensions which we assume are all the same
             SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
 
             // The longest length of text will help us determine how wide the tooltip box should be 
             SVector2 titleSize = SVector2.MeasureString(title, Game1.smallFont);
-            SVector2 maxTextSize = (titleSize.X - scaledSpriteSize.X > drawData.MaxGiftNameSize.X) ? titleSize : drawData.MaxGiftNameSize;
+            SVector2 maxTextSize = (titleSize.X - scaledSpriteSize.X > maxNameSize.X) ? titleSize : maxNameSize;
 
             SVector2 mouse = new SVector2(Game1.getOldMouseX(), Game1.getOldMouseY());
 
