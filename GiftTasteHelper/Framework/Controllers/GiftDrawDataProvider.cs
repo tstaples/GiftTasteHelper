@@ -15,12 +15,14 @@ namespace GiftTasteHelper.Framework
 
     internal class GiftDrawData
     {
-        public int NumGifts => Gifts.Length;
-        public static readonly Rectangle DefaultIconSize = new Rectangle(0, 0, 16, 16);
-
-        public string NpcName;
+        public Rectangle IconSize => this.Gifts.First().Item.TileSheetSourceRect;
+        public string NpcName { get; }
         public GiftInfo[] Gifts;
-        public Rectangle IconSize;
+
+        public GiftDrawData(string npcName)
+        {
+            this.NpcName = npcName;
+        }
     }
 
     internal class GiftDrawDataProvider : IGiftDrawDataProvider
@@ -66,16 +68,12 @@ namespace GiftTasteHelper.Framework
             }
 
             NpcGiftInfo infoForNpc = NpcGiftInfo[npcName];
-
-            var gifts = includeUniversal 
-                ? MakeGifts(infoForNpc.UniversalGifts, true).Concat(MakeGifts(infoForNpc.Gifts)) 
-                : MakeGifts(infoForNpc.Gifts);
-
-            return new GiftDrawData()
+            return new GiftDrawData(npcName)
             {
-                NpcName = npcName,
-                Gifts = gifts.ToArray(),
-                IconSize = gifts.Count() > 0 ? gifts.First().Item.TileSheetSourceRect : GiftDrawData.DefaultIconSize
+                Gifts = (includeUniversal
+                ? MakeGifts(infoForNpc.UniversalGifts, true).Concat(MakeGifts(infoForNpc.Gifts))
+                : MakeGifts(infoForNpc.Gifts))
+                .ToArray()
             };
         }
 

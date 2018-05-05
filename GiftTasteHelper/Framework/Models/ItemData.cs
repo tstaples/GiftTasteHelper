@@ -77,20 +77,18 @@ namespace GiftTasteHelper.Framework
 
             string objectInfo = Game1.objectInformation[itemId];
             string[] parts = objectInfo.Split('/');
-            string name = parts[ItemData.NameIndex];
 
-            var itemData = new ItemData
+            return new ItemData
             {
-                Name = name,
+                Name = parts[ItemData.NameIndex],
                 DisplayName = parts[ItemData.DisplayNameIndex],
                 Price = int.Parse(parts[ItemData.PriceIndex]),
                 Edibility = int.Parse(parts[ItemData.EdibilityIndex]),
                 ID = itemId,
                 Category = ItemData.GetCategory(objectInfo),
                 TileSheetSourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, itemId, 16, 16),
-                NameSize = SVector2.MeasureString(name, Game1.smallFont)
+                NameSize = SVector2.MeasureString(parts[ItemData.DisplayNameIndex], Game1.smallFont)
             };
-            return itemData;
         }
 
         public static ItemData[] MakeItemsFromIds(IEnumerable<int> itemIds)

@@ -15,9 +15,9 @@ namespace GiftTasteHelper.Framework
         /*********
         ** Properties
         *********/
-        protected GiftDrawData CurrentGiftDrawData;
-        private SVector2 OrigHoverTextSize;
         private readonly GiftConfig GiftConfig;
+        private SVector2 OrigHoverTextSize;
+        protected GiftDrawData CurrentGiftDrawData { get; private set; }
         protected bool DrawCurrentFrame;
 
         protected readonly IReflectionHelper Reflection;
@@ -126,7 +126,7 @@ namespace GiftTasteHelper.Framework
         #region Drawing
         protected string TooltipTitle()
         {
-            return this.CurrentGiftDrawData.NumGifts > 0
+            return this.CurrentGiftDrawData.Gifts.Length > 0
                 ? this.Translation.Get("tooltip.title.favorite")
                 : this.Translation.Get("tooltip.title.none");
         }
@@ -152,7 +152,7 @@ namespace GiftTasteHelper.Framework
             }
 
             float spriteScale = 2.0f * this.ZoomLevel; // 16x16 is pretty small
-            Rectangle spriteRect = drawData.IconSize; // We just need the dimensions which we assume are all the same
+            Rectangle spriteRect = numItemsToDraw > 0 ? drawData.IconSize : new Rectangle(0,0,0,0); // We just need the dimensions which we assume are all the same
             SVector2 scaledSpriteSize = new SVector2(spriteRect.Width * spriteScale, spriteRect.Height * spriteScale);
 
             // The longest length of text will help us determine how wide the tooltip box should be 
