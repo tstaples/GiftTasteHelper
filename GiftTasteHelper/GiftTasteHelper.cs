@@ -32,35 +32,49 @@ namespace GiftTasteHelper
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
+            // Any logic in here is stuff that should only be done once. Anything that needs 
+            // to be reset/reload when we 'hot-reload' should go in Startup().
+
             // Set the monitor ref so we can have a cheeky global log function
             Utils.InitLog(this.Monitor);
 
-            this.Config = helper.ReadConfig<ModConfig>();
+            GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
+            ContentEvents.AfterLocaleChanged += (sender, e) => LoadGiftHelpers(this.Helper);
+            SaveEvents.AfterLoad += (sender, e) => Initialize();
+            SaveEvents.AfterReturnToTitle += (sender, e) => Shutdown();
+            TimeEvents.AfterDayStarted += AfterDayStarted;
+
+            InitDebugCommands(this.Helper);
+
+            Startup();
+        }
+
+        // Called when the mod starts up or is being hot-reloaded.
+        private void Startup()
+        {
+            this.Config = this.Helper.ReadConfig<ModConfig>();
 
             this.GiftMonitor = new GiftMonitor();
             this.GiftMonitor.GiftGiven += OnGiftGiven;
 
             // Wait until after the save is loaded before loading the helpers.
             this.ReloadHelpers = true;
-
-            GraphicsEvents.Resize += (sender, e) => this.WasResized = true;
-            ContentEvents.AfterLocaleChanged += (sender, e) => LoadGiftHelpers(helper);
-            SaveEvents.AfterLoad += SaveEvents_AfterLoad;
-            SaveEvents.AfterReturnToTitle += (sender, e) => OnReturnToTitleScreen();
-            TimeEvents.AfterDayStarted += (sender, e) =>
-            {
-                if (Game1.dayOfMonth == 1 && this.GiftHelpers.ContainsKey(typeof(Billboard)))
-                {
-                    // Reset the birthdays when season changes
-                    this.GiftHelpers[typeof(Billboard)].Reset();
-                }
-                this.GiftMonitor.Reset();
-            };
-
-            InitDebugCommands(helper);
         }
 
-        private void OnReturnToTitleScreen()
+        // Must be called after a save has been loaded.
+        private void Initialize()
+        {
+            this.GiftMonitor.Load();
+
+            if (this.ReloadHelpers)
+            {
+                Utils.DebugLog("Reloading gift helpers");
+                LoadGiftHelpers(Helper);
+                this.ReloadHelpers = false;
+            }
+        }
+
+        private void Shutdown()
         {
             // A different save may be chosen which can have different progress, so we need to reload the db and helpers.
             UnsubscribeEvents();
@@ -71,16 +85,14 @@ namespace GiftTasteHelper
             MenuEvents.MenuChanged -= OnClickableMenuChanged;
         }
 
-        private void SaveEvents_AfterLoad(object sender, EventArgs e)
+        private void AfterDayStarted(object sender, EventArgs e)
         {
-            GiftMonitor.Load();
-
-            if (this.ReloadHelpers)
+            if (Game1.dayOfMonth == 1 && this.GiftHelpers.ContainsKey(typeof(Billboard)))
             {
-                Utils.DebugLog("Reloading gift helpers");
-                LoadGiftHelpers(Helper);
-                this.ReloadHelpers = false;
+                // Reset the birthdays when season changes
+                this.GiftHelpers[typeof(Billboard)].Reset();
             }
+            this.GiftMonitor.Reset();
         }
 
         private void LoadGiftHelpers(IModHelper helper)
@@ -273,6 +285,13 @@ namespace GiftTasteHelper
         void InitDebugCommands(IModHelper helper)
         {
 #if DEBUG
+            helper.ConsoleCommands.Add("reload", "Reload config", (name, args) =>
+            {
+                Shutdown();
+                Startup();
+                Initialize();
+            });
+
             helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>
             {
                 foreach (var friendship in Game1.player.friendshipData.Pairs)
@@ -291,8 +310,14 @@ namespace GiftTasteHelper
             helper.ConsoleCommands.Add("teleport", "", (name, args) =>
             {
                 string location = args.Length > 0 ? args[0] : "Town";
-                int x = 635, y = 5506;
-                if (args.Length == 3)
+                int x = 2590, y = 3650; // in front of billboard
+                if (location.ToLower() == "home")
+                {
+                    location = "FarmHouse";
+                    x = (int)Game1.player.mostRecentBed.X;
+                    y = (int)Game1.player.mostRecentBed.Y;
+                }
+                else if (args.Length == 3)
                 {
                     try
                     {
