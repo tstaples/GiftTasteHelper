@@ -2,7 +2,8 @@
 
 ## Upcoming
 * Option to only show gifts if you're above a certain heart level with that NPC.
-* Option to show more than just loved gifts in the tooltip.
+* ~Option to show more than just loved gifts in the tooltip.~
+* Right-click option to open a window containing gift info for all the different tastes.
 
 ### 2.7.1
 * Added config option to show gifts for NPCs you haven't met.
