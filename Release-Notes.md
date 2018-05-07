@@ -5,6 +5,10 @@
 * ~Option to show more than just loved gifts in the tooltip.~
 * Right-click option to open a window containing gift info for all the different tastes.
 
+### 2.8-beta
+* Adds support for SDV 1.3-beta.
+* Gift progress data is now saved slightly differently. Previous progress will be migrated to the new location so you won't lose it. The old location will be kept as well so it will be intact if you decide to downgrade again. Note that progress made in 1.3 will not be migrated to the 1.2 location.
+
 ### 2.7.1
 * Added config option to show gifts for NPCs you haven't met.
 * Added config option to colorize universal gifts.
