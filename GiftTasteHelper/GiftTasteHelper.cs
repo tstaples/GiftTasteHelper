@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using GiftTasteHelper.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -104,11 +105,26 @@ namespace GiftTasteHelper
             IGiftDataProvider dataProvider = null;
             if (Config.ShowOnlyKnownGifts)
             {
+                // The prefix is purely for convenience. Mostly so I know which is which.
+                string prefix = new string(Game1.player.Name.Where(char.IsLetterOrDigit).ToArray());
                 string path = this.Config.ShareKnownGiftsWithAllSaves
                     ? Path.Combine(StoredGiftDatabase.DBRoot, StoredGiftDatabase.DBFileName)
-                    : Path.Combine(StoredGiftDatabase.DBRoot, Constants.SaveFolderName, StoredGiftDatabase.DBFileName);
+                    : Path.Combine(StoredGiftDatabase.DBRoot, $"{prefix}_{Game1.player.UniqueMultiplayerID}", StoredGiftDatabase.DBFileName);
 
                 GiftDatabase = new StoredGiftDatabase(helper, path);
+
+                if (this.ModManifest.Version.IsNewerThan("2.7") && !this.Config.ShareKnownGiftsWithAllSaves)
+                {
+                    string oldPath = Path.Combine(StoredGiftDatabase.DBRoot, Constants.SaveFolderName, StoredGiftDatabase.DBFileName);
+                    string fullOldPath = Path.Combine(helper.DirectoryPath, oldPath);
+                    if (File.Exists(fullOldPath))
+                    {
+                        Utils.DebugLog($"Found old DB at {oldPath}. Migrating to {path}.", LogLevel.Info);
+                        StoredGiftDatabase dbRef = (StoredGiftDatabase)GiftDatabase;
+                        StoredGiftDatabase.MigrateDatabase(helper, oldPath, ref dbRef);
+                    }
+                }
+
                 dataProvider = new ProgressionGiftDataProvider(GiftDatabase);
                 ControlEvents.MouseChanged += CheckGiftGivenAfterMouseChanged;
                 ControlEvents.ControllerButtonPressed += CheckGiftGivenAfterControllerButtonPressed;
@@ -290,6 +306,15 @@ namespace GiftTasteHelper
                 Shutdown();
                 Startup();
                 Initialize();
+            });
+
+            helper.ConsoleCommands.Add("printinfo", "Print debug info", (name, args) =>
+            {
+                Utils.DebugLog("==== Printing Debug info =====");
+                foreach (var farmhand in Game1.getAllFarmers())
+                {
+                    Utils.DebugLog($"Farmer name: {farmhand.Name} | unique Id: {farmhand.UniqueMultiplayerID}");
+                }
             });
 
             helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>

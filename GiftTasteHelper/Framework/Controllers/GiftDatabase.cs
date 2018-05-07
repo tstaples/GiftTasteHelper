@@ -128,6 +128,46 @@ namespace GiftTasteHelper.Framework
             }
         }
 
+        public static void MigrateDatabase(IModHelper helper, string fromPath, ref StoredGiftDatabase newDb)
+        {
+            GiftDatabaseModel fromDatabaseModel = helper.ReadJsonFile<GiftDatabaseModel>(fromPath);
+            if (newDb.Database.Entries.Keys.Count == 0)
+            {
+                newDb.Database = fromDatabaseModel;
+            }
+            else
+            {
+                // Merge
+                // TODO: Clean this up a bit.
+                foreach (string npcName in fromDatabaseModel.Entries.Keys)
+                {
+                    CharacterTasteModel fromTasteModel = fromDatabaseModel.Entries[npcName];
+                    if (!newDb.Database.Entries.ContainsKey(npcName))
+                    {
+                        newDb.Database.Entries.Add(npcName, fromTasteModel);
+                        continue;
+                    }
+
+                    Dictionary<GiftTaste, List<GiftModel>> newEntries = newDb.Database.Entries[npcName].Entries;
+                    Dictionary<GiftTaste, List<GiftModel>> fromEntries = fromTasteModel.Entries;
+                    foreach (GiftTaste taste in fromEntries.Keys)
+                    {
+                        if (!newEntries.ContainsKey(taste))
+                        {
+                            newEntries.Add(taste, fromEntries[taste]);
+                            continue;
+                        }
+
+                        newEntries[taste] = fromEntries[taste]
+                            .Concat(newEntries[taste])
+                            .DistinctBy(gift => gift.ItemId)
+                            .ToList();
+                    }
+                }
+            }
+            newDb.Write();
+        }
+
         public override bool AddGift(string npcName, int itemId, GiftTaste taste)
         {
             if (base.AddGift(npcName, itemId, taste))
