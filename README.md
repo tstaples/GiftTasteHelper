@@ -37,9 +37,10 @@ Also special thanks to PathosChild for help with fixes when I didn't have time a
 * [See also](#see-also)
 
 ## Install
-1. [Install the latest version of SMAPI](https://github.com/Pathoschild/SMAPI/releases).
-2. Unzip [the mod folder](https://github.com/tstaples/GiftTasteHelper/releases) into your `Mods` folder.
+1. [Install the latest version of SMAPI](https://smapi.io/).
+2. [Install this mod from Nexus mods](http://www.nexusmods.com/stardewvalley/mods/229/).
 3. Run the game using SMAPI.
+
 
 ## Configure
 The mod will work fine out of the box, but you can tweak its settings by editing the `config.json`
@@ -56,6 +57,8 @@ setting           | what it affects
 `HideTooltipWhenNoGiftsKnown` | Default `false`. Hide the tooltip if you don't know any of that NPC's loved gifts. Ignored unless ShowOnlyKnownGifts is true.
 `MaxGiftsToDisplay` | Default unlimited. The maximum number of gifts to list in the tooltip (or `0` for unlimited).
 `ShowUniversalGifts` | Default `true`. Should the universally loved gifts be shown on the tooltip.
+`ColorizeUniversalGiftNames` | Default `false`. Color universal gifts blue.
+`ShowGiftsForUnmetNPCs` | Default `false`. Show gift info for NPCs you haven't met yet.
 
 ## Future features
 * Display more than just loved gifts (if I can find a way to do it without cluttering the UI).
