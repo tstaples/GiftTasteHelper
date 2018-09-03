@@ -10,13 +10,7 @@ namespace GiftTasteHelper.Framework
         private StardewValley.Object ActiveObject => Game1.player.ActiveObject;
         private uint GiftsGiven => Game1.stats.GiftsGiven;
 
-        // 0 = Friendship level
-        // 1 = gifts given this week
-        // 2 = has player talked to them today
-        // 3 = has player given them a gift today
-        // 4 = has proposed when friendship level too low?
-        // 5 = ?
-        private Dictionary<string, int[]> Friendships => Game1.player.friendships;
+        private IDictionary<string, Netcode.NetRef<Friendship>> Friendships => Game1.player.friendshipData.FieldDict;
 
         // Last known number of gifts given so we can check when the stat value changes.
         private uint PriorGiftsGiven;
@@ -72,7 +66,7 @@ namespace GiftTasteHelper.Framework
                     }
 
                     // Find whose 'given today' state has changed.
-                    bool givenToday = friendpair.Value[3] > 0;
+                    bool givenToday = friendpair.Value.Value.GiftsToday > 0;
                     if (this.GiftsGivenToday[friendpair.Key] != givenToday)
                     {
                         this.GiftsGivenToday[friendpair.Key] = true;
@@ -98,8 +92,7 @@ namespace GiftTasteHelper.Framework
             this.GiftsGivenToday = new Dictionary<string, bool>();
             foreach (var friendpair in this.Friendships)
             {
-                // Third element is whether a gift has been given today.
-                GiftsGivenToday.Add(friendpair.Key, friendpair.Value[3] > 0);
+                GiftsGivenToday.Add(friendpair.Key, friendpair.Value.Value.GiftsToday > 0);
             }
         }
     }
