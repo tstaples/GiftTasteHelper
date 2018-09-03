@@ -294,17 +294,17 @@ namespace GiftTasteHelper
 
             helper.ConsoleCommands.Add("resetgifts", "Reset gifts", (name, args) =>
             {
-                foreach (var friendship in Game1.player.friendships)
+                foreach (Friendship friendship in Game1.player.friendshipData.Values)
                 {
-                    friendship.Value[1] = 0;
-                    friendship.Value[3] = 0;
+                    friendship.GiftsThisWeek = 0;
+                    friendship.GiftsToday = 0;
                     this.GiftMonitor.Reset();
                 }
             });
 
             helper.ConsoleCommands.Add("printcoords", "asdf", (name, args) =>
             {
-                Utils.DebugLog($"Player coords: {Game1.player.position} | location: {Game1.player.currentLocation.name}");
+                Utils.DebugLog($"Player coords: {Game1.player.position} | location: {Game1.player.currentLocation.Name}");
             });
 
             helper.ConsoleCommands.Add("teleport", "", (name, args) =>
