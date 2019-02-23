@@ -90,9 +90,9 @@ namespace GiftTasteHelper.Framework
             base.OnClose();
         }
 
-        public override void OnMouseStateChange(EventArgsMouseStateChanged e)
+        public override void OnCursorMoved(CursorMovedEventArgs e)
         {
-            Debug.Assert(this.Calendar.IsOpen, "OnMouseStateChange being called but the calendar isn't open");
+            Debug.Assert(this.Calendar.IsOpen, "OnCursorMoved being called but the calendar isn't open");
 
             // This gets the scaled mouse position
             SVector2 mouse = new SVector2(Game1.getMouseX(), Game1.getMouseY());

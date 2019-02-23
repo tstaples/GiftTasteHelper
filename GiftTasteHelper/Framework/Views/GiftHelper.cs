@@ -83,7 +83,7 @@ namespace GiftTasteHelper.Framework
             return true;
         }
 
-        public virtual void OnMouseStateChange(EventArgsMouseStateChanged e)
+        public virtual void OnCursorMoved(CursorMovedEventArgs e)
         {
             // Empty
         }
