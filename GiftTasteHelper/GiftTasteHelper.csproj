@@ -72,24 +72,7 @@
     <None Include="i18n\ru.json" />
     <None Include="i18n\th.json" />
     <None Include="i18n\zh.json" />
-    <None Include="manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="manifest.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <_TranslationFiles Include="$(ProjectDir)\i18n\*.json">
-      <InProject>false</InProject>
-    </_TranslationFiles>
-  </ItemGroup>
-  <Target Name="AfterBuild">
-    <PropertyGroup>
-      <ModPath>$(GamePath)\Mods\$(TargetName)</ModPath>
-    </PropertyGroup>
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(ModPath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(ModPath)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll.mdb" DestinationFolder="$(ModPath)" Condition="Exists('$(TargetDir)\$(TargetName).dll.mdb')" />
-    <Copy SourceFiles="$(ProjectDir)manifest.json" DestinationFolder="$(ModPath)" />
-    <Copy SourceFiles="@(_TranslationFiles)" DestinationFolder="$(ModPath)\i18n" Condition="Exists('$(ProjectDir)\i18n')" />
-  </Target>
 </Project>
