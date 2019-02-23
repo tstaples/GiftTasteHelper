@@ -1,6 +1,5 @@
-﻿using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -128,7 +127,7 @@ namespace GiftTasteHelper.Framework
             this.Birthdays.Clear();
             foreach (NPC npc in Utility.getAllCharacters())
             {
-                if (npc.Birthday_Season == Game1.currentSeason && 
+                if (npc.Birthday_Season == Game1.currentSeason &&
                     this.GiftDrawDataProvider.HasDataForNpc(npc.Name) &&
                     !this.Birthdays.ContainsKey(npc.Birthday_Day)) // getAllCharacters can contain duplicates (if you break your save)
                 {

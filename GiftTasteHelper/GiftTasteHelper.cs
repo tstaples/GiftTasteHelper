@@ -4,11 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using GiftTasteHelper.Framework;
+using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewValley.Menus;
-using Microsoft.Xna.Framework.Input;
 using StardewValley;
+using StardewValley.Menus;
 
 namespace GiftTasteHelper
 {
@@ -348,7 +348,7 @@ namespace GiftTasteHelper
                     {
                         x = int.Parse(args[1]);
                         y = int.Parse(args[2]);
-                    }                    
+                    }
                     catch (Exception)
                     {
                         Utils.DebugLog("Error parsing params", LogLevel.Error);
