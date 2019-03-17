@@ -56,6 +56,7 @@ namespace GiftTasteHelper.Framework
             }
 
             SVector2 mousePos = new SVector2(e.NewPosition.ScreenPixels.X, e.NewPosition.ScreenPixels.Y);
+            mousePos = mousePos * Game1.options.zoomLevel;
             string hoveredNpc = this.SocialPage.GetCurrentlyHoveredNpc(mousePos);
             if (hoveredNpc == string.Empty)
             {
