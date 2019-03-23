@@ -121,7 +121,7 @@ namespace GiftTasteHelper.Framework
                 (slot.bounds.X - this.Offset.X),
                 (slot.bounds.Y - this.Offset.Y),
                 (slot.bounds.Width - Game1.tileSize),
-                this.SlotHeight
+                this.SlotHeight - this.Offset.Y
             );
         }
     }
