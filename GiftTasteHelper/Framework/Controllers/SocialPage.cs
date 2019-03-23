@@ -23,7 +23,6 @@ namespace GiftTasteHelper.Framework
 
         private SVector2 Offset;
         private float SlotHeight;
-        private float Zoom;
         private Rectangle PageBounds;
         private int LastSlotIndex;
 
@@ -45,7 +44,6 @@ namespace GiftTasteHelper.Framework
 
             // Mostly arbitrary since there's no nice way (that i know of) to get the slots positioned correctly...
             this.Offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
-            this.Zoom = Game1.options.zoomLevel;
             this.SlotHeight = this.GetSlotHeight();
             this.LastSlotIndex = -1; // Invalidate
         }
@@ -109,21 +107,21 @@ namespace GiftTasteHelper.Framework
 
         private Rectangle MakeBounds(int slotIndex)
         {
-            // Subtrace tilesize from the width so it's not too wide. Sucks but not easy way around it
-            float x = (this.FriendSlots[slotIndex].bounds.X - this.Offset.X) * this.Zoom;
-            float y = (this.FriendSlots[slotIndex].bounds.Y - this.Offset.Y) * this.Zoom;
-            float width = (this.FriendSlots[slotIndex].bounds.Width - Game1.tileSize) * this.Zoom;
-            float height = (this.SlotHeight * SDVSocialPage.slotsOnPage) * this.Zoom;
+            // Subtract tilesize from the width so it's not too wide. Sucks but not easy way around it
+            float x = (this.FriendSlots[slotIndex].bounds.X - this.Offset.X);
+            float y = (this.FriendSlots[slotIndex].bounds.Y - this.Offset.Y);
+            float width = (this.FriendSlots[slotIndex].bounds.Width - Game1.tileSize);
+            float height = (this.SlotHeight * SDVSocialPage.slotsOnPage);
             return Utils.MakeRect(x, y, width, height);
         }
 
         private Rectangle MakeSlotBounds(ClickableTextureComponent slot)
         {
             return Utils.MakeRect(
-                (slot.bounds.X - this.Offset.X) * this.Zoom,
-                (slot.bounds.Y - this.Offset.Y) * this.Zoom,
-                (slot.bounds.Width - Game1.tileSize) * this.Zoom,
-                this.SlotHeight * this.Zoom
+                (slot.bounds.X - this.Offset.X),
+                (slot.bounds.Y - this.Offset.Y),
+                (slot.bounds.Width - Game1.tileSize),
+                this.SlotHeight
             );
         }
     }
