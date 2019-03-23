@@ -21,10 +21,9 @@ namespace GiftTasteHelper.Framework
         private List<ClickableTextureComponent> FriendSlots;
         private List<object> Names; // Other player names are ints, NPC names are strings.
 
-        private SVector2 Offset;
+        private SVector2 SlotBoundsOffset;
         private float SlotHeight;
         private Rectangle PageBounds;
-        private int LastSlotIndex;
 
 
         /*********
@@ -42,10 +41,19 @@ namespace GiftTasteHelper.Framework
             this.FriendSlots = this.Reflection.GetField<List<ClickableTextureComponent>>(this.NativeSocialPage, "sprites").GetValue();
             this.Names = this.Reflection.GetField<List<object>>(this.NativeSocialPage, "names").GetValue();
 
-            // Mostly arbitrary since there's no nice way (that i know of) to get the slots positioned correctly...
-            this.Offset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
+            if (this.FriendSlots.Count == 0)
+            {
+                Utils.DebugLog("Failed to init SocialPage: No friend slots found.", LogLevel.Error);
+                return;
+            }
+
+            // The slot bounds begin after a small margin on the top and left side, likely to make it easier to align
+            // the slot contents. We need to offset by this margin so that when you mouse over where the slot actually begins
+            // it's correctly detected.
+            // These offset values are kind of magic based on what looked right as I couldn't find a nice way to get them.
+            this.SlotBoundsOffset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
             this.SlotHeight = this.GetSlotHeight();
-            this.LastSlotIndex = -1; // Invalidate
+            this.PageBounds = this.MakePageBounds();
         }
 
         public string GetCurrentlyHoveredNpc(SVector2 mousePos)
@@ -55,14 +63,6 @@ namespace GiftTasteHelper.Framework
             {
                 Utils.DebugLog("SlotIndex is invalid", LogLevel.Error);
                 return string.Empty;
-            }
-
-            // Remake the page bounds if the slot index has changed
-            // TODO: we can probably just do this once on resize with slot 0
-            if (slotIndex != this.LastSlotIndex)
-            {
-                this.PageBounds = this.MakeBounds(slotIndex);
-                this.LastSlotIndex = slotIndex;
             }
 
             // Early out if the mouse isn't within the page bounds
@@ -91,37 +91,29 @@ namespace GiftTasteHelper.Framework
 
         private int GetSlotIndex()
         {
-            if (this.NativeSocialPage != null)
-                return this.Reflection.GetField<int>(this.NativeSocialPage, "slotPosition").GetValue();
-            return -1;
+            return this.Reflection.GetField<int>(this.NativeSocialPage, "slotPosition").GetValue();
         }
 
         private float GetSlotHeight()
         {
-            if (this.FriendSlots.Count > 1)
-            {
-                return (this.FriendSlots[1].bounds.Y - this.FriendSlots[0].bounds.Y);
-            }
-            return -1f;
+            return (this.FriendSlots[1].bounds.Y - this.FriendSlots[0].bounds.Y);
         }
 
-        private Rectangle MakeBounds(int slotIndex)
+        // Creates the bounds around all the slots on the screen within the page border.
+        private Rectangle MakePageBounds()
         {
-            // Subtract tilesize from the width so it's not too wide. Sucks but not easy way around it
-            float x = (this.FriendSlots[slotIndex].bounds.X - this.Offset.X);
-            float y = (this.FriendSlots[slotIndex].bounds.Y - this.Offset.Y);
-            float width = (this.FriendSlots[slotIndex].bounds.Width - Game1.tileSize);
-            float height = (this.SlotHeight * SDVSocialPage.slotsOnPage);
-            return Utils.MakeRect(x, y, width, height);
+            var rect = MakeSlotBounds(this.FriendSlots[0]);
+            rect.Height = (int)this.SlotHeight * SDVSocialPage.slotsOnPage;
+            return rect;
         }
 
         private Rectangle MakeSlotBounds(ClickableTextureComponent slot)
         {
             return Utils.MakeRect(
-                (slot.bounds.X - this.Offset.X),
-                (slot.bounds.Y - this.Offset.Y),
+                (slot.bounds.X - this.SlotBoundsOffset.X),
+                (slot.bounds.Y - this.SlotBoundsOffset.Y),
                 (slot.bounds.Width - Game1.tileSize),
-                this.SlotHeight - this.Offset.Y
+                this.SlotHeight - this.SlotBoundsOffset.Y // account for border between each slot
             );
         }
     }
