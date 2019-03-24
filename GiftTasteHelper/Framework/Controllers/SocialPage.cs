@@ -24,6 +24,11 @@ namespace GiftTasteHelper.Framework
         private SVector2 SlotBoundsOffset;
         private float SlotHeight;
         private Rectangle PageBounds;
+        private int LastSlotIndex;
+
+        /// <summary>Fires when the current slot index changes due to scrolling the list.</summary>
+        public delegate void SlotIndexChangedDelegate();
+        public event SlotIndexChangedDelegate OnSlotIndexChanged;
 
 
         /*********
@@ -54,6 +59,17 @@ namespace GiftTasteHelper.Framework
             this.SlotBoundsOffset = new SVector2(Game1.tileSize / 4, Game1.tileSize / 8);
             this.SlotHeight = this.GetSlotHeight();
             this.PageBounds = this.MakePageBounds();
+            LastSlotIndex = this.GetSlotIndex();
+        }
+
+        public void OnUpdate()
+        {
+            int slotIndex = this.GetSlotIndex();
+            if (slotIndex != this.LastSlotIndex)
+            {
+                OnSlotIndexChanged.Invoke();
+                this.LastSlotIndex = slotIndex;
+            }
         }
 
         public string GetCurrentlyHoveredNpc(SVector2 mousePos)
