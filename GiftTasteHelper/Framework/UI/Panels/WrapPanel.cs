@@ -8,10 +8,10 @@ namespace GiftTasteHelper.Framework.UI.Panels
 
         public override void Measure(SVector2 availableSize)
         {
-            this.DesiredSize = SVector2.Zero;
+            this.desiredSize = SVector2.Zero;
             SVector2 currentLine = SVector2.Zero;
 
-            foreach (Element child in this.Children)
+            foreach (Container child in this.Children)
             {
                 if (child.Visibility == Visibility.Collapsed)
                 {
@@ -25,14 +25,14 @@ namespace GiftTasteHelper.Framework.UI.Panels
                 {
                     if (currentLine.X + childSize.X > availableSize.X)
                     {
-                        this.DesiredSize.X = Math.Max(currentLine.X, this.DesiredSize.X);
-                        this.DesiredSize.Y += currentLine.Y;
+                        this.desiredSize.X = Math.Max(currentLine.X, this.desiredSize.X);
+                        this.desiredSize.Y += currentLine.Y;
                         currentLine = childSize;
 
                         if (childSize.X > availableSize.X)
                         {
-                            this.DesiredSize.X = Math.Max(childSize.X, this.DesiredSize.X);
-                            this.DesiredSize.Y += childSize.Y;
+                            this.desiredSize.X = Math.Max(childSize.X, this.desiredSize.X);
+                            this.desiredSize.Y += childSize.Y;
                             currentLine = SVector2.Zero;
                         }
                     }
@@ -46,14 +46,14 @@ namespace GiftTasteHelper.Framework.UI.Panels
                 {
                     if (currentLine.Y + childSize.Y > availableSize.Y)
                     {
-                        this.DesiredSize.Y = Math.Max(currentLine.Y, this.DesiredSize.Y);
-                        this.DesiredSize.X += currentLine.X;
+                        this.desiredSize.Y = Math.Max(currentLine.Y, this.desiredSize.Y);
+                        this.desiredSize.X += currentLine.X;
                         currentLine = childSize;
 
                         if (childSize.Y > availableSize.Y)
                         {
-                            this.DesiredSize.Y = Math.Max(childSize.Y, this.DesiredSize.Y);
-                            this.DesiredSize.X += childSize.X;
+                            this.desiredSize.Y = Math.Max(childSize.Y, this.desiredSize.Y);
+                            this.desiredSize.X += childSize.X;
                             currentLine = SVector2.Zero;
                         }
                     }
@@ -67,18 +67,20 @@ namespace GiftTasteHelper.Framework.UI.Panels
 
             if (this.Orientation == Orientation.Horizontal)
             {
-                this.DesiredSize.X = Math.Max(currentLine.X, this.DesiredSize.X);
-                this.DesiredSize.Y += currentLine.Y;
+                this.desiredSize.X = Math.Max(currentLine.X, this.desiredSize.X);
+                this.desiredSize.Y += currentLine.Y;
             }
             else
             {
-                this.DesiredSize.Y = Math.Max(currentLine.Y, this.DesiredSize.Y);
-                this.DesiredSize.X += currentLine.X;
+                this.desiredSize.Y = Math.Max(currentLine.Y, this.desiredSize.Y);
+                this.desiredSize.X += currentLine.X;
             }
         }
 
         public override void Arrange(SVector2 finalSize)
         {
+            // TODO
+            base.Arrange(finalSize);
         }
     }
 }

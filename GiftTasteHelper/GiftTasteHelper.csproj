@@ -51,7 +51,10 @@
     <Compile Include="Framework\Models\GiftConfig.cs" />
     <Compile Include="Framework\Models\GiftDatabaseModel.cs" />
     <Compile Include="Framework\GiftHelperTypes.cs" />
+    <Compile Include="Framework\UI\Alignment.cs" />
+    <Compile Include="Framework\UI\Container.cs" />
     <Compile Include="Framework\UI\Element.cs" />
+    <Compile Include="Framework\UI\Margin.cs" />
     <Compile Include="Framework\UI\Panels\Canvas.cs" />
     <Compile Include="Framework\UI\Text.cs" />
     <Compile Include="Framework\UI\Panels\Orientation.cs" />

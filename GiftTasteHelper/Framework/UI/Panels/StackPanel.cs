@@ -8,13 +8,13 @@ namespace GiftTasteHelper.Framework.UI.Panels
 
         public override void Measure(SVector2 availableSize)
         {
-            this.DesiredSize = SVector2.Zero;
+            this.desiredSize = SVector2.Zero;
 
             SVector2 size = this.Orientation == Orientation.Horizontal
                 ? new SVector2(float.PositiveInfinity, availableSize.Y)
                 : new SVector2(availableSize.X, float.PositiveInfinity);
 
-            foreach (Element child in this.Children)
+            foreach (Container child in this.Children)
             {
                 if (child.Visibility == Visibility.Collapsed)
                 {
@@ -25,13 +25,13 @@ namespace GiftTasteHelper.Framework.UI.Panels
 
                 if (this.Orientation == Orientation.Vertical)
                 {
-                    this.DesiredSize.X = Math.Max(this.DesiredSize.X, child.DesiredSize.X);
-                    this.DesiredSize.Y += child.DesiredSize.Y;
+                    this.desiredSize.X = Math.Max(this.desiredSize.X, child.DesiredSize.X);
+                    this.desiredSize.Y += child.DesiredSize.Y;
                 }
                 else
                 {
-                    this.DesiredSize.Y = Math.Max(this.DesiredSize.Y, child.DesiredSize.Y);
-                    this.DesiredSize.X += child.DesiredSize.X;
+                    this.desiredSize.Y = Math.Max(this.desiredSize.Y, child.DesiredSize.Y);
+                    this.desiredSize.X += child.DesiredSize.X;
                 }
             }
 
@@ -42,7 +42,7 @@ namespace GiftTasteHelper.Framework.UI.Panels
         {
             float offset = 0.0f;
 
-            foreach (Element child in this.Children)
+            foreach (Container child in this.Children)
             {
                 if (child.Visibility == Visibility.Collapsed)
                 {
@@ -89,7 +89,7 @@ namespace GiftTasteHelper.Framework.UI.Panels
                     }
                 }
 
-                child.Arrange(childSize, childPosition + this.Position);
+                child.Arrange(childSize, childPosition);
             }
 
             base.Arrange(finalSize);

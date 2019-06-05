@@ -9,17 +9,13 @@ namespace GiftTasteHelper.Framework.UI
         private Rectangle SourceRect;
         private float Scale;
 
+        public override SVector2 DesiredSize => new SVector2(this.SourceRect.Width * this.Scale, this.SourceRect.Height * this.Scale);
+
         public Sprite(Texture2D texture, Rectangle sourceRect, float scale = 1.0f)
         {
             this.Texture = texture;
             this.SourceRect = sourceRect;
             this.Scale = scale;
-        }
-
-        public override void Measure(SVector2 availableSize)
-        {
-            this.DesiredSize = new SVector2(this.SourceRect.Width * this.Scale, this.SourceRect.Height * this.Scale);
-            base.Measure(availableSize);
         }
 
         public override void Render(SpriteBatch spriteBatch, float zoomLevel)
@@ -30,7 +26,7 @@ namespace GiftTasteHelper.Framework.UI
             {
                 spriteBatch.Draw(
                     this.Texture,
-                    this.Position.ToVector2(),
+                    this.Transform.ToVector2(),
                     this.SourceRect,
                     Color.White,
                     rotation: 0.0f,

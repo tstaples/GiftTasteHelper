@@ -5,70 +5,32 @@ using StardewValley.Menus;
 
 namespace GiftTasteHelper.Framework.UI.Panels
 {
-    //public class Container
-    //{
-    //    public Visibility Visibility { get; set; } = Visibility.Visible;
-    //    public SVector2 DesiredSize { get; protected set; }
-    //    public SVector2 FinalSize { get; protected set; }
-    //    public SVector2 Position { get; protected set; }
-    //    public Margin Margin { get; set; } = new Margin();
-    //    public HorizontalAlignment HorizontalAlignment { get; set; } = HorizontalAlignment.Left;
-    //    public VerticalAlignment VerticalAlignment { get; set; } = VerticalAlignment.Center;
-
-    //    public Element Content { get; private set; }
-
-    //    public Container(Element content)
-    //    {
-    //        this.Content = content;
-    //    }
-
-    //    public override void Measure(SVector2 availableSize)
-    //    {
-    //        float marginWidth = this.Margin.Left + this.Margin.Right;
-    //        float marginHeight = this.Margin.Top + this.Margin.Bottom;
-    //        SVector2 marginOffset = new SVector2(marginWidth, marginHeight);
-
-    //        SVector2 size = availableSize;
-    //        size -= marginOffset;
-
-    //        this.Content.Measure(size);
-
-    //        this.DesiredSize = this.Content.DesiredSize + marginOffset;
-    //    }
-
-    //    public virtual void Arrange(SVector2 finalSize)
-    //    {
-    //        this.FinalSize = finalSize;
-    //    }
-
-    //    public void Arrange(SVector2 finalSize, SVector2 position)
-    //    {
-    //        this.Position = new SVector2(position.X + (this.Margin.Left - this.Margin.Right) * 0.5f, position.Y + (this.Margin.Bottom - this.Margin.Top) * 0.5f);
-    //        this.Arrange(new SVector2(finalSize.X - this.Margin.Left - this.Margin.Right, finalSize.Y - this.Margin.Top - this.Margin.Bottom));
-    //    }
-
-    //    public virtual void Update(SVector2 position)
-    //    {
-    //    }
-
-    //    public virtual void Render(SpriteBatch spriteBatch, float zoomLevel)
-    //    {
-    //        this.Content.Render(spriteBatch, zoomLevel);
-    //    }
-    //}
-
     public class Panel : Element
     {
-        public IList<Element> Children { get; } = new List<Element>();
+        public IList<Container> Children { get; } = new List<Container>();
 
         // TODO: pack these into a single class an abstract it
         public Texture2D BackgroundTexture { get; set; } = null;
         public Rectangle BackgroundSourceRect { get; set; }
 
-        public void AddChild(Element child)
+        public bool Refresh = true;
+
+        protected SVector2 desiredSize = SVector2.Zero;
+        protected SVector2 finalSize = SVector2.Zero;
+
+        public override SVector2 DesiredSize => this.desiredSize;
+
+        public Container AddChild(IElement child)
         {
-            //this.Children.Add(new Container(child));
-            this.Children.Add(child);
+            var container = new Container(child);
+            this.Children.Add(container);
+            return container;
+        }
+
+        public override void Arrange(SVector2 finalSize)
+        {
+            this.finalSize = finalSize;
+            this.Refresh = false;
         }
 
         public override void Render(SpriteBatch spriteBatch, float zoomLevel)
@@ -81,20 +43,36 @@ namespace GiftTasteHelper.Framework.UI.Panels
                     spriteBatch,
                     this.BackgroundTexture,
                     this.BackgroundSourceRect,
-                    this.Position.XInt,
-                    this.Position.YInt,
-                    this.FinalSize.XInt,
-                    this.FinalSize.YInt,
+                    this.Transform.XInt,
+                    this.Transform.YInt,
+                    this.finalSize.XInt,
+                    this.finalSize.YInt,
                     Color.White,
                     zoomLevel);
             }
 
-            foreach (Element child in this.Children)
+            foreach (Container child in this.Children)
             {
                 if (child.Visibility == Visibility.Visible)
                 {
                     child.Render(spriteBatch, zoomLevel);
                 }
+            }
+        }
+
+        public override void Update(SVector2 position)
+        {
+            if (this.Refresh)
+            {
+                this.Measure(this.finalSize);
+                this.Arrange(this.finalSize);
+            }
+
+            this.Transform = position;
+
+            foreach (Container child in this.Children)
+            {
+                child.Update(position);
             }
         }
     }
