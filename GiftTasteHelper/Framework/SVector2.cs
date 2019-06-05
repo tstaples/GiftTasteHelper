@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GiftTasteHelper.Framework
 {
-    internal class SVector2
+    public class SVector2
     {
         /*********
         ** Accessors
