@@ -112,13 +112,19 @@ namespace GiftTasteHelper.Framework
 
         private float GetSlotHeight()
         {
-            return (this.FriendSlots[1].bounds.Y - this.FriendSlots[0].bounds.Y);
+            var currentSlot = this.GetSlotIndex();
+
+            var slotHeight = (this.FriendSlots[currentSlot+1].bounds.Y - this.FriendSlots[currentSlot].bounds.Y);
+
+            return slotHeight;
         }
 
         // Creates the bounds around all the slots on the screen within the page border.
         private Rectangle MakePageBounds()
         {
-            var rect = MakeSlotBounds(this.FriendSlots[0]);
+            var currentSlot = this.GetSlotIndex();
+
+            var rect = MakeSlotBounds(this.FriendSlots[currentSlot]);
             rect.Height = (int)this.SlotHeight * SDVSocialPage.slotsOnPage;
             return rect;
         }
